@@ -10,19 +10,29 @@
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <!-- Lucide Icons -->
+    <!-- Lucide Icons (Universal Browser Version) -->
     <script src="https://unpkg.com/lucide@latest"></script>
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;900&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #0a0c10; color: #cbd5e1; }
-        input[type="range"] { -webkit-appearance: none; appearance: none; background: transparent; cursor: pointer; }
+        body { font-family: 'Inter', sans-serif; background-color: #0a0c10; color: #cbd5e1; margin: 0; }
+        
+        /* Range Input Styling */
+        input[type="range"] { -webkit-appearance: none; appearance: none; background: transparent; cursor: pointer; width: 100%; }
         input[type="range"]::-webkit-slider-runnable-track { background: #1e293b; height: 0.25rem; border-radius: 0.5rem; }
-        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; margin-top: -6px; background-color: #06b6d4; height: 1rem; width: 1rem; border-radius: 50%; box-shadow: 0 0 10px rgba(6, 182, 212, 0.5); }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; margin-top: -6px; background-color: #06b6d4; height: 1rem; width: 1rem; border-radius: 50%; box-shadow: 0 0 10px rgba(6, 182, 212, 0.5); border: none; }
+        
         .glass { background: rgba(18, 22, 31, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
         .animate-pulse-slow { animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-        @media print { .no-print { display: none; } body { background: white; color: black; } .glass { border: 1px solid #ddd; background: white; } }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0a0c10; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #06b6d4; }
+
+        @media print { .no-print { display: none; } body { background: white; color: black; } .glass { border: 1px solid #ddd; background: white; color: black; } }
     </style>
 </head>
 <body>
@@ -31,12 +41,14 @@
     <script type="text/babel">
         const { useState, useMemo, useEffect } = React;
 
-        // Custom Icon Component to bridge Lucide to React
+        // Helper component for Lucide icons in the browser
         const Icon = ({ name, size = 20, className = "" }) => {
             useEffect(() => {
-                lucide.createIcons();
+                if (window.lucide) {
+                    window.lucide.createIcons();
+                }
             }, [name]);
-            return <i data-lucide={name} className={className} style={{ width: size, height: size }}></i>;
+            return <i data-lucide={name} className={className} style={{ width: size, height: size, display: 'inline-flex' }}></i>;
         };
 
         const App = () => {
@@ -45,7 +57,7 @@
             const [step, setStep] = useState(0);
             const [formData, setFormData] = useState({
                 techName: '', problem: '', solution: '', earlyAdopters: '',
-                uvp: '', unfairAdvantage: '', whyNow: '',
+                uvp: '', unfairAdvantage: '', whyNow: '', revenueStreams: '', costStructure: '',
                 trl: 3, mrl: 2, marketSize: 5, teamExpertise: 5,
                 ipDefensibility: 5, regulatoryTailwinds: 5, capitalIntensity: 5,
                 customerUrgency: 5, strategicMoat: 5
@@ -54,7 +66,7 @@
             const steps = [
                 { id: 'intake', title: 'Intake', icon: 'target' },
                 { id: 'market', title: 'Why Now?', icon: 'clock' },
-                { id: 'canvas', title: 'Lean Canvas', icon: 'bar-chart-3' },
+                { id: 'canvas', title: 'Lean Canvas', icon: 'layout' },
                 { id: 'readiness', title: 'TRL x MRL', icon: 'layers' },
                 { id: 'spinout', title: 'Spinout', icon: 'rocket' },
                 { id: 'report', title: 'Intelligence', icon: 'activity' }
@@ -65,20 +77,22 @@
                 const marketFit = (formData.mrl * 0.4) + (formData.marketSize * 0.3) + (formData.customerUrgency * 0.3);
                 const timingFactor = (formData.regulatoryTailwinds * 0.5) + (formData.teamExpertise * 0.5);
                 const compositeScore = ((technicalDepth * 0.35) + (marketFit * 0.45) + (timingFactor * 0.2)).toFixed(1);
+                
+                // Spinout Index calculation
                 const spinoutIndex = ((formData.teamExpertise * 0.4) + (formData.mrl * 0.3) + (10 - formData.capitalIntensity) * 0.3).toFixed(1);
 
                 let status = 'INCUBATE';
                 let theme = { text: 'text-cyan-400', bg: 'bg-cyan-500/10', border: 'border-cyan-500/30', icon: 'activity' };
-                let advice = "Requires technical validation within Star Labs. Maintain as internal R&D until TRL 6.";
+                let advice = "Requires technical validation within Star Labs. Maintain as internal R&D until TRL reaches Level 6.";
 
                 if (compositeScore >= 8.2) {
                     status = 'SPINOUT READY';
                     theme = { text: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/30', icon: 'rocket' };
-                    advice = "Exceptional market-timing. Recommend immediate independent spinout and Seed preparation.";
+                    advice = "Exceptional market-timing and technical moat. Star Labs recommends immediate independent spinout and Seed preparation.";
                 } else if (compositeScore < 5.5) {
                     status = 'TERMINATE';
                     theme = { text: 'text-rose-400', bg: 'bg-rose-500/10', border: 'border-rose-500/30', icon: 'skull' };
-                    advice = "Risk profile unsustainable. Archive to preserve Star Labs capital.";
+                    advice = "High capital intensity or low urgency. Archive to preserve Star Labs capital for higher-velocity opportunities.";
                 }
                 return { score: compositeScore, spinoutIndex, status, ...theme, advice };
             }, [formData]);
@@ -96,42 +110,43 @@
 
             if (isLocked) {
                 return (
-                    <div className="min-h-screen flex items-center justify-center bg-[#0a0c10] p-6">
-                        <div className="max-w-md w-full glass p-10 rounded-3xl text-center border-cyan-500/20 shadow-2xl shadow-cyan-500/10">
+                    <div className="min-h-screen flex items-center justify-center p-6">
+                        <div className="max-w-md w-full glass p-10 rounded-[2.5rem] text-center border-cyan-500/20 shadow-2xl shadow-cyan-500/10 animate-in fade-in zoom-in duration-700">
                             <div className="w-20 h-20 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-lg shadow-cyan-500/30">
                                 <span className="text-white font-black text-2xl italic">SL</span>
                             </div>
                             <h1 className="text-2xl font-black text-white tracking-tighter uppercase italic mb-2">Alpha-1 Terminal</h1>
-                            <p className="text-slate-500 text-xs font-bold tracking-[0.2em] mb-8">RESTRICTED STAR LABS ACCESS</p>
+                            <p className="text-slate-500 text-[10px] font-bold tracking-[0.3em] mb-8">RESTRICTED STAR LABS ACCESS</p>
                             <form onSubmit={handleLogin} className="space-y-4">
                                 <input 
                                     type="password" 
                                     placeholder="ENTER LAB ACCESS KEY" 
-                                    className="w-full bg-black/40 border border-white/10 rounded-xl px-5 py-4 text-center text-cyan-400 tracking-[0.5em] outline-none focus:border-cyan-500 transition"
+                                    className="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-4 text-center text-cyan-400 tracking-[0.5em] outline-none focus:border-cyan-500 transition-all font-mono"
                                     value={accessKey}
                                     onChange={(e) => setAccessKey(e.target.value)}
                                 />
-                                <button className="w-full py-4 bg-cyan-600 hover:bg-cyan-500 text-white font-black uppercase tracking-widest rounded-xl transition shadow-lg shadow-cyan-900/20">Authorize</button>
+                                <button className="w-full py-4 bg-cyan-600 hover:bg-cyan-500 text-white font-black uppercase tracking-widest rounded-2xl transition-all shadow-lg shadow-cyan-900/20 active:scale-95">Authorize</button>
                             </form>
+                            <p className="mt-8 text-[9px] text-slate-600 font-bold tracking-widest uppercase">Encryption: AES-256 Enabled</p>
                         </div>
                     </div>
                 );
             }
 
             return (
-                <div className="max-w-6xl mx-auto py-8 px-4">
-                    <header className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6 border-b border-white/10 pb-8">
-                        <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 bg-cyan-500 rounded-xl flex items-center justify-center shadow-lg shadow-cyan-500/20">
-                                <span className="font-black text-white text-lg italic">SL</span>
+                <div className="max-w-6xl mx-auto py-8 px-4 md:py-12">
+                    <header className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6 border-b border-white/10 pb-10">
+                        <div className="flex items-center gap-5">
+                            <div className="w-14 h-14 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-cyan-500/20">
+                                <span className="font-black text-white text-xl italic">SL</span>
                             </div>
                             <div>
-                                <h1 className="text-2xl font-black text-white tracking-tighter uppercase italic">Star Labs <span className="text-cyan-500">Alpha-1</span></h1>
-                                <p className="text-slate-500 text-[10px] font-bold tracking-[0.3em] uppercase">Decision Intelligence Suite</p>
+                                <h1 className="text-3xl font-black text-white tracking-tighter uppercase italic">Star Labs <span className="text-cyan-500">Alpha-1</span></h1>
+                                <p className="text-slate-500 text-[10px] font-bold tracking-[0.3em] uppercase mt-1">Decision Intelligence Suite</p>
                             </div>
                         </div>
                         <div className="flex gap-4 no-print">
-                            <button onClick={() => window.print()} className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+                            <button onClick={() => window.print()} className="px-5 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all">
                                 <Icon name="download" size={14} /> Intelligence PDF
                             </button>
                         </div>
@@ -140,31 +155,31 @@
                     <div className="grid lg:grid-cols-12 gap-8">
                         <nav className="lg:col-span-3 space-y-2 no-print">
                             {steps.map((s, i) => (
-                                <button key={s.id} onClick={() => setStep(i)} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all border ${step === i ? 'bg-cyan-500/10 border-cyan-500 text-cyan-400 shadow-lg shadow-cyan-500/5' : 'bg-transparent border-transparent text-slate-500 hover:bg-white/5'}`}>
+                                <button key={s.id} onClick={() => setStep(i)} className={`w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all border ${step === i ? 'bg-cyan-500/10 border-cyan-500 text-cyan-400 shadow-lg shadow-cyan-500/5' : 'bg-transparent border-transparent text-slate-500 hover:bg-white/5 hover:text-slate-300'}`}>
                                     <Icon name={s.icon} size={16} className={step === i ? "text-cyan-400" : "text-slate-600"} />
                                     {s.title}
                                 </button>
                             ))}
                         </nav>
 
-                        <main className="lg:col-span-9 glass rounded-3xl overflow-hidden shadow-2xl">
-                            <div className="p-8 md:p-12">
+                        <main className="lg:col-span-9 glass rounded-[2.5rem] overflow-hidden shadow-2xl transition-all duration-500">
+                            <div className="p-8 md:p-14">
                                 {step === 0 && (
-                                    <div className="space-y-8 animate-in fade-in duration-500">
-                                        <div className="border-l-4 border-cyan-500 pl-6"><h2 className="text-2xl font-black text-white">Project Intake</h2><p className="text-slate-500 text-sm italic">Define proprietary project boundaries.</p></div>
-                                        <div className="space-y-6">
-                                            <div className="space-y-2">
-                                                <label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Technology Identifier</label>
-                                                <input type="text" name="techName" value={formData.techName} onChange={handleInput} className="w-full bg-black/20 border border-white/5 rounded-xl px-6 py-4 text-white focus:border-cyan-500 outline-none" placeholder="Project Name..." />
+                                    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                        <div className="border-l-4 border-cyan-500 pl-6"><h2 className="text-2xl font-black text-white italic tracking-tight">Project Intake</h2><p className="text-slate-500 text-sm mt-1">Define proprietary boundaries and technical scope.</p></div>
+                                        <div className="space-y-8">
+                                            <div className="space-y-3">
+                                                <label className="text-[10px] font-black uppercase text-slate-500 tracking-[0.2em]">Technology Identifier</label>
+                                                <input type="text" name="techName" value={formData.techName} onChange={handleInput} className="w-full bg-black/20 border border-white/10 rounded-2xl px-6 py-5 text-white focus:border-cyan-500 outline-none transition-all placeholder-slate-700" placeholder="e.g. Project X-12 Quantum Layer..." />
                                             </div>
-                                            <div className="grid md:grid-cols-2 gap-6">
-                                                <div className="space-y-2">
-                                                    <label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Problem Geometry</label>
-                                                    <textarea name="problem" value={formData.problem} onChange={handleInput} className="w-full bg-black/20 border border-white/5 rounded-xl p-4 h-32 focus:border-cyan-500 outline-none" placeholder="Target friction..."></textarea>
+                                            <div className="grid md:grid-cols-2 gap-8">
+                                                <div className="space-y-3">
+                                                    <label className="text-[10px] font-black uppercase text-slate-500 tracking-[0.2em]">Problem Geometry</label>
+                                                    <textarea name="problem" value={formData.problem} onChange={handleInput} className="w-full bg-black/20 border border-white/10 rounded-2xl p-5 h-40 focus:border-cyan-500 outline-none transition-all resize-none" placeholder="Target friction identified..."></textarea>
                                                 </div>
-                                                <div className="space-y-2">
-                                                    <label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Proposed Solution</label>
-                                                    <textarea name="solution" value={formData.solution} onChange={handleInput} className="w-full bg-black/20 border border-white/5 rounded-xl p-4 h-32 focus:border-cyan-500 outline-none" placeholder="Technical approach..."></textarea>
+                                                <div className="space-y-3">
+                                                    <label className="text-[10px] font-black uppercase text-slate-500 tracking-[0.2em]">Proposed Solution</label>
+                                                    <textarea name="solution" value={formData.solution} onChange={handleInput} className="w-full bg-black/20 border border-white/10 rounded-2xl p-5 h-40 focus:border-cyan-500 outline-none transition-all resize-none" placeholder="Novel approach..."></textarea>
                                                 </div>
                                             </div>
                                         </div>
@@ -172,93 +187,155 @@
                                 )}
 
                                 {step === 1 && (
-                                    <div className="space-y-8 animate-in slide-in-from-right duration-500">
-                                        <div className="flex items-center gap-4"><Icon name="clock" className="text-cyan-500" size={32} /><h2 className="text-2xl font-black text-white">Why Now?</h2></div>
-                                        <textarea name="whyNow" value={formData.whyNow} onChange={handleInput} className="w-full bg-black/20 border border-white/5 rounded-2xl p-6 h-40 focus:border-cyan-500 outline-none" placeholder="Regulatory, technical, or social tailwinds driving immediate viability..."></textarea>
-                                        <div className="grid md:grid-cols-2 gap-8 p-6 bg-cyan-500/5 rounded-2xl">
-                                            <div><div className="flex justify-between mb-4"><span className="text-[10px] font-bold uppercase">Customer Urgency</span><span className="text-cyan-400 font-black">{formData.customerUrgency}</span></div><input type="range" name="customerUrgency" min="1" max="10" value={formData.customerUrgency} onChange={handleInput} className="w-full" /></div>
-                                            <div><div className="flex justify-between mb-4"><span className="text-[10px] font-bold uppercase">Regulatory Ease</span><span className="text-cyan-400 font-black">{formData.regulatoryTailwinds}</span></div><input type="range" name="regulatoryTailwinds" min="1" max="10" value={formData.regulatoryTailwinds} onChange={handleInput} className="w-full" /></div>
+                                    <div className="space-y-10 animate-in slide-in-from-right duration-500">
+                                        <div className="flex items-center gap-5"><Icon name="clock" className="text-cyan-500" size={32} /><h2 className="text-2xl font-black text-white italic">Market Timing Analysis</h2></div>
+                                        <div className="space-y-8">
+                                            <div className="space-y-3">
+                                                <label className="text-[10px] font-black uppercase text-slate-500 tracking-[0.2em]">The "Why Now" Thesis</label>
+                                                <textarea name="whyNow" value={formData.whyNow} onChange={handleInput} className="w-full bg-black/20 border border-white/10 rounded-[2rem] p-8 h-48 focus:border-cyan-500 outline-none transition-all" placeholder="Convergent trends driving immediate viability..."></textarea>
+                                            </div>
+                                            <div className="grid md:grid-cols-2 gap-10 p-8 bg-cyan-500/5 rounded-3xl border border-cyan-500/10">
+                                                <div className="space-y-5">
+                                                    <div className="flex justify-between items-center"><span className="text-[10px] font-black uppercase tracking-widest">Customer Urgency</span><span className="text-cyan-400 font-black text-lg">{formData.customerUrgency}</span></div>
+                                                    <input type="range" name="customerUrgency" min="1" max="10" value={formData.customerUrgency} onChange={handleInput} />
+                                                </div>
+                                                <div className="space-y-5">
+                                                    <div className="flex justify-between items-center"><span className="text-[10px] font-black uppercase tracking-widest">Regulatory Tailwinds</span><span className="text-cyan-400 font-black text-lg">{formData.regulatoryTailwinds}</span></div>
+                                                    <input type="range" name="regulatoryTailwinds" min="1" max="10" value={formData.regulatoryTailwinds} onChange={handleInput} />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {step === 2 && (
+                                    <div className="space-y-10 animate-in slide-in-from-right duration-500">
+                                        <div className="border-l-4 border-cyan-500 pl-6"><h2 className="text-2xl font-black text-white italic">Lean High-Fidelity Canvas</h2></div>
+                                        <div className="grid md:grid-cols-2 gap-8">
+                                            <div className="space-y-3">
+                                                <label className="text-[10px] font-black uppercase text-slate-500">Unique Value Prop</label>
+                                                <textarea name="uvp" value={formData.uvp} onChange={handleInput} className="w-full bg-black/20 border border-white/10 rounded-2xl p-4 h-24 focus:border-cyan-500 outline-none" />
+                                            </div>
+                                            <div className="space-y-3">
+                                                <label className="text-[10px] font-black uppercase text-slate-500">Unfair Advantage</label>
+                                                <textarea name="unfairAdvantage" value={formData.unfairAdvantage} onChange={handleInput} className="w-full bg-black/20 border border-white/10 rounded-2xl p-4 h-24 focus:border-cyan-500 outline-none" />
+                                            </div>
+                                            <div className="space-y-3">
+                                                <label className="text-[10px] font-black uppercase text-slate-500">Revenue Streams</label>
+                                                <textarea name="revenueStreams" value={formData.revenueStreams} onChange={handleInput} className="w-full bg-black/20 border border-white/10 rounded-2xl p-4 h-24 focus:border-cyan-500 outline-none" />
+                                            </div>
+                                            <div className="space-y-3">
+                                                <label className="text-[10px] font-black uppercase text-slate-500">Cost Structure</label>
+                                                <textarea name="costStructure" value={formData.costStructure} onChange={handleInput} className="w-full bg-black/20 border border-white/10 rounded-2xl p-4 h-24 focus:border-cyan-500 outline-none" />
+                                            </div>
                                         </div>
                                     </div>
                                 )}
 
                                 {step === 3 && (
-                                    <div className="space-y-10">
-                                        <h2 className="text-2xl font-black text-white uppercase italic tracking-tighter">Readiness Matrix (NASA TRL)</h2>
+                                    <div className="space-y-12 animate-in zoom-in duration-500">
+                                        <div className="flex justify-between items-center"><h2 className="text-2xl font-black text-white uppercase italic tracking-tighter">Readiness Matrix</h2><span className="px-4 py-1.5 bg-slate-800 rounded-full text-[9px] font-black text-cyan-400 uppercase tracking-widest border border-cyan-500/20">NASA TRL Protocol</span></div>
                                         <div className="grid md:grid-cols-2 gap-10">
-                                            <div className="bg-black/20 p-8 rounded-3xl border border-white/5">
-                                                <div className="flex justify-between items-center mb-6"><h3 className="text-xs font-black uppercase text-cyan-500 tracking-[0.2em]">Tech Readiness</h3><span className="text-4xl font-black">{formData.trl}</span></div>
-                                                <input type="range" name="trl" min="1" max="10" value={formData.trl} onChange={handleInput} className="w-full" />
-                                                <div className="mt-4 flex justify-between text-[8px] font-black text-slate-600 uppercase tracking-widest"><span>Basic</span><span>Validated</span><span>Flight Ready</span></div>
+                                            <div className="bg-black/30 p-10 rounded-[2.5rem] border border-white/5 space-y-8">
+                                                <div className="flex justify-between items-center"><h3 className="text-xs font-black uppercase text-cyan-500 tracking-[0.2em] flex items-center gap-2"><Icon name="cpu" size={16}/> Tech Readiness</h3><span className="text-5xl font-black text-white">{formData.trl}</span></div>
+                                                <input type="range" name="trl" min="1" max="10" value={formData.trl} onChange={handleInput} />
+                                                <div className="flex justify-between text-[8px] font-black text-slate-600 uppercase tracking-widest"><span>Basic Research</span><span>Validation</span><span>Operational</span></div>
                                             </div>
-                                            <div className="bg-black/20 p-8 rounded-3xl border border-white/5">
-                                                <div className="flex justify-between items-center mb-6"><h3 className="text-xs font-black uppercase text-blue-500 tracking-[0.2em]">Market Readiness</h3><span className="text-4xl font-black">{formData.mrl}</span></div>
-                                                <input type="range" name="mrl" min="1" max="10" value={formData.mrl} onChange={handleInput} className="w-full" />
-                                                <div className="mt-4 flex justify-between text-[8px] font-black text-slate-600 uppercase tracking-widest"><span>Unaware</span><span>Pilot Phase</span><span>Mass Scale</span></div>
+                                            <div className="bg-black/30 p-10 rounded-[2.5rem] border border-white/5 space-y-8">
+                                                <div className="flex justify-between items-center"><h3 className="text-xs font-black uppercase text-blue-500 tracking-[0.2em] flex items-center gap-2"><Icon name="globe" size={16}/> Market Readiness</h3><span className="text-5xl font-black text-white">{formData.mrl}</span></div>
+                                                <input type="range" name="mrl" min="1" max="10" value={formData.mrl} onChange={handleInput} />
+                                                <div className="flex justify-between text-[8px] font-black text-slate-600 uppercase tracking-widest"><span>No Demand</span><span>Pilot Stage</span><span>Scale Ready</span></div>
                                             </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {step === 4 && (
+                                    <div className="space-y-10 animate-in slide-in-from-right duration-500">
+                                        <div className="flex items-center gap-5"><Icon name="briefcase" className="text-cyan-500" size={32} /><h2 className="text-2xl font-black text-white italic">Spinout Potential</h2></div>
+                                        <div className="grid md:grid-cols-2 gap-10">
+                                            {[
+                                                { key: 'teamExpertise', label: 'Team Depth', color: 'cyan' },
+                                                { key: 'ipDefensibility', label: 'IP Defensibility', color: 'blue' },
+                                                { key: 'capitalIntensity', label: 'Capital Intensity', color: 'rose' },
+                                                { key: 'marketSize', label: 'TAM/SAM Growth', color: 'emerald' }
+                                            ].map((m) => (
+                                                <div key={m.key} className="space-y-5 p-6 bg-white/5 rounded-2xl border border-white/5">
+                                                    <div className="flex justify-between items-center"><span className="text-[10px] font-black uppercase tracking-widest">{m.label}</span><span className={`text-xl font-black text-${m.color}-400`}>{formData[m.key]}</span></div>
+                                                    <input type="range" name={m.key} min="1" max="10" value={formData[m.key]} onChange={handleInput} className={`accent-${m.color}-500`} />
+                                                </div>
+                                            ))}
                                         </div>
                                     </div>
                                 )}
 
                                 {step === 5 && (
-                                    <div className="space-y-8 animate-in zoom-in duration-700">
-                                        <div className={`p-10 rounded-[40px] border ${analysis.border} ${analysis.bg} relative overflow-hidden`}>
-                                            <div className="absolute top-0 right-0 p-8 opacity-10"><Icon name={analysis.icon} size={120} /></div>
-                                            <div className="relative z-10 grid md:grid-cols-2 gap-10 items-center">
-                                                <div>
-                                                    <h2 className="text-[10px] font-black uppercase text-slate-500 tracking-[0.5em] mb-4">Strategic Assessment Verdict</h2>
-                                                    <div className={`text-8xl font-black ${analysis.text} italic tracking-tighter mb-2`}>{analysis.score}</div>
-                                                    <div className="text-2xl font-black text-white uppercase tracking-tighter mb-4">{analysis.status}</div>
-                                                    <p className="text-slate-400 text-sm leading-relaxed border-t border-white/5 pt-4">{analysis.advice}</p>
+                                    <div className="space-y-10 animate-in zoom-in duration-700">
+                                        <div className={`p-10 md:p-14 rounded-[3rem] border-2 ${analysis.border} ${analysis.bg} relative overflow-hidden shadow-2xl`}>
+                                            <div className="absolute top-0 right-0 p-12 opacity-5"><Icon name={analysis.icon} size={200} /></div>
+                                            <div className="relative z-10 grid md:grid-cols-2 gap-14 items-center">
+                                                <div className="space-y-6">
+                                                    <h2 className="text-[10px] font-black uppercase text-slate-500 tracking-[0.5em]">Intelligence Verdict</h2>
+                                                    <div className={`text-[8rem] font-black ${analysis.text} italic tracking-tighter leading-none`}>{analysis.score}</div>
+                                                    <div className="text-3xl font-black text-white uppercase tracking-tighter">{analysis.status}</div>
+                                                    <p className="text-slate-400 text-sm leading-relaxed border-t border-white/10 pt-6 font-medium italic">"{analysis.advice}"</p>
                                                 </div>
-                                                <div className="space-y-4">
-                                                    <div className="bg-black/40 p-6 rounded-3xl border border-white/5">
-                                                        <div className="flex justify-between text-xs font-black uppercase mb-3"><span>Spinout Readiness</span><span className="text-white">{analysis.spinoutIndex}/10</span></div>
-                                                        <div className="w-full h-1 bg-slate-800 rounded-full overflow-hidden"><div className="h-full bg-cyan-500 transition-all duration-1000" style={{ width: `${analysis.spinoutIndex * 10}%` }}></div></div>
+                                                <div className="space-y-6">
+                                                    <div className="bg-black/60 p-8 rounded-[2rem] border border-white/10 backdrop-blur-xl">
+                                                        <div className="flex justify-between text-[10px] font-black uppercase mb-4 tracking-widest"><span>Spinout Readiness</span><span className="text-white text-base">{analysis.spinoutIndex}/10</span></div>
+                                                        <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden shadow-inner"><div className="h-full bg-cyan-500 transition-all duration-[2000ms] ease-out" style={{ width: `${analysis.spinoutIndex * 10}%` }}></div></div>
+                                                        <p className="mt-3 text-[9px] text-slate-500 font-bold">Metrics based on Star Labs Launch-Vector modeling.</p>
                                                     </div>
-                                                    <div className="bg-black/40 p-6 rounded-3xl border border-white/5">
-                                                        <div className="flex justify-between text-xs font-black uppercase mb-3"><span>Moat Defensibility</span><span className="text-white">{formData.ipDefensibility}/10</span></div>
-                                                        <div className="w-full h-1 bg-slate-800 rounded-full overflow-hidden"><div className="h-full bg-blue-500 transition-all duration-1000" style={{ width: `${formData.ipDefensibility * 10}%` }}></div></div>
+                                                    <div className="bg-black/60 p-8 rounded-[2rem] border border-white/10 backdrop-blur-xl">
+                                                        <div className="flex justify-between text-[10px] font-black uppercase mb-4 tracking-widest"><span>Moat Defensibility</span><span className="text-white text-base">{formData.ipDefensibility}/10</span></div>
+                                                        <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden shadow-inner"><div className="h-full bg-blue-500 transition-all duration-[2000ms] ease-out" style={{ width: `${formData.ipDefensibility * 10}%` }}></div></div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                )}
-
-                                {/* Fallback for incomplete steps */}
-                                {[2, 4].includes(step) && (
-                                    <div className="flex flex-col items-center justify-center h-64 text-slate-600 gap-4">
-                                        <div className="animate-pulse-slow"><Icon name="cpu" size={48} /></div>
-                                        <p className="text-xs font-black tracking-widest uppercase">Proprietary Module Analysis in Progress...</p>
+                                        
+                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                                            {[
+                                                { label: 'Risk Profile', val: (10 - formData.regulatoryTailwinds) > 7 ? 'High' : 'Controlled' },
+                                                { label: 'Market Velocity', val: formData.mrl > 6 ? 'Accelerating' : 'Stable' },
+                                                { label: 'Tech Alpha', val: formData.trl > 7 ? 'High-Sig' : 'Emerging' },
+                                                { label: 'Audit Result', val: 'Verified' }
+                                            ].map((item, i) => (
+                                                <div key={i} className="bg-white/5 border border-white/5 p-5 rounded-2xl text-center">
+                                                    <p className="text-[8px] font-black uppercase text-slate-600 tracking-widest mb-1">{item.label}</p>
+                                                    <p className="text-xs font-black text-slate-300">{item.val}</p>
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
                                 )}
                             </div>
 
-                            <div className="bg-white/5 px-8 py-6 flex justify-between items-center border-t border-white/5 no-print">
-                                <button onClick={() => setStep(Math.max(0, step - 1))} disabled={step === 0} className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 hover:text-white disabled:opacity-10 transition">Back</button>
-                                <div className="text-[8px] font-black text-slate-700 tracking-widest uppercase">Stage 0{step + 1} // Star Labs Alpha</div>
-                                <button onClick={() => setStep(Math.min(steps.length - 1, step + 1))} disabled={step === steps.length - 1} className="px-6 py-2 bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 text-[10px] font-black uppercase tracking-[0.2em] rounded-lg hover:bg-cyan-500 hover:text-white transition">Advance</button>
+                            <div className="bg-white/5 px-8 py-8 flex justify-between items-center border-t border-white/5 no-print">
+                                <button onClick={() => setStep(Math.max(0, step - 1))} disabled={step === 0} className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-600 hover:text-cyan-400 disabled:opacity-5 transition-all">Previous Stage</button>
+                                <div className="text-[8px] font-black text-slate-800 tracking-[0.5em] uppercase hidden md:block">Star Labs Alpha-1 // 2026 Revision</div>
+                                <button onClick={() => setStep(Math.min(steps.length - 1, step + 1))} disabled={step === steps.length - 1} className="px-8 py-3 bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 text-[10px] font-black uppercase tracking-[0.3em] rounded-xl hover:bg-cyan-500 hover:text-white transition-all shadow-lg shadow-cyan-500/10 active:scale-95">Advance Gate</button>
                             </div>
                         </main>
                     </div>
 
-                    <footer className="mt-16 border-t border-white/5 pt-10 grid md:grid-cols-3 gap-12 text-slate-600">
+                    <footer className="mt-16 border-t border-white/5 pt-12 grid md:grid-cols-3 gap-12 text-slate-600">
                         <div className="space-y-4">
-                            <h4 className="text-[10px] font-black uppercase tracking-widest text-white">Spinout Protocol</h4>
-                            <p className="text-[11px] leading-relaxed italic">Star Labs optimizes for founder-market fit. We prioritize capital-lean, high-velocity intellectual property assets for external funding events.</p>
+                            <h4 className="text-[10px] font-black uppercase tracking-widest text-white border-b border-cyan-500/30 pb-2 w-fit">Spinout Protocol</h4>
+                            <p className="text-[11px] leading-relaxed font-medium">Star Labs prioritizes the 'Founder-Market Fit'. We leverage high-velocity intellectual property to create independent, VC-ready corporate entities.</p>
                         </div>
-                        <div className="flex flex-col items-center gap-2">
-                             <div className="flex gap-2">
-                                <div className="w-1 h-1 bg-cyan-500 rounded-full animate-ping"></div>
-                                <div className="w-1 h-1 bg-slate-800 rounded-full"></div>
-                                <div className="w-1 h-1 bg-slate-800 rounded-full"></div>
+                        <div className="flex flex-col items-center justify-center gap-3">
+                             <div className="flex gap-2.5">
+                                <div className="w-1.5 h-1.5 bg-cyan-500 rounded-full animate-ping"></div>
+                                <div className="w-1.5 h-1.5 bg-slate-800 rounded-full"></div>
+                                <div className="w-1.5 h-1.5 bg-slate-800 rounded-full"></div>
                             </div>
-                            <span className="text-[8px] font-black uppercase tracking-[0.4em] mt-2">v4.2.0 Encrypted System</span>
+                            <span className="text-[8px] font-black uppercase tracking-[0.5em] mt-2 text-slate-700">Encrypted Terminal v4.2.0</span>
                         </div>
-                        <div className="text-right">
-                             <h4 className="text-[10px] font-black uppercase tracking-widest text-white mb-2">Review Status</h4>
-                             <p className="text-[10px] font-bold text-cyan-500 uppercase tracking-widest">Investor Presentation Active</p>
+                        <div className="text-right space-y-4">
+                             <h4 className="text-[10px] font-black uppercase tracking-widest text-white border-b border-cyan-500/30 pb-2 w-fit ml-auto">Security Status</h4>
+                             <p className="text-[10px] font-black text-cyan-500 uppercase tracking-widest animate-pulse-slow">Investor Presentation Mode Active</p>
+                             <p className="text-[9px] font-bold text-slate-700 uppercase">Handled by Alpha-1 Logic Core</p>
                         </div>
                     </footer>
                 </div>
