@@ -1,0 +1,373 @@
+import React, { useState, useMemo } from 'react';
+import { 
+  ChevronRight, 
+  ChevronLeft, 
+  Target, 
+  ShieldCheck, 
+  Zap, 
+  TrendingUp, 
+  CheckCircle2, 
+  Skull, 
+  Download, 
+  Info,
+  BarChart3,
+  Cpu,
+  Layers,
+  Rocket,
+  Globe,
+  Clock,
+  Briefcase,
+  FileText,
+  Activity
+} from 'lucide-react';
+
+const App = () => {
+  const [step, setStep] = useState(0);
+  const [activeModule, setActiveModule] = useState(null);
+  const [formData, setFormData] = useState({
+    techName: '',
+    problem: '',
+    solution: '',
+    earlyAdopters: '',
+    uvp: '',
+    unfairAdvantage: '',
+    whyNow: '',
+    // Scoring (1-10)
+    trl: 3, // Tech Readiness Level
+    mrl: 2, // Market Readiness Level
+    marketSize: 5,
+    teamExpertise: 5,
+    ipDefensibility: 5,
+    regulatoryTailwinds: 5,
+    capitalIntensity: 5, // High = Bad for spinout, Low = Good
+    customerUrgency: 5,
+    strategicMoat: 5
+  });
+
+  const steps = [
+    { id: 'intake', title: 'Intake & Context' },
+    { id: 'market', title: 'Market Timing (Why Now?)' },
+    { id: 'canvas', title: 'Lean High-Fidelity' },
+    { id: 'readiness', title: 'TRL x MRL Audit' },
+    { id: 'spinout', title: 'Spinout Potential' },
+    { id: 'intelligence', title: 'Intelligence Report' }
+  ];
+
+  const analysis = useMemo(() => {
+    // Advanced Scoring Weights
+    const technicalDepth = (formData.trl * 0.6) + (formData.ipDefensibility * 0.4);
+    const marketFit = (formData.mrl * 0.4) + (formData.marketSize * 0.3) + (formData.customerUrgency * 0.3);
+    const timingFactor = (formData.regulatoryTailwinds * 0.5) + (formData.teamExpertise * 0.5);
+    
+    const compositeScore = ((technicalDepth * 0.35) + (marketFit * 0.45) + (timingFactor * 0.2)).toFixed(1);
+    
+    // Spinout Index (How ready is this to be its own company?)
+    const spinoutIndex = ((formData.teamExpertise * 0.4) + (formData.mrl * 0.3) + (10 - formData.capitalIntensity) * 0.3).toFixed(1);
+
+    let status = 'INCUBATE';
+    let theme = { text: 'text-cyan-400', bg: 'bg-cyan-500/10', border: 'border-cyan-500/30', icon: <Activity className="w-10 h-10" /> };
+    let advice = "Solid concept but requires deep-bench technical validation within Star Labs. Maintain as an internal R&D project until TRL reaches Level 6.";
+
+    if (compositeScore >= 8.2) {
+      status = 'SPINOUT READY';
+      theme = { text: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/30', icon: <Rocket className="w-10 h-10" /> };
+      advice = "Exceptional market-timing and technical moat. Star Labs recommends immediate spinout and Seed A round preparation.";
+    } else if (compositeScore < 5.5) {
+      status = 'TERMINATE';
+      theme = { text: 'text-rose-400', bg: 'bg-rose-500/10', border: 'border-rose-500/30', icon: <Skull className="w-10 h-10" /> };
+      advice = "High capital intensity with low market urgency. Archive project to preserve Star Labs capital for higher-velocity opportunities.";
+    }
+
+    return { score: compositeScore, spinoutIndex, status, ...theme, advice };
+  }, [formData]);
+
+  const handleInput = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ 
+      ...prev, 
+      [name]: e.target.type === 'range' ? parseInt(value) : value 
+    }));
+  };
+
+  const next = () => setStep(s => Math.min(s + 1, steps.length - 1));
+  const prev = () => setStep(s => Math.max(s - 1, 0));
+
+  return (
+    <div className="min-h-screen bg-[#0a0c10] text-slate-300 font-sans p-4 md:p-8 selection:bg-cyan-500/30">
+      <div className="max-w-6xl mx-auto">
+        
+        {/* Investor Header */}
+        <header className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6 border-b border-white/10 pb-8">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-cyan-500/20">
+              <span className="font-black text-white text-xl italic">SL</span>
+            </div>
+            <div>
+              <h1 className="text-3xl font-black text-white tracking-tighter uppercase italic">Star Labs <span className="text-cyan-500">Alpha-1</span></h1>
+              <p className="text-slate-500 text-xs font-bold tracking-[0.3em] uppercase">Emerging Tech Decision Engine</p>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-8 text-[10px] font-bold uppercase tracking-widest text-slate-500">
+            <div className="flex flex-col items-end">
+              <span>Security Level</span>
+              <span className="text-cyan-400">Class-A Restricted</span>
+            </div>
+            <div className="flex flex-col items-end">
+              <span>Current Session</span>
+              <span className="text-white">Investor Review Mode</span>
+            </div>
+          </div>
+        </header>
+
+        <div className="grid lg:grid-cols-12 gap-8">
+          
+          {/* Navigation Sidebar */}
+          <nav className="lg:col-span-3 space-y-2">
+            {steps.map((s, i) => (
+              <button 
+                key={s.id}
+                onClick={() => setStep(i)}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-bold transition-all border ${step === i ? 'bg-cyan-500/10 border-cyan-500 text-cyan-400' : 'bg-transparent border-transparent text-slate-500 hover:text-slate-300'}`}
+              >
+                <span className={`w-6 h-6 rounded flex items-center justify-center text-[10px] ${step === i ? 'bg-cyan-500 text-white' : 'bg-slate-800'}`}>{i + 1}</span>
+                {s.title}
+              </button>
+            ))}
+          </nav>
+
+          {/* Main Workspace */}
+          <main className="lg:col-span-9 bg-[#12161f] rounded-2xl border border-white/5 shadow-2xl overflow-hidden">
+            <div className="p-8 md:p-12">
+              
+              {/* STEP 0: INTAKE */}
+              {step === 0 && (
+                <div className="space-y-8 animate-in fade-in duration-700">
+                  <div className="border-l-4 border-cyan-500 pl-6">
+                    <h2 className="text-2xl font-black text-white mb-2">Project Classification</h2>
+                    <p className="text-slate-500 text-sm italic">Define the technical horizon and primary value driver.</p>
+                  </div>
+                  <div className="grid gap-6">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase text-slate-400">Proprietary Technology Name</label>
+                      <input 
+                        type="text" name="techName" value={formData.techName} onChange={handleInput}
+                        className="w-full bg-[#0a0c10] border border-white/10 rounded-xl px-5 py-4 text-white focus:border-cyan-500 outline-none transition"
+                        placeholder="Project X-12 Alpha..."
+                      />
+                    </div>
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase text-slate-400">The Problem Space</label>
+                        <textarea name="problem" value={formData.problem} onChange={handleInput} className="w-full bg-[#0a0c10] border border-white/10 rounded-xl p-4 h-32 focus:border-cyan-500 outline-none" placeholder="Friction identified in 2026 market..."></textarea>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase text-slate-400">Technical Solution</label>
+                        <textarea name="solution" value={formData.solution} onChange={handleInput} className="w-full bg-[#0a0c10] border border-white/10 rounded-xl p-4 h-32 focus:border-cyan-500 outline-none" placeholder="Novel application of [Tech]..."></textarea>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* STEP 1: WHY NOW */}
+              {step === 1 && (
+                <div className="space-y-8 animate-in slide-in-from-right duration-700">
+                  <div className="flex items-center gap-4 mb-8">
+                    <Clock className="text-cyan-500 w-8 h-8" />
+                    <div>
+                      <h2 className="text-2xl font-black text-white">Market Timing Analysis</h2>
+                      <p className="text-slate-500 text-sm italic">Why is this idea successful today, but impossible 2 years ago?</p>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-6">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase text-slate-400">Tailwinds (Tech, Regulatory, Economic)</label>
+                      <textarea name="whyNow" value={formData.whyNow} onChange={handleInput} className="w-full bg-[#0a0c10] border border-white/10 rounded-xl p-6 h-40 focus:border-cyan-500 outline-none" placeholder="Convergent trends..."></textarea>
+                    </div>
+                    
+                    <div className="grid md:grid-cols-2 gap-8 p-6 bg-cyan-500/5 rounded-2xl border border-cyan-500/20">
+                      <div>
+                        <div className="flex justify-between mb-4">
+                          <label className="text-xs font-bold uppercase">Customer Urgency</label>
+                          <span className="text-cyan-400 font-black">{formData.customerUrgency}</span>
+                        </div>
+                        <input type="range" min="1" max="10" name="customerUrgency" value={formData.customerUrgency} onChange={handleInput} className="w-full h-1 bg-slate-800 appearance-none accent-cyan-500" />
+                      </div>
+                      <div>
+                        <div className="flex justify-between mb-4">
+                          <label className="text-xs font-bold uppercase">Regulatory Ease</label>
+                          <span className="text-cyan-400 font-black">{formData.regulatoryTailwinds}</span>
+                        </div>
+                        <input type="range" min="1" max="10" name="regulatoryTailwinds" value={formData.regulatoryTailwinds} onChange={handleInput} className="w-full h-1 bg-slate-800 appearance-none accent-cyan-500" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* STEP 3: TRL x MRL */}
+              {step === 3 && (
+                <div className="space-y-10 animate-in slide-in-from-right duration-700">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-2xl font-black text-white uppercase italic tracking-tighter">Readiness Matrix</h2>
+                    <div className="px-4 py-1 bg-slate-800 rounded-full text-[10px] font-bold text-slate-400">NASA Framework Compliance</div>
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-12">
+                    <div className="space-y-8">
+                      <div className="bg-[#0a0c10] p-6 rounded-2xl border border-white/5">
+                        <div className="flex justify-between items-center mb-6">
+                          <h3 className="font-bold text-sm text-cyan-500 uppercase tracking-widest flex items-center gap-2">
+                            <Layers size={16} /> Tech Readiness (TRL)
+                          </h3>
+                          <span className="text-3xl font-black">{formData.trl}</span>
+                        </div>
+                        <input type="range" min="1" max="10" name="trl" value={formData.trl} onChange={handleInput} className="w-full h-2 bg-slate-800 rounded-full accent-cyan-500" />
+                        <div className="mt-4 flex justify-between text-[10px] text-slate-500 font-bold uppercase">
+                          <span>Theory</span>
+                          <span>Prototype</span>
+                          <span>Deployed</span>
+                        </div>
+                      </div>
+                      <p className="text-xs text-slate-500 leading-relaxed italic">TRL 1-3 indicates basic research. Star Labs aims for TRL 4+ for active investment, TRL 7+ for spinout.</p>
+                    </div>
+
+                    <div className="space-y-8">
+                      <div className="bg-[#0a0c10] p-6 rounded-2xl border border-white/5">
+                        <div className="flex justify-between items-center mb-6">
+                          <h3 className="font-bold text-sm text-blue-500 uppercase tracking-widest flex items-center gap-2">
+                            <Globe size={16} /> Market Readiness (MRL)
+                          </h3>
+                          <span className="text-3xl font-black">{formData.mrl}</span>
+                        </div>
+                        <input type="range" min="1" max="10" name="mrl" value={formData.mrl} onChange={handleInput} className="w-full h-2 bg-slate-800 rounded-full accent-blue-500" />
+                        <div className="mt-4 flex justify-between text-[10px] text-slate-500 font-bold uppercase">
+                          <span>Unaware</span>
+                          <span>Early Adopters</span>
+                          <span>Mass Market</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* STEP 5: INTELLIGENCE REPORT */}
+              {step === 5 && (
+                <div className="space-y-8 animate-in zoom-in duration-700">
+                  
+                  {/* Score Visualization */}
+                  <div className={`p-10 rounded-3xl border ${analysis.border} ${analysis.bg} relative overflow-hidden`}>
+                    <div className="absolute top-0 right-0 p-8 opacity-10">
+                      {analysis.icon}
+                    </div>
+                    <div className="relative z-10 grid md:grid-cols-2 items-center gap-10">
+                      <div>
+                        <h2 className="text-[10px] font-black uppercase text-slate-400 tracking-[0.4em] mb-4">Strategic Assessment Verdict</h2>
+                        <div className={`text-7xl font-black ${analysis.text} italic tracking-tighter mb-2`}>{analysis.score}</div>
+                        <div className="text-2xl font-black text-white uppercase mb-4">{analysis.status}</div>
+                        <p className="text-slate-400 text-sm leading-relaxed border-t border-white/10 pt-4">{analysis.advice}</p>
+                      </div>
+                      <div className="space-y-6">
+                        <div className="bg-black/20 p-6 rounded-2xl border border-white/5">
+                          <div className="flex justify-between items-center mb-2">
+                            <span className="text-xs font-bold uppercase text-slate-500">Spinout Readiness Index</span>
+                            <span className="text-xl font-black text-white">{analysis.spinoutIndex}/10</span>
+                          </div>
+                          <div className="w-full h-1 bg-slate-800 rounded-full overflow-hidden">
+                            <div className="h-full bg-cyan-500" style={{ width: `${analysis.spinoutIndex * 10}%` }}></div>
+                          </div>
+                        </div>
+                        <div className="bg-black/20 p-6 rounded-2xl border border-white/5">
+                          <div className="flex justify-between items-center mb-2">
+                            <span className="text-xs font-bold uppercase text-slate-500">Moat Strength</span>
+                            <span className="text-xl font-black text-white">{formData.ipDefensibility}/10</span>
+                          </div>
+                          <div className="w-full h-1 bg-slate-800 rounded-full overflow-hidden">
+                            <div className="h-full bg-blue-500" style={{ width: `${formData.ipDefensibility * 10}%` }}></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Summary Grid */}
+                  <div className="grid md:grid-cols-4 gap-4">
+                    {[
+                      { label: 'Tech Name', val: formData.techName || 'CLASSIFIED' },
+                      { label: 'Risk Factor', val: (10 - formData.regulatoryTailwinds) > 7 ? 'HIGH' : 'CONTROLLED' },
+                      { label: 'Capital Class', val: formData.capitalIntensity > 7 ? 'HEAVY' : 'LEAN' },
+                      { label: 'Star Labs Lead', val: 'Assigned' }
+                    ].map((item, i) => (
+                      <div key={i} className="bg-white/5 border border-white/5 p-4 rounded-xl">
+                        <p className="text-[8px] font-black uppercase text-slate-500 tracking-widest">{item.label}</p>
+                        <p className="text-xs font-bold text-slate-300 mt-1">{item.val}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  <button className="w-full py-4 bg-white text-black font-black uppercase tracking-widest rounded-xl hover:bg-cyan-400 transition transform hover:-translate-y-1">
+                    Generate Full Star Labs Intelligence PDF
+                  </button>
+                </div>
+              )}
+
+              {/* Standard Step fallback for others... */}
+              {[2, 4].includes(step) && (
+                <div className="flex items-center justify-center h-64 text-slate-600 italic">
+                  Module content processing...
+                </div>
+              )}
+
+            </div>
+
+            {/* Global Actions */}
+            <div className="bg-white/5 px-8 py-6 flex justify-between items-center border-t border-white/5">
+              <button 
+                onClick={prev}
+                disabled={step === 0}
+                className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-slate-500 hover:text-white disabled:opacity-20"
+              >
+                <ChevronLeft size={16} /> Previous Gate
+              </button>
+              <div className="text-[10px] font-black text-slate-700 tracking-widest">
+                STAGE {step + 1} // STAR LABS PROTOCOL
+              </div>
+              <button 
+                onClick={next}
+                disabled={step === steps.length - 1}
+                className="flex items-center gap-2 px-6 py-2 bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 text-xs font-black uppercase tracking-widest rounded-lg hover:bg-cyan-500 hover:text-white transition"
+              >
+                Next Gate <ChevronRight size={16} />
+              </button>
+            </div>
+          </main>
+        </div>
+
+        {/* Intelligence Footer */}
+        <footer className="mt-16 border-t border-white/5 pt-8 grid md:grid-cols-3 gap-12 text-slate-500">
+          <div>
+            <h4 className="text-[10px] font-black uppercase tracking-widest text-white mb-4">Spinout Philosophy</h4>
+            <p className="text-xs leading-relaxed">Star Labs prioritizes ideas where the 'Founder-Market Fit' is equal to the 'Tech-Problem Fit'. Capital lean, high-velocity assets are prioritized for external funding rounds.</p>
+          </div>
+          <div>
+            <h4 className="text-[10px] font-black uppercase tracking-widest text-white mb-4">Internal De-Risking</h4>
+            <p className="text-xs leading-relaxed">Projects below TRL 5 are kept in stealth. Once TRL 6 is achieved with a positive MRL trend, the project enters the 'Launch Vector' for spinout modeling.</p>
+          </div>
+          <div className="flex flex-col items-end gap-2">
+            <div className="flex gap-2">
+              <div className="w-2 h-2 bg-cyan-500 rounded-full animate-pulse"></div>
+              <div className="w-2 h-2 bg-slate-700 rounded-full"></div>
+              <div className="w-2 h-2 bg-slate-700 rounded-full"></div>
+            </div>
+            <p className="text-[10px] font-bold uppercase tracking-widest italic">System v4.0 Active</p>
+          </div>
+        </footer>
+      </div>
+    </div>
+  );
+};
+
+export default App;
