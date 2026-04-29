@@ -51,6 +51,23 @@
             return <i data-lucide={name} className={className} style={{ width: size, height: size, display: 'inline-flex' }}></i>;
         };
 
+        const Logo = ({ className = "w-full h-full", textClassName = "" }) => {
+            const [imgError, setImgError] = useState(false);
+            
+            if (imgError) {
+                return <span className={`font-black text-white italic ${textClassName}`}>SL</span>;
+            }
+
+            return (
+                <img 
+                    src="logo.png" 
+                    alt="Star Labs" 
+                    className={`${className} object-contain`} 
+                    onError={() => setImgError(true)} 
+                />
+            );
+        };
+
         const App = () => {
             const [isLocked, setIsLocked] = useState(true);
             const [accessKey, setAccessKey] = useState("");
@@ -78,7 +95,6 @@
                 const timingFactor = (formData.regulatoryTailwinds * 0.5) + (formData.teamExpertise * 0.5);
                 const compositeScore = ((technicalDepth * 0.35) + (marketFit * 0.45) + (timingFactor * 0.2)).toFixed(1);
                 
-                // Spinout Index calculation
                 const spinoutIndex = ((formData.teamExpertise * 0.4) + (formData.mrl * 0.3) + (10 - formData.capitalIntensity) * 0.3).toFixed(1);
 
                 let status = 'INCUBATE';
@@ -112,8 +128,8 @@
                 return (
                     <div className="min-h-screen flex items-center justify-center p-6">
                         <div className="max-w-md w-full glass p-10 rounded-[2.5rem] text-center border-cyan-500/20 shadow-2xl shadow-cyan-500/10 animate-in fade-in zoom-in duration-700">
-                            <div className="w-20 h-20 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-lg shadow-cyan-500/30">
-                                <span className="text-white font-black text-2xl italic">SL</span>
+                            <div className="w-20 h-20 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-lg shadow-cyan-500/30 overflow-hidden">
+                                <Logo textClassName="text-2xl" className="p-3 w-full h-full" />
                             </div>
                             <h1 className="text-2xl font-black text-white tracking-tighter uppercase italic mb-2">Alpha-1 Terminal</h1>
                             <p className="text-slate-500 text-[10px] font-bold tracking-[0.3em] mb-8">RESTRICTED STAR LABS ACCESS</p>
@@ -137,8 +153,8 @@
                 <div className="max-w-6xl mx-auto py-8 px-4 md:py-12">
                     <header className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6 border-b border-white/10 pb-10">
                         <div className="flex items-center gap-5">
-                            <div className="w-14 h-14 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-cyan-500/20">
-                                <span className="font-black text-white text-xl italic">SL</span>
+                            <div className="w-14 h-14 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-cyan-500/20 overflow-hidden">
+                                <Logo textClassName="text-xl" className="p-2 w-full h-full" />
                             </div>
                             <div>
                                 <h1 className="text-3xl font-black text-white tracking-tighter uppercase italic">Star Labs <span className="text-cyan-500">Alpha-1</span></h1>
