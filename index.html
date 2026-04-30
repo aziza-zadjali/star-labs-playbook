@@ -106,8 +106,8 @@
 
         const Logo = ({ className = "w-full h-full" }) => {
             const [imgError, setImgError] = useState(false);
-            if (imgError) return <span className="font-black text-white italic">SL</span>;
-            return <img src="./logo.png" alt="Star Labs" className={`${className} object-contain`} onError={() => setImgError(true)} />;
+            if (imgError) return <span className="font-black text-white italic">STAR LABS</span>;
+            return <img src="logo.png" alt="Star Labs" className={`${className} object-contain block`} onError={() => setImgError(true)} />;
         };
 
         const App = () => {
@@ -161,12 +161,12 @@
 
             if (isLocked) return (
                 <div className="min-h-screen flex items-center justify-center p-6">
-                    <div className="max-w-md w-full glass-panel p-12 rounded-[2.5rem] text-center">
-                        <div className="w-20 h-20 mx-auto mb-8 bg-black/40 rounded-3xl p-4 flex items-center justify-center border border-white/10">
+                    <div className="max-w-md w-full glass-panel p-12 rounded-[3.5rem] text-center">
+                        <div className="w-40 h-40 mx-auto mb-6 flex items-center justify-center">
                             <Logo />
                         </div>
                         <h1 className="text-2xl font-extrabold text-white tracking-tighter uppercase italic mb-1">Terminal Access</h1>
-                        <p className="text-[10px] font-bold text-slate-500 tracking-[0.4em] mb-10">STAR LABS // LEVEL 4 CLEARANCE</p>
+                        <p className="text-[10px] font-bold text-slate-500 tracking-[0.4em] mb-10 uppercase">Security Clearance: Level 4 Required</p>
                         <form onSubmit={unlock} className="space-y-4">
                             <input 
                                 type="password" 
@@ -177,45 +177,47 @@
                             />
                             <button className="w-full py-5 bg-cyan-600 hover:bg-cyan-500 text-white font-extrabold uppercase tracking-widest rounded-2xl transition-all active:scale-95 shadow-lg shadow-cyan-900/20">Decrypt Access</button>
                         </form>
+                        <p className="mt-8 text-[9px] font-bold text-slate-600 tracking-widest uppercase">Encryption: AES-256 Enabled</p>
                     </div>
                 </div>
             );
 
             return (
                 <div className="max-w-7xl mx-auto py-10 px-6">
-                    {/* Professional Header */}
-                    <header className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8 pb-10 border-b border-white/10">
-                        <div className="flex items-center gap-6">
-                            <div className="w-16 h-16 bg-white/5 p-3 rounded-2xl border border-white/10">
+                    {/* Professional Branded Header */}
+                    <header className="flex flex-col md:flex-row md:items-center justify-between mb-16 gap-8 pb-10 border-b border-white/10">
+                        <div className="flex items-center gap-8">
+                            <div className="w-32 h-32 flex items-center justify-center">
                                 <Logo />
                             </div>
+                            <div className="h-16 w-px bg-white/10 hidden md:block"></div>
                             <div>
-                                <h1 className="text-3xl font-extrabold text-white italic tracking-tighter uppercase">Alpha-2 <span className="text-cyan-400">Intelligence</span></h1>
-                                <p className="text-slate-500 text-[10px] font-bold tracking-[0.5em] uppercase mt-1">GIMI x LeanSpark Unified Framework</p>
+                                <h1 className="text-4xl font-black text-white italic tracking-tighter uppercase leading-none">Alpha-2 <span className="text-cyan-400">Intelligence</span></h1>
+                                <p className="text-slate-500 text-[10px] font-bold tracking-[0.6em] uppercase mt-2">Emerging Technology Decision Engine</p>
                             </div>
                         </div>
                         <div className="flex items-center gap-10">
-                            <div className="text-right">
+                            <div className="text-right hidden sm:block">
                                 <div className="flex items-center gap-2 justify-end">
                                     <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">System Operational</span>
+                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Active Link</span>
                                 </div>
                                 <p className="text-[10px] font-bold text-cyan-500 tracking-widest mt-1 uppercase italic">Authorized Investor View</p>
                             </div>
                             <button onClick={() => window.print()} className="px-6 py-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-all text-[10px] font-bold uppercase tracking-widest flex items-center gap-2">
-                                <Icon name="file-text" size={14} /> Export Intel
+                                <Icon name="file-text" size={14} /> Export Report
                             </button>
                         </div>
                     </header>
 
                     <div className="grid lg:grid-cols-12 gap-12">
-                        {/* Interactive Nav */}
+                        {/* Interactive Navigation Surface */}
                         <aside className="lg:col-span-3 space-y-3 no-print">
                             {steps.map((s, i) => (
                                 <button 
                                     key={s.id} 
                                     onClick={() => setStep(i)}
-                                    className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl text-[11px] font-extrabold uppercase tracking-widest transition-all border ${step === i ? 'bg-cyan-500/10 border-cyan-500 text-cyan-400 shadow-lg shadow-cyan-500/5' : 'bg-transparent border-transparent text-slate-500 hover:text-slate-300 hover:bg-white/5'}`}
+                                    className={`w-full flex items-center gap-5 px-7 py-5 rounded-[2rem] text-[11px] font-extrabold uppercase tracking-widest transition-all border ${step === i ? 'bg-cyan-500/10 border-cyan-500 text-cyan-400 shadow-lg shadow-cyan-500/5' : 'bg-transparent border-transparent text-slate-500 hover:text-slate-300 hover:bg-white/5'}`}
                                 >
                                     <Icon name={s.icon} size={16} className={step === i ? "text-cyan-400" : "text-slate-600"} />
                                     {s.title}
@@ -224,24 +226,24 @@
                         </aside>
 
                         {/* Main Interaction Surface */}
-                        <main className="lg:col-span-9 glass-panel rounded-[3rem] p-8 md:p-14 min-h-[600px] transition-all duration-700">
+                        <main className="lg:col-span-9 glass-panel rounded-[4rem] p-10 md:p-16 min-h-[650px] transition-all duration-700 relative overflow-hidden">
                             
                             {step === 0 && (
                                 <div className="space-y-12 animate-in">
-                                    <div className="space-y-2"><h2 className="text-3xl font-extrabold text-white tracking-tighter uppercase italic">Project Intake</h2><p className="text-slate-400 text-sm">Define technical boundaries and initial problem space.</p></div>
-                                    <div className="space-y-8">
+                                    <div className="space-y-2"><h2 className="text-3xl font-extrabold text-white tracking-tighter uppercase italic">Project Intake</h2><p className="text-slate-400 text-sm">Classify the core technology identity and friction points.</p></div>
+                                    <div className="space-y-10">
                                         <div className="space-y-3">
-                                            <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Technology Identifier</label>
-                                            <input type="text" name="techName" value={formData.techName} onChange={handleInput} className="w-full command-input rounded-2xl px-6 py-5 text-white outline-none" placeholder="e.g. Project Helios-9 Core" />
+                                            <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Proprietary Technology Name</label>
+                                            <input type="text" name="techName" value={formData.techName} onChange={handleInput} className="w-full command-input rounded-2xl px-6 py-5 text-white outline-none" placeholder="Project Identifier..." />
                                         </div>
-                                        <div className="grid md:grid-cols-2 gap-10">
+                                        <div className="grid md:grid-cols-2 gap-12">
                                             <div className="space-y-3">
-                                                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Problem Geometry</label>
-                                                <textarea name="problem" value={formData.problem} onChange={handleInput} className="w-full command-input rounded-2xl p-6 h-40 outline-none resize-none" placeholder="What core friction is this solving?"></textarea>
+                                                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Observed Friction (Problem)</label>
+                                                <textarea name="problem" value={formData.problem} onChange={handleInput} className="w-full command-input rounded-3xl p-6 h-44 outline-none resize-none" placeholder="What core market pain exists?"></textarea>
                                             </div>
                                             <div className="space-y-3">
-                                                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Technical Solution</label>
-                                                <textarea name="solution" value={formData.solution} onChange={handleInput} className="w-full command-input rounded-2xl p-6 h-40 outline-none resize-none" placeholder="Proposed technological intervention..."></textarea>
+                                                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Technical Intervention (Solution)</label>
+                                                <textarea name="solution" value={formData.solution} onChange={handleInput} className="w-full command-input rounded-3xl p-6 h-44 outline-none resize-none" placeholder="The Star Labs response..."></textarea>
                                             </div>
                                         </div>
                                     </div>
@@ -250,18 +252,18 @@
 
                             {step === 1 && (
                                 <div className="space-y-12 animate-in">
-                                    <div className="flex items-center gap-4"><Icon name="zap" className="text-cyan-400" size={32} /><h2 className="text-3xl font-extrabold text-white tracking-tighter uppercase italic">Why Now?</h2></div>
-                                    <div className="space-y-8">
+                                    <div className="flex items-center gap-5"><Icon name="zap" className="text-cyan-400" size={32} /><h2 className="text-3xl font-extrabold text-white tracking-tighter uppercase italic">Why Now?</h2></div>
+                                    <div className="space-y-10">
                                         <div className="space-y-3">
                                             <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Market Timing Thesis</label>
-                                            <textarea name="whyNow" value={formData.whyNow} onChange={handleInput} className="w-full command-input rounded-[2.5rem] p-8 h-48 outline-none" placeholder="What regulatory or technical shifts make this viable today?"></textarea>
+                                            <textarea name="whyNow" value={formData.whyNow} onChange={handleInput} className="w-full command-input rounded-[3rem] p-8 h-48 outline-none" placeholder="Macro tailwinds and immediate drivers..."></textarea>
                                         </div>
-                                        <div className="grid md:grid-cols-2 gap-12 p-10 bg-white/5 rounded-[2.5rem] border border-white/5">
-                                            <div className="space-y-6">
+                                        <div className="grid md:grid-cols-2 gap-12 p-12 bg-white/5 rounded-[3.5rem] border border-white/5">
+                                            <div className="space-y-7">
                                                 <div className="flex justify-between items-center"><span className="text-[10px] font-bold uppercase tracking-widest">Customer Urgency</span><span className="text-cyan-400 font-black text-xl">{formData.customerUrgency}</span></div>
                                                 <input type="range" name="customerUrgency" min="1" max="10" value={formData.customerUrgency} onChange={handleInput} />
                                             </div>
-                                            <div className="space-y-6">
+                                            <div className="space-y-7">
                                                 <div className="flex justify-between items-center"><span className="text-[10px] font-bold uppercase tracking-widest">Regulatory Tailwinds</span><span className="text-cyan-400 font-black text-xl">{formData.regulatoryTailwinds}</span></div>
                                                 <input type="range" name="regulatoryTailwinds" min="1" max="10" value={formData.regulatoryTailwinds} onChange={handleInput} />
                                             </div>
@@ -273,11 +275,16 @@
                             {step === 2 && (
                                 <div className="space-y-12 animate-in">
                                     <h2 className="text-3xl font-extrabold text-white tracking-tighter uppercase italic">Lean High-Fidelity Canvas</h2>
-                                    <div className="grid md:grid-cols-2 gap-8">
-                                        {['uvp', 'unfairAdvantage', 'revenueStreams', 'costStructure'].map((k) => (
-                                            <div key={k} className="space-y-3">
-                                                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500">{k.replace(/([A-Z])/g, ' $1').trim()}</label>
-                                                <textarea name={k} value={formData[k]} onChange={handleInput} className="w-full command-input rounded-2xl p-5 h-24 outline-none text-sm" />
+                                    <div className="grid md:grid-cols-2 gap-10">
+                                        {[
+                                            { k: 'uvp', l: 'Unique Value Prop' },
+                                            { k: 'unfairAdvantage', l: 'Unfair Advantage (Moat)' },
+                                            { k: 'revenueStreams', l: 'Monetization Strategy' },
+                                            { k: 'costStructure', l: 'Capital Architecture' }
+                                        ].map((item) => (
+                                            <div key={item.k} className="space-y-3">
+                                                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500">{item.l}</label>
+                                                <textarea name={item.k} value={formData[item.k]} onChange={handleInput} className="w-full command-input rounded-2xl p-6 h-28 outline-none text-sm" />
                                             </div>
                                         ))}
                                     </div>
@@ -286,17 +293,17 @@
 
                             {step === 3 && (
                                 <div className="space-y-12 animate-in">
-                                    <div className="flex justify-between items-end"><h2 className="text-3xl font-extrabold text-white tracking-tighter uppercase italic">Readiness matrix</h2><span className="px-4 py-1 bg-slate-800 rounded-full text-[9px] font-bold text-cyan-400 uppercase tracking-widest border border-cyan-500/20">NASA TRL Logic</span></div>
+                                    <div className="flex justify-between items-end"><h2 className="text-3xl font-extrabold text-white tracking-tighter uppercase italic">Readiness Matrix</h2><span className="px-5 py-1.5 bg-slate-900 rounded-full text-[9px] font-black text-cyan-400 uppercase tracking-widest border border-cyan-500/20">NASA TRL v4.0</span></div>
                                     <div className="grid md:grid-cols-2 gap-12">
-                                        <div className="bg-black/30 p-12 rounded-[3rem] border border-white/5 space-y-10 shadow-2xl">
-                                            <div className="flex justify-between items-center"><h3 className="text-xs font-bold uppercase text-cyan-400 tracking-widest flex items-center gap-2"><Icon name="cpu" size={16}/> Tech Readiness</h3><span className="text-6xl font-black text-white">{formData.trl}</span></div>
+                                        <div className="bg-black/30 p-12 rounded-[3.5rem] border border-white/5 space-y-10 shadow-2xl">
+                                            <div className="flex justify-between items-center"><h3 className="text-xs font-bold uppercase text-cyan-400 tracking-widest flex items-center gap-3"><Icon name="cpu" size={18}/> Tech Readiness</h3><span className="text-6xl font-black text-white">{formData.trl}</span></div>
                                             <input type="range" name="trl" min="1" max="10" value={formData.trl} onChange={handleInput} />
-                                            <div className="flex justify-between text-[9px] font-bold text-slate-600 uppercase"><span>Theory</span><span>Prototype</span><span>Mission Capable</span></div>
+                                            <div className="flex justify-between text-[9px] font-bold text-slate-600 uppercase tracking-tighter"><span>Theory</span><span>Validation</span><span>Mission Ready</span></div>
                                         </div>
-                                        <div className="bg-black/30 p-12 rounded-[3rem] border border-white/5 space-y-10 shadow-2xl">
-                                            <div className="flex justify-between items-center"><h3 className="text-xs font-bold uppercase text-blue-500 tracking-widest flex items-center gap-2"><Icon name="globe" size={16}/> Market Readiness</h3><span className="text-6xl font-black text-white">{formData.mrl}</span></div>
+                                        <div className="bg-black/30 p-12 rounded-[3.5rem] border border-white/5 space-y-10 shadow-2xl">
+                                            <div className="flex justify-between items-center"><h3 className="text-xs font-bold uppercase text-blue-500 tracking-widest flex items-center gap-3"><Icon name="globe" size={18}/> Market Readiness</h3><span className="text-6xl font-black text-white">{formData.mrl}</span></div>
                                             <input type="range" name="mrl" min="1" max="10" value={formData.mrl} onChange={handleInput} />
-                                            <div className="flex justify-between text-[9px] font-bold text-slate-600 uppercase"><span>Problem Fit</span><span>Scaling</span><span>Dominance</span></div>
+                                            <div className="flex justify-between text-[9px] font-bold text-slate-600 uppercase tracking-tighter"><span>Initial Fit</span><span>Scaling</span><span>Global Standard</span></div>
                                         </div>
                                     </div>
                                 </div>
@@ -305,15 +312,15 @@
                             {step === 4 && (
                                 <div className="space-y-12 animate-in">
                                     <div className="flex items-center gap-5"><Icon name="radar" className="text-cyan-400" size={32} /><h2 className="text-3xl font-extrabold text-white tracking-tighter uppercase italic">Akaio Scenario Radar</h2></div>
-                                    <div className="bg-black/30 p-12 rounded-[3rem] border border-white/5 space-y-10">
-                                        <div className="space-y-4">
-                                            <h3 className="text-xs font-bold text-cyan-400 uppercase tracking-widest">Stability in Volatility</h3>
-                                            <p className="text-sm text-slate-400 leading-relaxed max-w-xl">Akaio's core differentiator: We test if this technology survives under divergent futures (Economic crash vs. Tech boom).</p>
+                                    <div className="bg-black/30 p-12 rounded-[4rem] border border-white/5 space-y-12">
+                                        <div className="space-y-5">
+                                            <h3 className="text-xs font-bold text-cyan-400 uppercase tracking-widest italic">Akaio Decision Intelligence</h3>
+                                            <p className="text-sm text-slate-400 leading-relaxed max-w-xl">We evaluate technology resilience across divergent future scenarios (Economic Contraction vs. Hyper-Growth).</p>
                                         </div>
-                                        <div className="space-y-10 bg-white/5 p-10 rounded-[2rem] border border-white/5">
-                                            <div className="flex justify-between items-center"><span className="text-xs font-bold uppercase tracking-widest">Scenario stability Index</span><span className="text-4xl font-black text-cyan-400">{formData.scenarioStability}</span></div>
+                                        <div className="space-y-12 bg-white/5 p-12 rounded-[3rem] border border-white/5 shadow-inner">
+                                            <div className="flex justify-between items-center"><span className="text-xs font-bold uppercase tracking-widest text-slate-500">Scenario stability Index</span><span className="text-5xl font-black text-cyan-400">{formData.scenarioStability}</span></div>
                                             <input type="range" name="scenarioStability" min="1" max="10" value={formData.scenarioStability} onChange={handleInput} />
-                                            <div className="flex justify-between text-[9px] font-bold text-slate-700 uppercase"><span>Fails in Market Swings</span><span>Fully Antifragile</span></div>
+                                            <div className="flex justify-between text-[10px] font-bold text-slate-700 uppercase tracking-widest"><span>Fragile in Volatility</span><span>Fully Antifragile</span></div>
                                         </div>
                                     </div>
                                 </div>
@@ -321,16 +328,16 @@
 
                             {step === 5 && (
                                 <div className="space-y-12 animate-in">
-                                    <div className="flex items-center gap-5"><Icon name="briefcase" className="text-cyan-400" size={32} /><h2 className="text-3xl font-extrabold text-white tracking-tighter uppercase italic">LeanSpark Spinout Readiness</h2></div>
+                                    <div className="flex items-center gap-5"><Icon name="briefcase" className="text-cyan-400" size={32} /><h2 className="text-3xl font-extrabold text-white tracking-tighter uppercase italic">Spinout Potential</h2></div>
                                     <div className="grid md:grid-cols-2 gap-10">
                                         {[
-                                            { k: 'teamExpertise', l: 'Execution Velocity', c: 'cyan' },
-                                            { k: 'ipDefensibility', l: 'Moat Depth', c: 'blue' },
-                                            { k: 'capitalIntensity', l: 'Resource Burn', c: 'rose' },
-                                            { k: 'validationVelocity', l: 'Feedback Loop Speed', c: 'emerald' }
+                                            { k: 'teamExpertise', l: 'Founder-Tech Fit', c: 'cyan' },
+                                            { k: 'ipDefensibility', l: 'Patent / Moat Depth', c: 'blue' },
+                                            { k: 'capitalIntensity', l: 'Capital Burn Model', c: 'rose' },
+                                            { k: 'validationVelocity', l: 'Lean Validation Speed', c: 'emerald' }
                                         ].map((m) => (
-                                            <div key={m.k} className="p-8 bg-white/5 rounded-3xl border border-white/5 space-y-6">
-                                                <div className="flex justify-between items-center"><span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">{m.l}</span><span className={`text-2xl font-black text-${m.c}-400`}>{formData[m.key]}</span></div>
+                                            <div key={m.k} className="p-10 bg-white/5 rounded-[2.5rem] border border-white/5 space-y-7 shadow-xl">
+                                                <div className="flex justify-between items-center"><span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">{m.l}</span><span className={`text-3xl font-black text-${m.c}-400`}>{formData[m.k]}</span></div>
                                                 <input type="range" name={m.k} min="1" max="10" value={formData[m.k]} onChange={handleInput} className={`accent-${m.c}-500`} />
                                             </div>
                                         ))}
@@ -340,24 +347,24 @@
 
                             {step === 6 && (
                                 <div className="space-y-12 animate-in">
-                                    <div className={`p-14 rounded-[4rem] border-2 ${analysis.border} ${analysis.bg} relative overflow-hidden shadow-2xl ${analysis.glow}`}>
-                                        <div className="absolute top-0 right-0 p-12 opacity-5 scale-150"><Icon name={analysis.icon} size={200} /></div>
-                                        <div className="relative z-10 grid md:grid-cols-2 gap-20 items-center">
-                                            <div className="space-y-8">
-                                                <h2 className="text-[10px] font-bold uppercase text-slate-500 tracking-[0.8em]">Final Verdict</h2>
-                                                <div className={`text-[9rem] font-black ${analysis.color} italic tracking-tighter leading-none`}>{analysis.score}</div>
-                                                <div className="text-3xl font-black text-white uppercase tracking-tighter">{analysis.status}</div>
-                                                <div className="border-t border-white/10 pt-10"><p className="text-slate-400 text-sm italic font-medium">"{analysis.advice}"</p></div>
+                                    <div className={`p-16 rounded-[5rem] border-2 ${analysis.border} ${analysis.bg} relative overflow-hidden shadow-2xl ${analysis.glow}`}>
+                                        <div className="absolute top-0 right-0 p-12 opacity-5 scale-[2.5]"><Icon name={analysis.icon} size={250} /></div>
+                                        <div className="relative z-10 grid md:grid-cols-2 gap-24 items-center">
+                                            <div className="space-y-10">
+                                                <h2 className="text-[11px] font-bold uppercase text-slate-500 tracking-[1em]">Final Intelligence</h2>
+                                                <div className={`text-[11rem] font-black ${analysis.color} italic tracking-tighter leading-none`}>{analysis.score}</div>
+                                                <div className="text-4xl font-black text-white uppercase tracking-tighter">{analysis.status}</div>
+                                                <div className="border-t border-white/10 pt-12"><p className="text-slate-400 text-base italic font-medium leading-relaxed">"{analysis.advice}"</p></div>
                                             </div>
-                                            <div className="space-y-8">
-                                                <div className="bg-black/60 p-10 rounded-[3rem] border border-white/10 backdrop-blur-3xl shadow-2xl">
-                                                    <div className="flex justify-between text-[11px] font-bold uppercase mb-4 tracking-widest"><span>Spinout Readiness</span><span className="text-white text-lg">{analysis.spinoutIndex}/10</span></div>
-                                                    <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden shadow-inner"><div className="h-full bg-cyan-400 transition-all duration-[2000ms] ease-out" style={{ width: `${analysis.spinoutIndex * 10}%` }}></div></div>
-                                                    <p className="mt-4 text-[9px] text-slate-500 font-bold uppercase tracking-widest italic">LeanSpark De-Risking Protocol active.</p>
+                                            <div className="space-y-10">
+                                                <div className="bg-black/60 p-12 rounded-[3.5rem] border border-white/10 backdrop-blur-3xl shadow-2xl">
+                                                    <div className="flex justify-between text-[11px] font-bold uppercase mb-5 tracking-widest"><span>Spinout Readiness</span><span className="text-white text-2xl">{analysis.spinoutIndex}/10</span></div>
+                                                    <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden shadow-inner"><div className="h-full bg-cyan-400 transition-all duration-[2500ms] ease-out" style={{ width: `${analysis.spinoutIndex * 10}%` }}></div></div>
+                                                    <p className="mt-5 text-[10px] text-slate-500 font-bold uppercase tracking-[0.2em] italic">LeanSpark Velocity Modeling active</p>
                                                 </div>
-                                                <div className="grid grid-cols-2 gap-4">
-                                                    <div className="bg-white/5 p-5 rounded-2xl text-center"><p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">TRL Grade</p><p className="text-sm font-black text-white">Class {formData.trl > 7 ? 'A' : 'B'}</p></div>
-                                                    <div className="bg-white/5 p-5 rounded-2xl text-center"><p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Akaio Stability</p><p className="text-sm font-black text-cyan-400">{formData.scenarioStability}/10</p></div>
+                                                <div className="grid grid-cols-2 gap-6">
+                                                    <div className="bg-white/5 p-7 rounded-3xl text-center shadow-xl"><p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">TRL Level</p><p className="text-lg font-black text-white">Class {formData.trl > 7 ? 'Alpha' : 'Beta'}</p></div>
+                                                    <div className="bg-white/5 p-7 rounded-3xl text-center shadow-xl"><p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Akaio Radar</p><p className="text-lg font-black text-cyan-400">{formData.scenarioStability}/10</p></div>
                                                 </div>
                                             </div>
                                         </div>
@@ -365,32 +372,32 @@
                                 </div>
                             )}
 
-                            {/* Global Action Bar */}
-                            <div className="mt-16 pt-10 border-t border-white/10 flex justify-between items-center no-print">
-                                <button onClick={() => setStep(Math.max(0, step - 1))} disabled={step === 0} className="text-[10px] font-extrabold uppercase tracking-widest text-slate-600 hover:text-white transition-all disabled:opacity-5 active:scale-90">Previous Gate</button>
-                                <div className="text-[8px] font-bold text-slate-800 tracking-[0.6em] uppercase hidden md:block">Star Labs Alpha-2 // Terminal STABLE</div>
-                                <button onClick={() => setStep(Math.min(steps.length - 1, step + 1))} disabled={step === steps.length - 1} className="px-10 py-4 bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 text-[10px] font-extrabold uppercase tracking-widest rounded-2xl hover:bg-cyan-500 hover:text-white transition-all shadow-xl active:scale-95 shadow-cyan-900/10">Advance Protocol</button>
+                            {/* Navigation Bar */}
+                            <div className="mt-16 pt-12 border-t border-white/10 flex justify-between items-center no-print">
+                                <button onClick={() => setStep(Math.max(0, step - 1))} disabled={step === 0} className="text-[11px] font-black uppercase tracking-[0.4em] text-slate-600 hover:text-white transition-all disabled:opacity-0 active:scale-90">Previous Gate</button>
+                                <div className="text-[9px] font-bold text-slate-800 tracking-[0.8em] uppercase hidden lg:block">System: Star Labs Alpha-2 Terminal // Stable</div>
+                                <button onClick={() => setStep(Math.min(steps.length - 1, step + 1))} disabled={step === steps.length - 1} className="px-12 py-5 bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 text-[11px] font-black uppercase tracking-[0.4em] rounded-[1.5rem] hover:bg-cyan-500 hover:text-white transition-all shadow-xl active:scale-95 shadow-cyan-900/10">Advance Protocol</button>
                             </div>
                         </main>
                     </div>
 
-                    <footer className="mt-24 border-t border-white/10 pt-16 grid md:grid-cols-3 gap-16 text-slate-600">
-                        <div className="space-y-6">
-                            <h4 className="text-[11px] font-black uppercase tracking-widest text-white border-b border-cyan-500/30 pb-3 w-fit">Decision Engine 4.0</h4>
-                            <p className="text-[11px] leading-relaxed font-medium">Alpha-2 integrates Akaio Scenario Rigor for environmental stability and LeanSpark for validation velocity. We optimize for high-moat, capital-lean spinouts.</p>
+                    <footer className="mt-28 border-t border-white/10 pt-20 grid md:grid-cols-3 gap-20 text-slate-600">
+                        <div className="space-y-8">
+                            <h4 className="text-[12px] font-black uppercase tracking-widest text-white border-b border-cyan-500/30 pb-4 w-fit">Akaio Decision Intelligence</h4>
+                            <p className="text-[11px] leading-relaxed font-medium">Alpha-2 leverages proprietary scenario forecasting. By quantifying "Scenario Stability," we detect antifragility in emerging tech assets before market exposure.</p>
                         </div>
-                        <div className="flex flex-col items-center justify-center gap-5">
-                             <div className="flex gap-4">
-                                <div className="w-2.5 h-2.5 bg-cyan-500 rounded-full animate-ping"></div>
-                                <div className="w-2.5 h-2.5 bg-slate-800 rounded-full"></div>
-                                <div className="w-2.5 h-2.5 bg-slate-800 rounded-full"></div>
+                        <div className="flex flex-col items-center justify-center gap-6">
+                             <div className="flex gap-5">
+                                <div className="w-3 h-3 bg-cyan-500 rounded-full animate-ping"></div>
+                                <div className="w-3 h-3 bg-slate-800 rounded-full"></div>
+                                <div className="w-3 h-3 bg-slate-800 rounded-full"></div>
                             </div>
-                            <span className="text-[9px] font-bold uppercase tracking-[0.8em] mt-3 text-slate-800">SECURE TERMINAL // SL-AL2-2026</span>
+                            <span className="text-[10px] font-bold uppercase tracking-[1em] mt-4 text-slate-800">SL-AL2-2026 // PRODUCTION</span>
                         </div>
-                        <div className="text-right space-y-6">
-                             <h4 className="text-[11px] font-black uppercase tracking-widest text-white border-b border-cyan-500/30 pb-3 w-fit ml-auto">Launch Integrity</h4>
-                             <p className="text-[10px] font-black text-cyan-400 uppercase tracking-[0.3em] animate-pulse">Encryption Active: AES-256-GCM</p>
-                             <p className="text-[9px] font-bold text-slate-700 uppercase tracking-widest">Protocol strictly enforced by SL Logic Core</p>
+                        <div className="text-right space-y-8">
+                             <h4 className="text-[12px] font-black uppercase tracking-widest text-white border-b border-cyan-500/30 pb-4 w-fit ml-auto">Launch Integrity</h4>
+                             <p className="text-[11px] font-black text-cyan-400 uppercase tracking-[0.5em] animate-pulse italic">Authentication: Validated</p>
+                             <p className="text-[10px] font-bold text-slate-700 uppercase tracking-widest">Handled by Star Labs Logic Core</p>
                         </div>
                     </footer>
                 </div>
