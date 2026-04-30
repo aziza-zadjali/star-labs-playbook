@@ -117,7 +117,7 @@
             const [step, setStep] = useState(0);
             
             const [formData, setFormData] = useState({
-                techName: '', problem: '', solution: '', earlyAdopters: '',
+                techName: '', problem: '', solution: '',
                 uvp: '', unfairAdvantage: '', whyNow: '', revenueStreams: '', costStructure: '',
                 trl: 4, mrl: 3, ipDefensibility: 6, regulatoryTailwinds: 5, teamExpertise: 7,
                 marketSize: 6, capitalIntensity: 4, customerUrgency: 6,
@@ -233,20 +233,25 @@
                                 <div className="space-y-12">
                                     <div>
                                         <h2 className="text-4xl font-extrabold text-white tracking-tighter uppercase italic mb-4">Project Intake</h2>
-                                        <DirectiveBanner text="Define scope and market friction. Justification: Without precise problem-solution alignment, downstream algorithmic metrics lose predictive validity." />
+                                        <DirectiveBanner text="Define scope and market friction. Without precise problem-solution alignment, downstream algorithmic metrics lose predictive validity." />
                                     </div>
                                     <div className="space-y-12">
                                         <div className="space-y-4">
-                                            <label className="text-[11px] font-black uppercase tracking-widest text-slate-500">Proprietary Technology Identifier</label>
+                                            <div className="flex justify-between items-end">
+                                                <label className="text-[11px] font-black uppercase tracking-widest text-slate-500">Proprietary Technology Identifier</label>
+                                            </div>
+                                            <p className="text-[10px] text-slate-400/80 mb-2">The official internal or external designation for this asset.</p>
                                             <input type="text" name="techName" value={formData.techName} onChange={handleInput} className="w-full command-input rounded-3xl px-8 py-6 text-white text-lg outline-none" placeholder="Project Name / ID Code..." />
                                         </div>
                                         <div className="grid md:grid-cols-2 gap-12">
                                             <div className="space-y-4">
                                                 <label className="text-[11px] font-black uppercase tracking-widest text-slate-500">Observed Market Friction</label>
+                                                <p className="text-[10px] text-slate-400/80 mb-2">Detail the specific inefficiency or pain point in the target sector.</p>
                                                 <textarea name="problem" value={formData.problem} onChange={handleInput} className="w-full command-input rounded-[2.5rem] p-7 h-48 outline-none resize-none leading-relaxed" placeholder="What core pain exists?"></textarea>
                                             </div>
                                             <div className="space-y-4">
                                                 <label className="text-[11px] font-black uppercase tracking-widest text-slate-500">Technical Intervention</label>
+                                                <p className="text-[10px] text-slate-400/80 mb-2">Describe the technological mechanism that resolves the friction.</p>
                                                 <textarea name="solution" value={formData.solution} onChange={handleInput} className="w-full command-input rounded-[2.5rem] p-7 h-48 outline-none resize-none leading-relaxed" placeholder="The Star Labs response..."></textarea>
                                             </div>
                                         </div>
@@ -258,20 +263,23 @@
                                 <div className="space-y-12">
                                     <div>
                                         <div className="flex items-center gap-6 mb-4"><Icon name="zap" className="text-cyan-400" size={36} /><h2 className="text-4xl font-extrabold text-white tracking-tighter uppercase italic">Market Timing</h2></div>
-                                        <DirectiveBanner text="Assess temporal viability. Justification: Being technologically early is financially indistinguishable from being wrong. Proves macro tailwinds." />
+                                        <DirectiveBanner text="Assess temporal viability. Being technologically early is financially indistinguishable from being wrong." />
                                     </div>
                                     <div className="space-y-12">
                                         <div className="space-y-4">
                                             <label className="text-[11px] font-black uppercase tracking-widest text-slate-500">Timing Thesis (Why Now?)</label>
+                                            <p className="text-[10px] text-slate-400/80 mb-2">Identify macro events, regulatory shifts, or technological breakthroughs enabling this today.</p>
                                             <textarea name="whyNow" value={formData.whyNow} onChange={handleInput} className="w-full command-input rounded-[3.5rem] p-10 h-56 outline-none text-lg leading-relaxed" placeholder="Convergent trends and immediate growth drivers..."></textarea>
                                         </div>
                                         <div className="grid md:grid-cols-2 gap-12 p-14 bg-white/5 rounded-[4rem] border border-white/5">
                                             <div className="space-y-8">
                                                 <div className="flex justify-between items-center"><span className="text-[11px] font-black uppercase tracking-widest">Customer Urgency</span><span className="text-cyan-400 font-black text-2xl tracking-tighter">{formData.customerUrgency}</span></div>
+                                                <p className="text-[9px] text-slate-500 uppercase tracking-widest mt-[-10px]">1 = Nice to have, 10 = Existential threat if ignored</p>
                                                 <input type="range" name="customerUrgency" min="1" max="10" value={formData.customerUrgency} onChange={handleInput} />
                                             </div>
                                             <div className="space-y-8">
                                                 <div className="flex justify-between items-center"><span className="text-[11px] font-black uppercase tracking-widest">Regulatory Tailwinds</span><span className="text-cyan-400 font-black text-2xl tracking-tighter">{formData.regulatoryTailwinds}</span></div>
+                                                <p className="text-[9px] text-slate-500 uppercase tracking-widest mt-[-10px]">1 = Heavy red tape, 10 = Subsidies driving adoption</p>
                                                 <input type="range" name="regulatoryTailwinds" min="1" max="10" value={formData.regulatoryTailwinds} onChange={handleInput} />
                                             </div>
                                         </div>
@@ -283,20 +291,29 @@
                                 <div className="space-y-12">
                                     <div>
                                         <h2 className="text-4xl font-extrabold text-white tracking-tighter uppercase italic mb-4">Lean High-Fi Canvas</h2>
-                                        <DirectiveBanner text="Map commercial architecture. Justification: Exceptional technical readiness cannot rescue a fundamentally flawed revenue or operational cost model." />
+                                        <DirectiveBanner text="Map commercial architecture. Exceptional technical readiness cannot rescue a fundamentally flawed revenue or operational cost model." />
                                     </div>
                                     <div className="grid md:grid-cols-2 gap-10">
-                                        {[
-                                            { k: 'uvp', l: 'Unique Value Prop' },
-                                            { k: 'unfairAdvantage', l: 'Defensible Moat' },
-                                            { k: 'revenueStreams', l: 'Revenue Architecture' },
-                                            { k: 'costStructure', l: 'Resource Model' }
-                                        ].map((item) => (
-                                            <div key={item.k} className="space-y-4">
-                                                <label className="text-[11px] font-black uppercase tracking-widest text-slate-500">{item.l}</label>
-                                                <textarea name={item.k} value={formData[item.k]} onChange={handleInput} className="w-full command-input rounded-3xl p-7 h-32 outline-none text-sm leading-relaxed" />
-                                            </div>
-                                        ))}
+                                        <div className="space-y-4">
+                                            <label className="text-[11px] font-black uppercase tracking-widest text-slate-500">Unique Value Prop</label>
+                                            <p className="text-[10px] text-slate-400/80 mb-1">The single, clear message that states why this is worth buying.</p>
+                                            <textarea name="uvp" value={formData.uvp} onChange={handleInput} className="w-full command-input rounded-3xl p-7 h-32 outline-none text-sm leading-relaxed" />
+                                        </div>
+                                        <div className="space-y-4">
+                                            <label className="text-[11px] font-black uppercase tracking-widest text-slate-500">Defensible Moat</label>
+                                            <p className="text-[10px] text-slate-400/80 mb-1">What cannot be easily copied or bought by competitors.</p>
+                                            <textarea name="unfairAdvantage" value={formData.unfairAdvantage} onChange={handleInput} className="w-full command-input rounded-3xl p-7 h-32 outline-none text-sm leading-relaxed" />
+                                        </div>
+                                        <div className="space-y-4">
+                                            <label className="text-[11px] font-black uppercase tracking-widest text-slate-500">Revenue Architecture</label>
+                                            <p className="text-[10px] text-slate-400/80 mb-1">Direct and indirect monetization pathways.</p>
+                                            <textarea name="revenueStreams" value={formData.revenueStreams} onChange={handleInput} className="w-full command-input rounded-3xl p-7 h-32 outline-none text-sm leading-relaxed" />
+                                        </div>
+                                        <div className="space-y-4">
+                                            <label className="text-[11px] font-black uppercase tracking-widest text-slate-500">Resource Model</label>
+                                            <p className="text-[10px] text-slate-400/80 mb-1">Primary burn drivers (compute, manufacturing, talent).</p>
+                                            <textarea name="costStructure" value={formData.costStructure} onChange={handleInput} className="w-full command-input rounded-3xl p-7 h-32 outline-none text-sm leading-relaxed" />
+                                        </div>
                                     </div>
                                 </div>
                             )}
@@ -305,16 +322,18 @@
                                 <div className="space-y-12">
                                     <div>
                                         <div className="flex justify-between items-end border-b border-white/10 pb-6 mb-6"><h2 className="text-4xl font-extrabold text-white tracking-tighter uppercase italic">Readiness matrix</h2><span className="px-6 py-2 bg-slate-900 rounded-full text-[10px] font-black text-cyan-400 uppercase tracking-widest border border-cyan-500/30">Star Labs TRL Standard</span></div>
-                                        <DirectiveBanner text="Quantify execution gaps. Justification: Aligning Technical Readiness (TRL) with Market Readiness (MRL) prevents premature scaling and capital drain." />
+                                        <DirectiveBanner text="Quantify execution gaps. Aligning Technical Readiness (TRL) with Market Readiness (MRL) prevents premature scaling and capital drain." />
                                     </div>
                                     <div className="grid md:grid-cols-2 gap-14">
-                                        <div className="bg-black/30 p-14 rounded-[4rem] border border-white/5 space-y-12 shadow-2xl">
+                                        <div className="bg-black/30 p-14 rounded-[4rem] border border-white/5 space-y-10 shadow-2xl">
                                             <div className="flex justify-between items-center"><h3 className="text-sm font-black uppercase text-cyan-400 tracking-widest flex items-center gap-4"><Icon name="cpu" size={20}/> Tech Maturity</h3><span className="text-7xl font-black text-white italic">{formData.trl}</span></div>
+                                            <p className="text-[10px] text-slate-400/80 mt-[-10px] leading-relaxed max-w-[200px]">Evaluate physical/software maturity against TRL standards.</p>
                                             <input type="range" name="trl" min="1" max="10" value={formData.trl} onChange={handleInput} />
                                             <div className="flex justify-between text-[10px] font-black text-slate-600 uppercase tracking-widest"><span>Basic R&D</span><span>Validation</span><span>Deployment Ready</span></div>
                                         </div>
-                                        <div className="bg-black/30 p-14 rounded-[4rem] border border-white/5 space-y-12 shadow-2xl">
+                                        <div className="bg-black/30 p-14 rounded-[4rem] border border-white/5 space-y-10 shadow-2xl">
                                             <div className="flex justify-between items-center"><h3 className="text-sm font-black uppercase text-blue-500 tracking-widest flex items-center gap-4"><Icon name="globe" size={20}/> Market Maturity</h3><span className="text-7xl font-black text-white italic">{formData.mrl}</span></div>
+                                            <p className="text-[10px] text-slate-400/80 mt-[-10px] leading-relaxed max-w-[200px]">Evaluate customer awareness and acquisition readiness.</p>
                                             <input type="range" name="mrl" min="1" max="10" value={formData.mrl} onChange={handleInput} />
                                             <div className="flex justify-between text-[10px] font-black text-slate-600 uppercase tracking-widest"><span>Discovery</span><span>Scaling</span><span>Dominance</span></div>
                                         </div>
@@ -326,11 +345,12 @@
                                 <div className="space-y-12">
                                     <div>
                                         <div className="flex items-center gap-6 mb-4"><Icon name="radar" className="text-cyan-400" size={36} /><h2 className="text-4xl font-extrabold text-white tracking-tighter uppercase italic">Scenario Radar</h2></div>
-                                        <DirectiveBanner text="Measure environmental antifragility. Justification: Ensures the asset survives macro volatility, economic shocks, and unforeseen market shifts." />
+                                        <DirectiveBanner text="Measure environmental antifragility. Ensures the asset survives macro volatility, economic shocks, and unforeseen market shifts." />
                                     </div>
                                     <div className="bg-black/30 p-14 rounded-[4.5rem] border border-white/5 space-y-12">
                                         <div className="space-y-14 bg-white/5 p-14 rounded-[4rem] border border-white/5 shadow-inner">
                                             <div className="flex justify-between items-center"><span className="text-[11px] font-black uppercase tracking-[0.3em] text-slate-500">Environmental Stability Index</span><span className="text-6xl font-black text-cyan-400 tracking-tighter">{formData.scenarioResilience}</span></div>
+                                            <p className="text-[10px] text-slate-400/80 mt-[-20px] uppercase tracking-widest">1 = Collapses in recession, 10 = Gains value from market chaos.</p>
                                             <input type="range" name="scenarioResilience" min="1" max="10" value={formData.scenarioResilience} onChange={handleInput} />
                                             <div className="flex justify-between text-[11px] font-black text-slate-700 uppercase tracking-[0.4em]"><span>Fragile in Volatility</span><span>Fully Antifragile</span></div>
                                         </div>
@@ -342,28 +362,36 @@
                                 <div className="space-y-12">
                                     <div>
                                         <div className="flex items-center gap-6 mb-4"><Icon name="briefcase" className="text-cyan-400" size={36} /><h2 className="text-4xl font-extrabold text-white tracking-tighter uppercase italic">Spinout Velocity</h2></div>
-                                        <DirectiveBanner text="Determine operational viability. Justification: High capital burn or weak founder-technology fit are universally fatal to independent corporate spinouts." />
+                                        <DirectiveBanner text="Determine operational viability. High capital burn or weak founder-technology fit are universally fatal to independent corporate spinouts." />
                                     </div>
                                     <div className="grid md:grid-cols-2 gap-12">
-                                        {[
-                                            { k: 'teamExpertise', l: 'Founder-Tech Depth', c: 'cyan' },
-                                            { k: 'ipDefensibility', l: 'Proprietary Moat', c: 'blue' },
-                                            { k: 'capitalIntensity', l: 'Capital Burn Intensity', c: 'rose' },
-                                            { k: 'validationVelocity', l: 'Lean Validation Speed', c: 'emerald' }
-                                        ].map((m) => (
-                                            <div key={m.k} className="p-12 bg-white/5 rounded-[3.5rem] border border-white/5 space-y-10 shadow-2xl">
-                                                <div className="flex justify-between items-center"><span className="text-[11px] font-black uppercase tracking-widest text-slate-500">{m.l}</span><span className={`text-4xl font-black text-${m.c}-400 tracking-tighter italic`}>{formData[m.k]}</span></div>
-                                                <input type="range" name={m.k} min="1" max="10" value={formData[m.k]} onChange={handleInput} className={`accent-${m.c}-500`} />
-                                                {m.k === 'capitalIntensity' && <p className="text-[9px] text-rose-400 font-bold uppercase tracking-widest mt-2">Scale: 10 = Extreme Burn Rate</p>}
-                                            </div>
-                                        ))}
+                                        <div className="p-12 bg-white/5 rounded-[3.5rem] border border-white/5 space-y-8 shadow-2xl">
+                                            <div className="flex justify-between items-center"><span className="text-[11px] font-black uppercase tracking-widest text-slate-500">Founder-Tech Depth</span><span className="text-4xl font-black text-cyan-400 tracking-tighter italic">{formData.teamExpertise}</span></div>
+                                            <p className="text-[10px] text-slate-400/80 mt-[-10px]">Does the current team possess the deep domain expertise required?</p>
+                                            <input type="range" name="teamExpertise" min="1" max="10" value={formData.teamExpertise} onChange={handleInput} className="accent-cyan-500" />
+                                        </div>
+                                        <div className="p-12 bg-white/5 rounded-[3.5rem] border border-white/5 space-y-8 shadow-2xl">
+                                            <div className="flex justify-between items-center"><span className="text-[11px] font-black uppercase tracking-widest text-slate-500">Proprietary Moat</span><span className="text-4xl font-black text-blue-400 tracking-tighter italic">{formData.ipDefensibility}</span></div>
+                                            <p className="text-[10px] text-slate-400/80 mt-[-10px]">Strength of patents, trade secrets, or network effects.</p>
+                                            <input type="range" name="ipDefensibility" min="1" max="10" value={formData.ipDefensibility} onChange={handleInput} className="accent-blue-500" />
+                                        </div>
+                                        <div className="p-12 bg-white/5 rounded-[3.5rem] border border-white/5 space-y-8 shadow-2xl">
+                                            <div className="flex justify-between items-center"><span className="text-[11px] font-black uppercase tracking-widest text-slate-500">Capital Burn Intensity</span><span className="text-4xl font-black text-rose-400 tracking-tighter italic">{formData.capitalIntensity}</span></div>
+                                            <p className="text-[10px] text-slate-400/80 mt-[-10px]">1 = Capital lean (SaaS), 10 = Capital heavy (DeepTech).</p>
+                                            <input type="range" name="capitalIntensity" min="1" max="10" value={formData.capitalIntensity} onChange={handleInput} className="accent-rose-500" />
+                                        </div>
+                                        <div className="p-12 bg-white/5 rounded-[3.5rem] border border-white/5 space-y-8 shadow-2xl">
+                                            <div className="flex justify-between items-center"><span className="text-[11px] font-black uppercase tracking-widest text-slate-500">Lean Validation Speed</span><span className="text-4xl font-black text-emerald-400 tracking-tighter italic">{formData.validationVelocity}</span></div>
+                                            <p className="text-[10px] text-slate-400/80 mt-[-10px]">How fast can we run build-measure-learn product loops?</p>
+                                            <input type="range" name="validationVelocity" min="1" max="10" value={formData.validationVelocity} onChange={handleInput} className="accent-emerald-500" />
+                                        </div>
                                     </div>
                                 </div>
                             )}
 
                             {step === 6 && (
                                 <div className="space-y-12">
-                                    <DirectiveBanner text="Synthesize multidimensional inputs into a binary Go/Kill directive. Justification: Eliminates emotional and cognitive bias from capital allocation." />
+                                    <DirectiveBanner text="Synthesize multidimensional inputs into a binary Go/Kill directive, eliminating emotional and cognitive bias from capital allocation decisions." />
                                     <div className={`p-16 md:p-24 rounded-[6rem] border-2 ${analysis.border} ${analysis.bg} relative overflow-hidden shadow-2xl ${analysis.glow}`}>
                                         <div className="absolute top-0 right-0 p-16 opacity-[0.03] scale-[3.5]"><Icon name={analysis.icon} size={300} /></div>
                                         <div className="relative z-10 grid md:grid-cols-2 gap-24 items-center">
@@ -371,7 +399,7 @@
                                                 <h2 className="text-[12px] font-black uppercase text-slate-500 tracking-[1.2em]">Core Intelligence</h2>
                                                 <div className={`text-[12rem] font-black ${analysis.color} italic tracking-tighter leading-none`}>{analysis.score}</div>
                                                 <div className="text-5xl font-black text-white uppercase tracking-tighter">{analysis.status}</div>
-                                                <div className="border-t border-white/10 pt-16"><p className="text-slate-400 text-lg italic font-medium leading-relaxed">"{analysis.advice}"</p></div>
+                                                <div className="border-t border-white/10 pt-16"><p className="text-slate-400 text-lg italic font-medium leading-relaxed italic">"{analysis.advice}"</p></div>
                                             </div>
                                             <div className="space-y-12">
                                                 <div className="bg-black/70 p-14 rounded-[4.5rem] border border-white/10 backdrop-blur-3xl shadow-2xl">
