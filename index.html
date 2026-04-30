@@ -117,7 +117,7 @@
             const [step, setStep] = useState(0);
             
             const [formData, setFormData] = useState({
-                techName: '', problem: '', solution: '',
+                techName: '', problem: '', solution: '', earlyAdopters: '',
                 uvp: '', unfairAdvantage: '', whyNow: '', revenueStreams: '', costStructure: '',
                 trl: 4, mrl: 3, ipDefensibility: 6, regulatoryTailwinds: 5, teamExpertise: 7,
                 marketSize: 6, capitalIntensity: 4, customerUrgency: 6,
@@ -126,7 +126,7 @@
 
             const steps = [
                 { id: 'intake', title: 'Intake', icon: 'binary' },
-                { id: 'market', title: 'Timing', icon: 'zap' },
+                { id: 'market', title: 'Market Vector', icon: 'zap' },
                 { id: 'canvas', title: 'Lean Canvas', icon: 'layout-template' },
                 { id: 'readiness', title: 'Readiness Matrix', icon: 'layers' },
                 { id: 'radar', title: 'Scenario Radar', icon: 'radar' },
@@ -135,17 +135,30 @@
             ];
 
             const analysis = useMemo(() => {
-                // Core Execution Logic for Go/Kill
+                // CORE EXECUTION LOGIC: Go/Kill Assessment
                 const techScore = (formData.trl * 0.5) + (formData.ipDefensibility * 0.5);
-                const marketScore = (formData.mrl * 0.4) + (formData.customerUrgency * 0.4) + (formData.marketSize * 0.2);
+                const marketScore = (formData.mrl * 0.3) + (formData.customerUrgency * 0.3) + (formData.marketSize * 0.4); // High weight on TAM
                 const executionRisk = ((10 - formData.capitalIntensity) * 0.4) + (formData.scenarioResilience * 0.3) + (formData.validationVelocity * 0.3);
                 
-                const score = ((techScore * 0.3) + (marketScore * 0.4) + (executionRisk * 0.3)).toFixed(1);
+                let score = ((techScore * 0.3) + (marketScore * 0.4) + (executionRisk * 0.3)).toFixed(1);
                 const spinoutIndex = ((formData.teamExpertise * 0.4) + (formData.mrl * 0.3) + ((10 - formData.capitalIntensity) * 0.3)).toFixed(1);
+
+                // FATAL FLAW DETECTOR (Validating Star Labs primary failure vectors)
+                let fatalFlaw = "";
+                if (formData.marketSize <= 3) fatalFlaw = "TAM MISCALCULATION: Market size is too small to justify venture-scale returns.";
+                else if (formData.teamExpertise <= 3) fatalFlaw = "TEAM INCAPABILITY: Founder-technology fit is critically misaligned for this pivot.";
+                else if (formData.capitalIntensity >= 8) fatalFlaw = "FUND MISALLOCATION RISK: Initial capital burn requirement is unsustainable.";
+                else if (formData.mrl <= 3 && formData.trl >= 8) fatalFlaw = "PREMATURE SCALING: Technology is over-developed for a completely unverified market.";
+                else if (formData.ipDefensibility <= 3) fatalFlaw = "LACK OF DEFENSIBILITY: Insufficient IP Moat ensures rapid displacement by incumbents.";
+
+                // Override Score if Fatal Flaw is detected
+                if (fatalFlaw !== "") {
+                    score = Math.min(score, 5.4).toFixed(1);
+                }
 
                 let verdict = { status: 'INCUBATE', color: 'text-cyan-400', border: 'border-cyan-500/30', glow: 'shadow-cyan-500/20', advice: "Strong internal R&D potential. Maintain as stealth asset until TRL 6 is achieved and capital model is optimized." };
                 if (score >= 8.2) verdict = { status: 'SPINOUT READY', color: 'text-emerald-400', border: 'border-emerald-500/30', glow: 'shadow-emerald-500/20', advice: "Exceptional market-timing and operational efficiency. Authorize immediate corporate spinout and Seed A round preparation." };
-                else if (score < 5.5) verdict = { status: 'TERMINATE', color: 'text-rose-400', border: 'border-rose-500/30', glow: 'shadow-rose-500/20', advice: "High assumption risk coupled with extreme capital drain or low urgency. Project flagged for archive to preserve Star Labs capital." };
+                else if (score < 5.5) verdict = { status: 'TERMINATE', color: 'text-rose-400', border: 'border-rose-500/30', glow: 'shadow-rose-500/20', advice: fatalFlaw !== "" ? `FATAL FLAW DETECTED: ${fatalFlaw} Archive project immediately.` : "High assumption risk coupled with low urgency. Project flagged for archive to preserve Star Labs capital." };
 
                 return { score, spinoutIndex, ...verdict };
             }, [formData]);
@@ -233,7 +246,7 @@
                                 <div className="space-y-12">
                                     <div>
                                         <h2 className="text-4xl font-extrabold text-white tracking-tighter uppercase italic mb-4">Project Intake</h2>
-                                        <DirectiveBanner text="Define scope and market friction. Without precise problem-solution alignment, downstream algorithmic metrics lose predictive validity." />
+                                        <DirectiveBanner text="Without precise problem-solution alignment, downstream algorithmic metrics lose predictive validity." />
                                     </div>
                                     <div className="space-y-12">
                                         <div className="space-y-4">
@@ -262,24 +275,29 @@
                             {step === 1 && (
                                 <div className="space-y-12">
                                     <div>
-                                        <div className="flex items-center gap-6 mb-4"><Icon name="zap" className="text-cyan-400" size={36} /><h2 className="text-4xl font-extrabold text-white tracking-tighter uppercase italic">Market Timing</h2></div>
-                                        <DirectiveBanner text="Assess temporal viability. Being technologically early is financially indistinguishable from being wrong." />
+                                        <div className="flex items-center gap-6 mb-4"><Icon name="zap" className="text-cyan-400" size={36} /><h2 className="text-4xl font-extrabold text-white tracking-tighter uppercase italic">Market Vector</h2></div>
+                                        <DirectiveBanner text="Being technologically early is financially indistinguishable from being wrong. Assesses macro timing and market volume." />
                                     </div>
                                     <div className="space-y-12">
                                         <div className="space-y-4">
                                             <label className="text-[11px] font-black uppercase tracking-widest text-slate-500">Timing Thesis (Why Now?)</label>
                                             <p className="text-[10px] text-slate-400/80 mb-2">Identify macro events, regulatory shifts, or technological breakthroughs enabling this today.</p>
-                                            <textarea name="whyNow" value={formData.whyNow} onChange={handleInput} className="w-full command-input rounded-[3.5rem] p-10 h-56 outline-none text-lg leading-relaxed" placeholder="Convergent trends and immediate growth drivers..."></textarea>
+                                            <textarea name="whyNow" value={formData.whyNow} onChange={handleInput} className="w-full command-input rounded-[3.5rem] p-10 h-40 outline-none text-base leading-relaxed" placeholder="Convergent trends and immediate growth drivers..."></textarea>
                                         </div>
-                                        <div className="grid md:grid-cols-2 gap-12 p-14 bg-white/5 rounded-[4rem] border border-white/5">
-                                            <div className="space-y-8">
-                                                <div className="flex justify-between items-center"><span className="text-[11px] font-black uppercase tracking-widest">Customer Urgency</span><span className="text-cyan-400 font-black text-2xl tracking-tighter">{formData.customerUrgency}</span></div>
-                                                <p className="text-[9px] text-slate-500 uppercase tracking-widest mt-[-10px]">1 = Nice to have, 10 = Existential threat if ignored</p>
+                                        <div className="grid md:grid-cols-3 gap-10 p-10 bg-white/5 rounded-[3rem] border border-white/5">
+                                            <div className="space-y-6">
+                                                <div className="flex justify-between items-center"><span className="text-[10px] font-black uppercase tracking-widest">TAM Scalability</span><span className="text-cyan-400 font-black text-xl tracking-tighter">{formData.marketSize}</span></div>
+                                                <p className="text-[9px] text-slate-500 uppercase tracking-widest mt-[-10px]">1 = Niche, 10 = Global</p>
+                                                <input type="range" name="marketSize" min="1" max="10" value={formData.marketSize} onChange={handleInput} />
+                                            </div>
+                                            <div className="space-y-6">
+                                                <div className="flex justify-between items-center"><span className="text-[10px] font-black uppercase tracking-widest">Customer Urgency</span><span className="text-cyan-400 font-black text-xl tracking-tighter">{formData.customerUrgency}</span></div>
+                                                <p className="text-[9px] text-slate-500 uppercase tracking-widest mt-[-10px]">1 = Nice to have, 10 = Existential</p>
                                                 <input type="range" name="customerUrgency" min="1" max="10" value={formData.customerUrgency} onChange={handleInput} />
                                             </div>
-                                            <div className="space-y-8">
-                                                <div className="flex justify-between items-center"><span className="text-[11px] font-black uppercase tracking-widest">Regulatory Tailwinds</span><span className="text-cyan-400 font-black text-2xl tracking-tighter">{formData.regulatoryTailwinds}</span></div>
-                                                <p className="text-[9px] text-slate-500 uppercase tracking-widest mt-[-10px]">1 = Heavy red tape, 10 = Subsidies driving adoption</p>
+                                            <div className="space-y-6">
+                                                <div className="flex justify-between items-center"><span className="text-[10px] font-black uppercase tracking-widest">Regulatory Ease</span><span className="text-cyan-400 font-black text-xl tracking-tighter">{formData.regulatoryTailwinds}</span></div>
+                                                <p className="text-[9px] text-slate-500 uppercase tracking-widest mt-[-10px]">1 = Red tape, 10 = Subsidized</p>
                                                 <input type="range" name="regulatoryTailwinds" min="1" max="10" value={formData.regulatoryTailwinds} onChange={handleInput} />
                                             </div>
                                         </div>
@@ -291,7 +309,7 @@
                                 <div className="space-y-12">
                                     <div>
                                         <h2 className="text-4xl font-extrabold text-white tracking-tighter uppercase italic mb-4">Lean High-Fi Canvas</h2>
-                                        <DirectiveBanner text="Map commercial architecture. Exceptional technical readiness cannot rescue a fundamentally flawed revenue or operational cost model." />
+                                        <DirectiveBanner text="Exceptional technical readiness cannot rescue a fundamentally flawed revenue or operational cost model." />
                                     </div>
                                     <div className="grid md:grid-cols-2 gap-10">
                                         <div className="space-y-4">
@@ -322,7 +340,7 @@
                                 <div className="space-y-12">
                                     <div>
                                         <div className="flex justify-between items-end border-b border-white/10 pb-6 mb-6"><h2 className="text-4xl font-extrabold text-white tracking-tighter uppercase italic">Readiness matrix</h2><span className="px-6 py-2 bg-slate-900 rounded-full text-[10px] font-black text-cyan-400 uppercase tracking-widest border border-cyan-500/30">Star Labs TRL Standard</span></div>
-                                        <DirectiveBanner text="Quantify execution gaps. Aligning Technical Readiness (TRL) with Market Readiness (MRL) prevents premature scaling and capital drain." />
+                                        <DirectiveBanner text="Aligning Technical Readiness (TRL) with Market Readiness (MRL) detects and prevents premature scaling—a primary cause of capital drain." />
                                     </div>
                                     <div className="grid md:grid-cols-2 gap-14">
                                         <div className="bg-black/30 p-14 rounded-[4rem] border border-white/5 space-y-10 shadow-2xl">
@@ -345,7 +363,7 @@
                                 <div className="space-y-12">
                                     <div>
                                         <div className="flex items-center gap-6 mb-4"><Icon name="radar" className="text-cyan-400" size={36} /><h2 className="text-4xl font-extrabold text-white tracking-tighter uppercase italic">Scenario Radar</h2></div>
-                                        <DirectiveBanner text="Measure environmental antifragility. Ensures the asset survives macro volatility, economic shocks, and unforeseen market shifts." />
+                                        <DirectiveBanner text="Ensures the asset survives macro volatility, economic shocks, and unforeseen market shifts. Highly fragile assets are eliminated." />
                                     </div>
                                     <div className="bg-black/30 p-14 rounded-[4.5rem] border border-white/5 space-y-12">
                                         <div className="space-y-14 bg-white/5 p-14 rounded-[4rem] border border-white/5 shadow-inner">
@@ -362,7 +380,7 @@
                                 <div className="space-y-12">
                                     <div>
                                         <div className="flex items-center gap-6 mb-4"><Icon name="briefcase" className="text-cyan-400" size={36} /><h2 className="text-4xl font-extrabold text-white tracking-tighter uppercase italic">Spinout Velocity</h2></div>
-                                        <DirectiveBanner text="Determine operational viability. High capital burn or weak founder-technology fit are universally fatal to independent corporate spinouts." />
+                                        <DirectiveBanner text="High capital burn or weak founder-technology fit are universally fatal to independent corporate spinouts." />
                                     </div>
                                     <div className="grid md:grid-cols-2 gap-12">
                                         <div className="p-12 bg-white/5 rounded-[3.5rem] border border-white/5 space-y-8 shadow-2xl">
@@ -381,7 +399,7 @@
                                             <input type="range" name="capitalIntensity" min="1" max="10" value={formData.capitalIntensity} onChange={handleInput} className="accent-rose-500" />
                                         </div>
                                         <div className="p-12 bg-white/5 rounded-[3.5rem] border border-white/5 space-y-8 shadow-2xl">
-                                            <div className="flex justify-between items-center"><span className="text-[11px] font-black uppercase tracking-widest text-slate-500">Lean Validation Speed</span><span className="text-4xl font-black text-emerald-400 tracking-tighter italic">{formData.validationVelocity}</span></div>
+                                            <div className="flex justify-between items-center"><span className="text-[11px] font-black uppercase tracking-widest text-slate-500">Validation Speed</span><span className="text-4xl font-black text-emerald-400 tracking-tighter italic">{formData.validationVelocity}</span></div>
                                             <p className="text-[10px] text-slate-400/80 mt-[-10px]">How fast can we run build-measure-learn product loops?</p>
                                             <input type="range" name="validationVelocity" min="1" max="10" value={formData.validationVelocity} onChange={handleInput} className="accent-emerald-500" />
                                         </div>
@@ -391,7 +409,7 @@
 
                             {step === 6 && (
                                 <div className="space-y-12">
-                                    <DirectiveBanner text="Synthesize multidimensional inputs into a binary Go/Kill directive, eliminating emotional and cognitive bias from capital allocation decisions." />
+                                    <DirectiveBanner text="Synthesizes multidimensional inputs into a binary Go/Kill directive, eliminating emotional and cognitive bias from capital allocation decisions." />
                                     <div className={`p-16 md:p-24 rounded-[6rem] border-2 ${analysis.border} ${analysis.bg} relative overflow-hidden shadow-2xl ${analysis.glow}`}>
                                         <div className="absolute top-0 right-0 p-16 opacity-[0.03] scale-[3.5]"><Icon name={analysis.icon} size={300} /></div>
                                         <div className="relative z-10 grid md:grid-cols-2 gap-24 items-center">
