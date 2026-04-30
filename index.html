@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Star Labs | Alpha-2 Strategic Intelligence</title>
+    <title>Star Labs | Venture Readiness Protocol</title>
     <!-- Modern Tech Stack CDNs -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -30,12 +30,12 @@
             overflow-x: hidden; 
         }
 
-        /* Gold-Standard Glassmorphism */
+        /* Institutional Gold Glassmorphism */
         .glass-panel { 
             background: var(--surface); 
             backdrop-filter: blur(40px) saturate(180%); 
-            border: 1px solid rgba(197, 160, 89, 0.1); 
-            box-shadow: 0 30px 100px -20px rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(197, 160, 89, 0.15); 
+            box-shadow: 0 30px 100px -20px rgba(0, 0, 0, 0.9);
         }
 
         .command-input {
@@ -51,12 +51,7 @@
             outline: none;
         }
 
-        /* Expert Adjustment Slider styling */
-        .expert-slider::-webkit-slider-thumb { 
-            border: 4px solid #f59e0b !important;
-            box-shadow: 0 0 25px rgba(245, 158, 11, 0.5) !important;
-        }
-
+        /* Industry Standard Range Styling */
         input[type="range"] { -webkit-appearance: none; background: transparent; cursor: pointer; width: 100%; }
         input[type="range"]::-webkit-slider-runnable-track { background: rgba(197, 160, 89, 0.05); height: 6px; border-radius: 10px; }
         input[type="range"]::-webkit-slider-thumb { 
@@ -69,6 +64,11 @@
             border: 5px solid var(--accent-gold);
             box-shadow: 0 0 25px rgba(197, 160, 89, 0.5);
             transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .expert-slider::-webkit-slider-thumb { 
+            border: 4px solid #f59e0b !important;
+            box-shadow: 0 0 25px rgba(245, 158, 11, 0.5) !important;
         }
 
         .gold-glow {
@@ -113,14 +113,14 @@
         const Logo = ({ size = "w-40 h-40" }) => {
             const [imgError, setImgError] = useState(false);
             if (imgError) return <span className="font-black text-white italic tracking-tighter text-3xl">STAR LABS</span>;
-            return <img src="logo.jpg" alt="Star Labs" className={`${size} object-contain block`} onError={() => setImgError(true)} />;
+            return <img src="logo.png" alt="Star Labs" className={`${size} object-contain block`} onError={() => setImgError(true)} />;
         };
 
-        const ProtocolBanner = ({ text }) => (
+        const DirectiveBanner = ({ text }) => (
             <div className="flex items-start gap-4 p-6 rounded-2xl bg-[#c5a05908] border border-[#c5a05920] w-fit max-w-4xl shadow-[0_0_30px_rgba(197,160,89,0.03)] mb-10">
                 <Icon name="shield-check" className="text-[#c5a059] mt-0.5 shrink-0" size={16} />
                 <p className="text-[11px] text-[#e5e1d890] uppercase tracking-[0.25em] leading-relaxed">
-                    <span className="font-black text-[#c5a059] mr-2">EZP DIRECTIVE //</span> 
+                    <span className="font-black text-[#c5a059] mr-2">VRP DIRECTIVE //</span> 
                     {text}
                 </p>
             </div>
@@ -130,7 +130,7 @@
             <div className="space-y-4 mt-8">
                 <div className="flex justify-between items-center">
                     <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">{label}</label>
-                    <span className="text-[9px] font-bold text-[#c5a059] uppercase tracking-widest">{files.length} Verified Attachments</span>
+                    <span className="text-[9px] font-bold text-[#c5a059] uppercase tracking-widest">{files.length} Attachments</span>
                 </div>
                 <div className="relative group">
                     <input 
@@ -140,7 +140,7 @@
                     />
                     <div className="command-input rounded-2xl p-8 border-dashed border-2 border-[#c5a05910] group-hover:border-[#c5a05940] transition-all flex flex-col items-center gap-3">
                         <Icon name="upload-cloud" size={24} className="text-slate-600 group-hover:text-[#c5a059]" />
-                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Upload Documentation / Evidence</p>
+                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Select Files for Evidence Locker</p>
                     </div>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -153,7 +153,7 @@
             </div>
         );
 
-        const ExpertAdjustment = ({ label, value, name, onChange, description }) => (
+        const ExpertCalibration = ({ label, value, name, onChange, description }) => (
             <div className="mt-12 p-8 rounded-[2.5rem] bg-[#c5a05905] border border-[#c5a05915] shadow-inner">
                 <div className="flex justify-between items-center mb-5">
                     <div className="flex items-center gap-4">
@@ -162,7 +162,7 @@
                     </div>
                     <span className="text-2xl font-black text-[#c5a059]">{value > 0 ? `+${value}` : value}</span>
                 </div>
-                <p className="text-[10px] text-slate-500 uppercase tracking-widest mb-8 leading-relaxed">{description}</p>
+                <p className="text-[10px] text-slate-500 uppercase tracking-widest mb-8 leading-relaxed italic">{description}</p>
                 <input 
                     type="range" min="-3" max="3" step="0.5" 
                     name={name} value={value} onChange={onChange}
@@ -190,11 +190,11 @@
             const steps = [
                 { id: 'intake', title: 'Intake Audit', icon: 'binary' },
                 { id: 'market', title: 'Market Vector', icon: 'zap' },
-                { id: 'readiness', title: 'Readiness Matrix', icon: 'layers' },
+                { id: 'readiness', title: 'Investment Matrix', icon: 'layers' },
                 { id: 'radar', title: 'Scenario Radar', icon: 'radar' },
-                { id: 'canvas', title: 'Lean Canvas', icon: 'layout-template' },
-                { id: 'spinout', title: 'Spinout Velocity', icon: 'rocket' },
-                { id: 'report', title: 'EZP Verdict', icon: 'shield-check' }
+                { id: 'canvas', title: 'Revenue Design', icon: 'layout-template' },
+                { id: 'spinout', title: 'Venture Velocity', icon: 'rocket' },
+                { id: 'report', title: 'Final Verdict', icon: 'shield-check' }
             ];
 
             const analysis = useMemo(() => {
@@ -204,18 +204,19 @@
                 
                 let score = ((techScore * 0.3) + (marketScore * 0.4) + (executionRisk * 0.3)).toFixed(1);
                 
+                // STAR LABS FAILURE OVERRIDES
                 let fatalFlaw = "";
-                if (formData.marketSize <= 3) fatalFlaw = "TAM MISCALCULATION: Insufficient scale potential.";
-                else if (formData.teamExpertise <= 3) fatalFlaw = "TEAM INCAPABILITY: Technical/Foundational gap.";
-                else if (formData.capitalIntensity >= 9) fatalFlaw = "FUND MISALLOCATION: Extreme burn intensity.";
+                if (formData.marketSize <= 3) fatalFlaw = "MARKET SIZE MISCALCULATION: TAM is too restricted for venture math.";
+                else if (formData.teamExpertise <= 3) fatalFlaw = "TEAM INCAPABILITY: Technical leadership depth is insufficient.";
+                else if (formData.capitalIntensity >= 9) fatalFlaw = "FUND MISALLOCATION RISK: Capital burn intensity exceeds safety model.";
                 
                 if (fatalFlaw !== "") score = Math.min(parseFloat(score), 5.4).toFixed(1);
 
                 const spinoutIndex = ((formData.teamExpertise * 0.4) + (formData.mrl * 0.3) + ((10 - formData.capitalIntensity) * 0.3)).toFixed(1);
 
-                let verdict = { status: 'INCUBATE', color: 'text-[#c5a059]', border: 'border-[#c5a05940]', glow: 'shadow-[#c5a05920]', advice: "Meets foundational R&D thresholds. Retain for internal EZP de-risking." };
-                if (parseFloat(score) >= 8.2) verdict = { status: 'SPINOUT READY', color: 'text-emerald-400', border: 'border-emerald-500/30', glow: 'shadow-emerald-500/20', advice: "Alpha-grade verified. Authorize immediate standalone corporate formation." };
-                else if (parseFloat(score) < 5.5) verdict = { status: 'TERMINATE', color: 'text-rose-500', border: 'border-rose-500/30', glow: 'shadow-rose-500/20', advice: fatalFlaw || "Execution risk exceeds projected terminal value." };
+                let verdict = { status: 'INCUBATE', color: 'text-[#c5a059]', border: 'border-[#c5a05940]', glow: 'shadow-[#c5a05920]', advice: "Meets foundry R&D thresholds. Retain for stealth-mode de-risking within Star Labs." };
+                if (parseFloat(score) >= 8.2) verdict = { status: 'SPINOUT READY', color: 'text-emerald-400', border: 'border-emerald-500/30', glow: 'shadow-emerald-500/20', advice: "High Investment Grade. Authorize immediate standalone corporate spinout." };
+                else if (parseFloat(score) < 5.5) verdict = { status: 'TERMINATE', color: 'text-rose-500', border: 'border-rose-500/30', glow: 'shadow-rose-500/20', advice: fatalFlaw || "Execution risk exceeds projected terminal value. Terminate to preserve capital." };
 
                 return { score, spinoutIndex, ...verdict };
             }, [formData]);
@@ -240,15 +241,15 @@
                 <div className="min-h-screen flex items-center justify-center p-6 bg-[#050505]">
                     <div className="max-w-md w-full glass-panel p-20 rounded-[4.5rem] text-center border-[#c5a05915]">
                         <div className="flex justify-center mb-10"><Logo size="w-64 h-64" /></div>
-                        <h1 className="text-3xl font-black text-white tracking-tighter uppercase italic mb-2">EZP Terminal</h1>
-                        <p className="text-[10px] font-bold text-slate-500 tracking-[0.5em] mb-14 uppercase italic">Classification: Founder Access</p>
+                        <h1 className="text-3xl font-black text-white tracking-tighter uppercase italic mb-2">VRP Terminal</h1>
+                        <p className="text-[10px] font-bold text-slate-500 tracking-[0.5em] mb-14 uppercase italic tracking-widest">Classification: Star Labs Hub</p>
                         <form onSubmit={unlock} className="space-y-6">
                             <input 
-                                type="password" placeholder="PROTOCOL KEY" value={accessKey}
+                                type="password" placeholder="DILIGENCE KEY" value={accessKey}
                                 onChange={(e) => setAccessKey(e.target.value)}
                                 className="w-full command-input rounded-2xl px-6 py-6 text-center text-[#c5a059] tracking-[1em] font-mono outline-none text-xl"
                             />
-                            <button className="w-full py-6 bg-[#c5a059] hover:bg-[#d4af37] text-black font-extrabold uppercase tracking-widest rounded-2xl shadow-2xl transition-all active:scale-95">Decrypt Protocol</button>
+                            <button className="w-full py-6 bg-[#c5a059] hover:bg-[#d4af37] text-black font-extrabold uppercase tracking-widest rounded-2xl shadow-2xl transition-all active:scale-95">Verify Diligence Access</button>
                         </form>
                     </div>
                 </div>
@@ -264,8 +265,8 @@
                             <div className="w-40 h-40 flex items-center justify-center"><Logo size="w-full h-full" /></div>
                             <div className="h-20 w-px bg-white/10 hidden lg:block"></div>
                             <div>
-                                <h1 className="text-5xl font-black text-white italic tracking-tighter uppercase leading-none">Alpha-2 <span className="gold-gradient-text italic">EZP</span></h1>
-                                <p className="text-slate-500 text-[10px] font-black tracking-[0.8em] uppercase mt-5 italic">Star Labs Deep-Tech Foundry Interface</p>
+                                <h1 className="text-5xl font-black text-white italic tracking-tighter uppercase leading-none">Venture Readiness Protocol (<span className="gold-gradient-text italic">VRP</span>)</h1>
+                                <p className="text-slate-500 text-[10px] font-black tracking-[0.8em] uppercase mt-5 italic">Institutional De-Risking Framework // Alpha-2</p>
                             </div>
                         </div>
                         <div className="flex items-center gap-10 no-print">
@@ -277,7 +278,7 @@
                                 <p className="text-[11px] font-black text-[#c5a059] tracking-widest mt-2 uppercase italic">Verified Investor Access</p>
                             </div>
                             <button onClick={() => window.print()} className="px-10 py-5 bg-white/5 border border-white/10 rounded-2xl text-[12px] font-bold uppercase tracking-[0.2em] flex items-center gap-4 transition-all hover:bg-white/10 text-white">
-                                <Icon name="download" size={18} /> Export Audit
+                                <Icon name="download" size={18} /> Export Diligence
                             </button>
                         </div>
                     </header>
@@ -297,25 +298,28 @@
                             {step === 0 && (
                                 <div className="space-y-16">
                                     <div>
-                                        <h2 className="text-5xl font-black text-white tracking-tighter uppercase italic mb-6">Intake Audit</h2>
-                                        <ProtocolBanner text="Precise friction mapping is mandatory. Problem-Solution fit is the EZP Stage 1 priority for Star Labs founders." />
+                                        <h2 className="text-5xl font-black text-white tracking-tighter uppercase italic mb-6">Foundry Intake</h2>
+                                        <ProtocolBanner text="VRP Phase 1: Problem-Solution fit. Star Labs requires precise friction mapping for GCC sovereign viability." />
                                     </div>
                                     <div className="space-y-14">
                                         <div className="space-y-5">
                                             <label className="text-[12px] font-black uppercase text-slate-500 tracking-widest">Technology Identifier</label>
-                                            <input type="text" name="techName" value={formData.techName} onChange={handleInput} className="w-full command-input rounded-3xl px-8 py-8 text-white text-2xl outline-none italic font-bold" placeholder="PROJECT CODE..." />
+                                            <p className="text-[10px] text-slate-500 uppercase italic">The internal Foundry asset code.</p>
+                                            <input type="text" name="techName" value={formData.techName} onChange={handleInput} className="w-full command-input rounded-3xl px-8 py-8 text-white text-2xl outline-none italic font-bold" placeholder="PROJECT IDENTIFIER..." />
                                         </div>
                                         <div className="grid md:grid-cols-2 gap-16">
                                             <div className="space-y-5">
-                                                <label className="text-[12px] font-black uppercase text-slate-500 tracking-widest">Market Friction</label>
-                                                <textarea name="problem" value={formData.problem} onChange={handleInput} className="w-full command-input rounded-[3rem] p-10 h-60 outline-none resize-none leading-relaxed text-lg" placeholder="Bleeding neck wound..."></textarea>
+                                                <label className="text-[12px] font-black uppercase text-slate-500 tracking-widest">Observed Market Friction</label>
+                                                <p className="text-[10px] text-slate-500 uppercase italic">The critical GCC pain point being solved.</p>
+                                                <textarea name="problem" value={formData.problem} onChange={handleInput} className="w-full command-input rounded-[3rem] p-10 h-60 outline-none resize-none leading-relaxed text-lg" placeholder="Identify the bleeding neck wound..."></textarea>
                                             </div>
                                             <div className="space-y-5">
-                                                <label className="text-[12px] font-black uppercase text-slate-500 tracking-widest">Intervention</label>
-                                                <textarea name="solution" value={formData.solution} onChange={handleInput} className="w-full command-input rounded-[3rem] p-10 h-60 outline-none resize-none leading-relaxed text-lg" placeholder="Technical mechanism..."></textarea>
+                                                <label className="text-[12px] font-black uppercase text-slate-500 tracking-widest">Venture Intervention</label>
+                                                <p className="text-[10px] text-slate-500 uppercase italic">The proprietary R&D mechanism of intervention.</p>
+                                                <textarea name="solution" value={formData.solution} onChange={handleInput} className="w-full command-input rounded-[3rem] p-10 h-60 outline-none resize-none leading-relaxed text-lg" placeholder="How Star Labs resolves the friction..."></textarea>
                                             </div>
                                         </div>
-                                        <EvidenceSlot label="Concept Validation Proof (Drafts, Pre-EZP docs)" files={formData.intakeDocs} onUpload={(f) => handleFileUpload('intakeDocs', f)} />
+                                        <EvidenceSlot label="Concept Validation Proofs & Raw Field Data" files={formData.intakeDocs} onUpload={(f) => handleFileUpload('intakeDocs', f)} />
                                     </div>
                                 </div>
                             )}
@@ -324,45 +328,48 @@
                                 <div className="space-y-16">
                                     <div>
                                         <div className="flex items-center gap-8 mb-6"><Icon name="zap" className="text-[#c5a059]" size={40} /><h2 className="text-5xl font-black text-white tracking-tighter uppercase italic">Market Vector</h2></div>
-                                        <ProtocolBanner text="Eliminates TAM miscalculation. Star Labs requires global scale potential to authorize seed-stage spinouts." />
+                                        <ProtocolBanner text="VRP Phase 2: Eliminates TAM miscalculation. Asset must prove billion-dollar global scale potential." />
                                     </div>
                                     <div className="grid md:grid-cols-3 gap-12">
                                         <div className="space-y-10 bg-black/30 p-12 rounded-[4rem]">
-                                            <div className="flex justify-between items-center"><span className="text-[11px] font-black text-slate-500 uppercase tracking-widest">TAM Depth</span><span className="text-3xl font-black text-[#c5a059]">{formData.marketSize}</span></div>
+                                            <div className="flex justify-between items-center"><span className="text-[11px] font-black text-slate-500 uppercase tracking-widest">TAM Size</span><span className="text-3xl font-black text-[#c5a059]">{formData.marketSize}</span></div>
                                             <input type="range" name="marketSize" min="1" max="10" value={formData.marketSize} onChange={handleInput} />
+                                            <p className="text-[10px] text-slate-600 uppercase font-bold">1=Restricted, 10=Global</p>
                                         </div>
                                         <div className="space-y-10 bg-black/30 p-12 rounded-[4rem]">
                                             <div className="flex justify-between items-center"><span className="text-[11px] font-black text-slate-500 uppercase tracking-widest">Urgency</span><span className="text-3xl font-black text-[#c5a059]">{formData.customerUrgency}</span></div>
                                             <input type="range" name="customerUrgency" min="1" max="10" value={formData.customerUrgency} onChange={handleInput} />
+                                            <p className="text-[10px] text-slate-600 uppercase font-bold">1=Optional, 10=Vital</p>
                                         </div>
                                         <div className="space-y-10 bg-black/30 p-12 rounded-[4rem]">
                                             <div className="flex justify-between items-center"><span className="text-[11px] font-black text-slate-500 uppercase tracking-widest">Timing</span><span className="text-3xl font-black text-[#c5a059]">{formData.scenarioResilience}</span></div>
                                             <input type="range" name="scenarioResilience" min="1" max="10" value={formData.scenarioResilience} onChange={handleInput} />
+                                            <p className="text-[10px] text-slate-600 uppercase font-bold">1=Early, 10=Perfect</p>
                                         </div>
                                     </div>
                                     <EvidenceSlot label="Market Study Reports & Opportunity Analysis" files={formData.marketDocs} onUpload={(f) => handleFileUpload('marketDocs', f)} />
-                                    <ExpertAdjustment label="Regional Nuance" name="marketExpertAdj" value={formData.marketExpertAdj} onChange={handleInput} description="Override based on sovereign mandates, GCC subsidies, or regional partnership tailwinds." />
+                                    <ExpertCalibration label="Regional Alignment" name="marketExpertAdj" value={formData.marketExpertAdj} onChange={handleInput} description="Override based on sovereign mandates, Oman Vision 2040 subsidies, or regional partnership tailwinds." />
                                 </div>
                             )}
 
                             {step === 2 && (
                                 <div className="space-y-16">
                                     <div>
-                                        <h2 className="text-5xl font-black text-white tracking-tighter uppercase italic mb-6">Readiness Matrix</h2>
-                                        <ProtocolBanner text="Identifies and prevents premature scaling—the primary cause of fund misallocation in early-stage deep tech." />
+                                        <h2 className="text-5xl font-black text-white tracking-tighter uppercase italic mb-6">Investment Matrix</h2>
+                                        <ProtocolBanner text="VRP Phase 3: Identifies premature scaling risks by aligning Tech (TRL) with Market Readiness (MRL)." />
                                     </div>
                                     <div className="grid md:grid-cols-2 gap-16">
                                         <div className="bg-black/30 p-16 rounded-[4.5rem] border border-white/5 space-y-14 shadow-2xl">
-                                            <div className="flex justify-between items-center"><h3 className="text-sm font-black uppercase text-[#c5a059] tracking-widest flex items-center gap-5"><Icon name="cpu" size={24}/> Tech Maturity</h3><span className="text-8xl font-black text-white italic">{formData.trl}</span></div>
+                                            <div className="flex justify-between items-center"><h3 className="text-sm font-black uppercase text-[#c5a059] tracking-widest flex items-center gap-5"><Icon name="cpu" size={24}/> Tech (TRL)</h3><span className="text-8xl font-black text-white italic">{formData.trl}</span></div>
                                             <input type="range" name="trl" min="1" max="10" value={formData.trl} onChange={handleInput} />
                                         </div>
                                         <div className="bg-black/30 p-16 rounded-[4.5rem] border border-white/5 space-y-14 shadow-2xl">
-                                            <div className="flex justify-between items-center"><h3 className="text-sm font-black uppercase text-[#e5e1d8] tracking-widest flex items-center gap-5"><Icon name="globe" size={24}/> Market Maturity</h3><span className="text-8xl font-black text-white italic">{formData.mrl}</span></div>
+                                            <div className="flex justify-between items-center"><h3 className="text-sm font-black uppercase text-[#e5e1d8] tracking-widest flex items-center gap-5"><Icon name="globe" size={24}/> Market (MRL)</h3><span className="text-8xl font-black text-white italic">{formData.mrl}</span></div>
                                             <input type="range" name="mrl" min="1" max="10" value={formData.mrl} onChange={handleInput} />
                                         </div>
                                     </div>
                                     <EvidenceSlot label="Technical Specs, Lab Logs & Whitepapers" files={formData.technicalDocs} onUpload={(f) => handleFileUpload('technicalDocs', f)} />
-                                    <ExpertAdjustment label="Barrier Verification" name="techExpertAdj" value={formData.techExpertAdj} onChange={handleInput} description="Verification of defensible moat strength AI algorithms may underestimate." />
+                                    <ExpertCalibration label="IP Strength Verification" name="techExpertAdj" value={formData.techExpertAdj} onChange={handleInput} description="Expert verification of patent depth or technical barriers AI algorithms may underestimate." />
                                 </div>
                             )}
 
@@ -370,7 +377,7 @@
                                 <div className="space-y-16 animate-ui">
                                     <div>
                                         <div className="flex items-center gap-8 mb-6"><Icon name="radar" className="text-[#c5a059]" size={40} /><h2 className="text-5xl font-extrabold text-white tracking-tighter uppercase italic">Scenario Radar</h2></div>
-                                        <ProtocolBanner text="Quantifies environmental antifragility. Ensures the project thrives under macro economic and energy shocks." />
+                                        <ProtocolBanner text="Antifragility test. Ensures the project thrives under divergent macro economic and energy shocks." />
                                     </div>
                                     <div className="bg-[#c5a05905] p-24 rounded-[6rem] shadow-inner text-center space-y-12 border border-[#c5a05910]">
                                         <div className="space-y-4">
@@ -386,15 +393,15 @@
                             {step === 4 && (
                                 <div className="space-y-16">
                                     <div>
-                                        <h2 className="text-5xl font-black text-white tracking-tighter uppercase italic mb-6">Lean High-Fi Canvas</h2>
-                                        <ProtocolBanner text="Commercial architecture mapping. DeepTech maturity cannot save a fundamentally flawed monetization model." />
+                                        <h2 className="text-5xl font-black text-white tracking-tighter uppercase italic mb-6">Revenue Design</h2>
+                                        <ProtocolBanner text="Venture commercial architecture. Institutional maturity requires monetization and resource paths established early." />
                                     </div>
                                     <div className="grid md:grid-cols-2 gap-12">
                                         {[
-                                            { k: 'uvp', l: 'Value Prop', d: 'The conversion message.' },
-                                            { k: 'unfairAdvantage', l: 'Defensible Moat', d: 'IP Moat depth.' },
-                                            { k: 'revenueStreams', l: 'Revenue Architecture', d: 'Monetization path.' },
-                                            { k: 'costStructure', l: 'Resource Model', d: 'Burn drivers.' }
+                                            { k: 'uvp', l: 'Value Prop', d: 'The institutional conversion message.' },
+                                            { k: 'unfairAdvantage', l: 'Defensible Moat', d: 'IP Moat depth and barriers.' },
+                                            { k: 'revenueStreams', l: 'Revenue Architecture', d: 'B2G and Enterprise pathways.' },
+                                            { k: 'costStructure', l: 'Foundry Resource Model', d: 'Burn drivers and R&D requirements.' }
                                         ].map((item) => (
                                             <div key={item.k} className="space-y-5">
                                                 <label className="text-[12px] font-black uppercase tracking-widest text-slate-500">{item.l}</label>
@@ -408,56 +415,58 @@
                             {step === 5 && (
                                 <div className="space-y-16">
                                     <div>
-                                        <div className="flex items-center gap-8 mb-6"><Icon name="rocket" className="text-[#c5a059]" size={40} /><h2 className="text-5xl font-black text-white tracking-tighter uppercase italic">Spinout Velocity</h2></div>
-                                        <ProtocolBanner text="Detects team capability gaps. High technical burn or weak founder-fit is fatal to standalone survival velocity." />
+                                        <div className="flex items-center gap-8 mb-6"><Icon name="rocket" className="text-[#c5a059]" size={40} /><h2 className="text-5xl font-black text-white tracking-tighter uppercase italic">Venture Velocity</h2></div>
+                                        <ProtocolBanner text="VRP Phase 4: Detects team capability gaps. Weak founder-fit or high burn is fatal to standalone spinouts." />
                                     </div>
                                     <div className="grid md:grid-cols-2 gap-14">
                                         {[
-                                            { k: 'teamExpertise', l: 'Founder Capability', c: 'gold' },
-                                            { k: 'ipDefensibility', l: 'Proprietary Moat', c: 'charcoal' },
-                                            { k: 'capitalIntensity', l: 'Burn Intensity', c: 'rose' },
-                                            { k: 'validationVelocity', l: 'Feedback Speed', c: 'emerald' }
+                                            { k: 'teamExpertise', l: 'Founder Depth', c: 'gold', d: 'Domain depth of assigned leads.' },
+                                            { k: 'ipDefensibility', l: 'Proprietary Moat', c: 'charcoal', d: 'Strength of technical IP.' },
+                                            { k: 'capitalIntensity', l: 'Burn Model', c: 'rose', d: '10=Extreme Resource Drag.' },
+                                            { k: 'validationVelocity', l: 'Foundry Speed', c: 'emerald', d: 'Build-Measure-Learn loop speed.' }
                                         ].map((m) => (
                                             <div key={m.k} className="p-14 bg-white/5 rounded-[4rem] border border-white/5 space-y-10 shadow-2xl">
                                                 <div className="flex justify-between items-center"><span className="text-[12px] font-black uppercase tracking-widest text-slate-500">{m.l}</span><span className={`text-5xl font-black italic text-white`}>{formData[m.k]}</span></div>
+                                                <p className="text-[11px] text-slate-500 uppercase tracking-widest leading-relaxed italic">{m.d}</p>
                                                 <input type="range" name={m.k} min="1" max="10" value={formData[m.k]} onChange={handleInput} />
                                             </div>
                                         ))}
                                     </div>
-                                    <EvidenceSlot label="Interview Logs, Founder Dossiers & GTM Plan" files={formData.velocityDocs} onUpload={(f) => handleFileUpload('velocityDocs', f)} />
-                                    <ExpertAdjustment label="Operational Sync" name="executionExpertAdj" value={formData.executionExpertAdj} onChange={handleInput} description="Calibration based on Foundry resource availability or team execution velocity." />
+                                    <EvidenceSlot label="Interview Logs, Founder Dossiers & GTM Strategy" files={formData.velocityDocs} onUpload={(f) => handleFileUpload('velocityDocs', f)} />
+                                    <ExpertCalibration label="Foundry Execution Sync" name="executionExpertAdj" value={formData.executionExpertAdj} onChange={handleInput} description="Calibration based on Foundry resource availability or internal execution velocity." />
                                 </div>
                             )}
 
                             {step === 6 && (
                                 <div className="space-y-16">
-                                    <ProtocolBanner text="Synthesized EZP Final Verdict. This verified audit trail proves rigorous de-risking for Star Labs Stakeholders." />
+                                    <ProtocolBanner text="Synthesized VRP Phase 4 Diligence Report. This verified audit trail proves rigorous de-risking for Star Labs Stakeholders." />
                                     <div className={`p-24 md:p-32 rounded-[7rem] border-2 ${analysis.border} ${analysis.bg} relative overflow-hidden shadow-2xl`}>
                                         <div className="absolute top-0 right-0 p-16 opacity-[0.05] scale-[4]"><Icon name={analysis.icon} size={300} /></div>
                                         <div className="relative z-10 grid md:grid-cols-2 gap-32 items-center">
                                             <div className="space-y-16">
-                                                <h2 className="text-[14px] font-black uppercase text-slate-500 tracking-[1.5em]">EZP Decision</h2>
+                                                <h2 className="text-[14px] font-black uppercase text-slate-500 tracking-[1.5em]">VRP Final Decision</h2>
                                                 <div className={`text-[14rem] font-black ${parseFloat(analysis.score) < 5.5 ? 'text-rose-600' : 'gold-gradient-text'} italic tracking-tighter leading-none`}>{analysis.score}</div>
                                                 <div className="text-6xl font-black text-white uppercase tracking-tighter italic">{analysis.status}</div>
                                                 <div className="border-t border-white/10 pt-16 font-medium leading-relaxed italic"><p className="text-slate-400 text-xl">"{analysis.advice}"</p></div>
                                             </div>
                                             <div className="space-y-16">
                                                 <div className="bg-black/80 p-16 rounded-[5rem] border border-white/10 shadow-2xl">
-                                                    <div className="flex justify-between text-[14px] font-black uppercase mb-8 tracking-[0.3em]"><span>Spinout Readiness</span><span className="text-[#c5a059] text-4xl font-black italic">{analysis.spinoutIndex}/10</span></div>
+                                                    <div className="flex justify-between text-[14px] font-black uppercase mb-8 tracking-[0.3em]"><span>Investment Readiness</span><span className="text-[#c5a059] text-4xl font-black italic">{analysis.spinoutIndex}/10</span></div>
                                                     <div className="w-full h-3 bg-slate-900 rounded-full overflow-hidden shadow-inner"><div className="h-full bg-[#c5a059] transition-all duration-[3500ms] ease-out shadow-[0_0_25px_#c5a059]" style={{ width: `${analysis.spinoutIndex * 10}%` }}></div></div>
                                                 </div>
                                                 <div className="space-y-6">
-                                                    <span className="text-[12px] font-black uppercase text-slate-500 tracking-widest italic underline decoration-[#c5a059] underline-offset-8">Verified Proof Locker</span>
+                                                    <span className="text-[12px] font-black uppercase text-slate-500 tracking-widest italic underline decoration-[#c5a059] underline-offset-8">Verified Proof-of-Logic Locker</span>
                                                     <div className="flex flex-wrap gap-3">
                                                         {[...formData.intakeDocs, ...formData.marketDocs, ...formData.technicalDocs, ...formData.velocityDocs].map((f, i) => (
                                                             <div key={i} className="evidence-tag px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-3">
                                                                 <Icon name="check-circle" size={14} className="text-[#c5a059]" /> {f.name}
                                                             </div>
                                                         ))}
+                                                        {[...formData.intakeDocs, ...formData.marketDocs, ...formData.technicalDocs, ...formData.velocityDocs].length === 0 && <p className="text-slate-700 uppercase italic font-bold text-[10px]">No Verified Evidence Provided</p>}
                                                     </div>
                                                 </div>
                                                 <textarea 
-                                                    placeholder="Final Expert Recommendation Note..." 
+                                                    placeholder="Final Expert Diligence Recommendation..." 
                                                     name="expertNote" value={formData.expertNote} onChange={handleInput}
                                                     className="w-full bg-black/60 border border-[#c5a05920] rounded-[3.5rem] p-12 h-64 outline-none text-lg italic leading-relaxed text-[#c5a059]"
                                                 />
@@ -469,9 +478,9 @@
 
                             <div className="mt-32 pt-16 border-t border-white/10 flex justify-between items-center no-print">
                                 <button onClick={() => setStep(Math.max(0, step - 1))} disabled={step === 0} className="text-[12px] font-black uppercase tracking-[0.6em] text-slate-600 hover:text-white transition-all disabled:opacity-0 active:scale-90">Gate-Back</button>
-                                <div className="text-[11px] font-bold text-slate-800 tracking-[1.2em] uppercase hidden lg:block italic">Star Labs // EZP-Stable Terminal</div>
+                                <div className="text-[11px] font-bold text-slate-800 tracking-[1.2em] uppercase hidden lg:block italic">Star Labs // Alpha-2 // Final VRP Diligence</div>
                                 {step < steps.length - 1 && (
-                                    <button onClick={() => setStep(step + 1)} className="px-20 py-8 bg-[#c5a05910] text-[#c5a059] border border-[#c5a05940] text-[13px] font-black uppercase tracking-[0.5em] rounded-[3rem] hover:bg-[#c5a059] hover:text-black transition-all shadow-2xl active:scale-95">Next Protocol Gate</button>
+                                    <button onClick={() => setStep(step + 1)} className="px-20 py-8 bg-[#c5a05910] text-[#c5a059] border border-[#c5a05940] text-[13px] font-black uppercase tracking-[0.5em] rounded-[3rem] hover:bg-[#c5a059] hover:text-black transition-all shadow-2xl active:scale-95">Next protocol Gate</button>
                                 )}
                             </div>
                         </main>
@@ -480,7 +489,7 @@
                     <footer className="mt-48 border-t border-white/10 pt-24 grid md:grid-cols-3 gap-32 text-slate-600">
                         <div className="space-y-12 text-left">
                             <h4 className="text-[16px] font-black uppercase tracking-widest text-white border-b border-[#c5a05940] pb-6 w-fit">Vision Philosophy</h4>
-                            <p className="text-[14px] leading-relaxed font-medium italic text-slate-500">Builders, Not Bankers. Optimizing capital for Oman Vision 2040 by aligning Deep-Tech R&D with high-moat standalone corporate entities.</p>
+                            <p className="text-[14px] leading-relaxed font-medium italic text-slate-500 italic">Builders, Not Bankers. Optimizing capital for Oman Vision 2040 by transforming R&D into high-moat standalone corporate entities.</p>
                         </div>
                         <div className="flex flex-col items-center justify-center gap-14">
                              <div className="flex gap-10">
@@ -488,12 +497,12 @@
                                 <div className="w-5 h-5 bg-slate-900 rounded-full"></div>
                                 <div className="w-5 h-5 bg-slate-900 rounded-full"></div>
                             </div>
-                            <span className="text-[12px] font-black uppercase tracking-[2em] text-slate-800 italic">SECURE // SL-EZP-2026</span>
+                            <span className="text-[12px] font-black uppercase tracking-[2.5em] text-slate-800 italic">SECURE // SL-VRP-2026</span>
                         </div>
                         <div className="text-right space-y-12 ml-auto">
-                             <h4 className="text-[16px] font-black uppercase tracking-widest text-white border-b border-[#c5a05940] pb-6 w-fit ml-auto">Foundry Protocol</h4>
+                             <h4 className="text-[16px] font-black uppercase tracking-widest text-white border-b border-[#c5a05940] pb-6 w-fit ml-auto">Foundry Intelligence</h4>
                              <p className="text-[14px] font-black text-[#c5a059] uppercase tracking-[0.8em] animate-pulse italic text-right">System Signature: Said Saif Udeen</p>
-                             <p className="text-[12px] font-bold text-slate-800 uppercase tracking-widest mt-6">Star Labs Global Intelligence Hub</p>
+                             <p className="text-[12px] font-bold text-slate-800 uppercase tracking-widest mt-6 italic">Star Labs Global Decision Hub</p>
                         </div>
                     </footer>
                 </div>
