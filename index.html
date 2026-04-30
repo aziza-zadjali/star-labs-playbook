@@ -113,7 +113,7 @@
         );
 
         const ExpertOverlay = ({ label, value, name, onChange, description }) => (
-            <div className="mt-8 p-6 rounded-3xl bg-amber-500/5 border border-amber-500/20 shadow-inner">
+            <div className="mt-10 p-8 rounded-3xl bg-amber-500/5 border border-amber-500/20 shadow-inner">
                 <div className="flex justify-between items-center mb-4">
                     <div className="flex items-center gap-3">
                         <Icon name="user-check" className="text-amber-500" size={18} />
@@ -127,11 +127,6 @@
                     name={name} value={value} onChange={onChange}
                     className="expert-slider"
                 />
-                <div className="flex justify-between text-[8px] font-bold text-slate-700 uppercase mt-2">
-                    <span>Conservative Override</span>
-                    <span>Neutral</span>
-                    <span>Aggressive Override</span>
-                </div>
             </div>
         );
 
@@ -145,6 +140,7 @@
                 trl: 4, mrl: 3, marketSize: 6, customerUrgency: 6,
                 teamExpertise: 7, ipDefensibility: 6, capitalIntensity: 4,
                 scenarioResilience: 5, validationVelocity: 5,
+                uvp: '', unfairAdvantage: '', revenueStreams: '', costStructure: '',
                 // Expert HITL adjustments
                 marketExpertAdj: 0, techExpertAdj: 0, executionExpertAdj: 0,
                 expertNote: ''
@@ -153,10 +149,11 @@
             const steps = [
                 { id: 'intake', title: 'Intake', icon: 'binary' },
                 { id: 'market', title: 'Market Vector', icon: 'zap' },
-                { id: 'readiness', title: 'TRL Matrix', icon: 'layers' },
-                { id: 'radar', title: 'Resilience', icon: 'radar' },
+                { id: 'readiness', title: 'Readiness', icon: 'layers' },
+                { id: 'radar', title: 'Scenario Radar', icon: 'radar' },
+                { id: 'canvas', title: 'Lean High-Fi', icon: 'layout-template' },
                 { id: 'spinout', title: 'Velocity', icon: 'rocket' },
-                { id: 'verdict', title: 'EZP Verdict', icon: 'shield-check' }
+                { id: 'verdict', title: 'Verdict', icon: 'shield-check' }
             ];
 
             const analysis = useMemo(() => {
@@ -166,19 +163,19 @@
                 
                 let score = ((techScore * 0.3) + (marketScore * 0.4) + (executionRisk * 0.3)).toFixed(1);
                 
-                // Star Labs Fatal Flaw Logic
+                // STAR LABS PRIMARY FAILURE VECTORS
                 let fatalFlaw = "";
-                if (formData.marketSize <= 3) fatalFlaw = "MARKET SIZE MISCALCULATION: TAM is too restricted for venture returns.";
-                else if (formData.teamExpertise <= 3) fatalFlaw = "TEAM INCAPABILITY: Critical domain expertise gap detected.";
-                else if (formData.capitalIntensity >= 8) fatalFlaw = "FUND MISALLOCATION: Capital burn model exceeds Star Labs safety threshold.";
+                if (formData.marketSize <= 3) fatalFlaw = "MARKET SIZE MISCALCULATION: Market depth is too shallow for venture-scale return.";
+                else if (formData.teamExpertise <= 3) fatalFlaw = "TEAM INCAPABILITY: Technical/Founder domain expertise gap is currently unbridgeable.";
+                else if (formData.capitalIntensity >= 9) fatalFlaw = "FUND MISALLOCATION RISK: Capital burn requirement exceeds ecosystem liquidity thresholds.";
                 
                 if (fatalFlaw !== "") score = Math.min(score, 5.4).toFixed(1);
 
                 const spinoutIndex = ((formData.teamExpertise * 0.4) + (formData.mrl * 0.3) + ((10 - formData.capitalIntensity) * 0.3)).toFixed(1);
 
-                let verdict = { status: 'INCUBATE', color: 'text-cyan-400', border: 'border-cyan-500/30', glow: 'shadow-cyan-500/20', advice: "Meets R&D threshold. Retain in Star Labs foundry for internal EZP Phase 2." };
-                if (score >= 8.2) verdict = { status: 'SPINOUT READY', color: 'text-emerald-400', border: 'border-emerald-500/30', glow: 'shadow-emerald-500/20', advice: "Strategic Alignment confirmed. Move to standalone corporate entity and Series Seed funding." };
-                else if (score < 5.5) verdict = { status: 'TERMINATE', color: 'text-rose-400', border: 'border-rose-500/30', glow: 'shadow-rose-500/20', advice: fatalFlaw || "Execution risk exceeds potential value. Archive to preserve ecosystem resources." };
+                let verdict = { status: 'INCUBATE', color: 'text-cyan-400', border: 'border-cyan-500/30', glow: 'shadow-cyan-500/20', advice: "Meets R&D threshold. Retain in Star Labs foundry for internal EZP Phase 2 de-risking." };
+                if (score >= 8.2) verdict = { status: 'SPINOUT READY', color: 'text-emerald-400', border: 'border-emerald-500/30', glow: 'shadow-emerald-500/20', advice: "Alpha-grade alignment. Move to standalone corporate entity and authorize Series Seed preparation." };
+                else if (score < 5.5) verdict = { status: 'TERMINATE', color: 'text-rose-400', border: 'border-rose-500/30', glow: 'shadow-rose-500/20', advice: fatalFlaw || "Execution risk exceeds projected terminal value. Archive to preserve Star Labs treasury." };
 
                 return { score, spinoutIndex, ...verdict };
             }, [formData]);
@@ -251,23 +248,26 @@
                             
                             {step === 0 && (
                                 <div className="space-y-16">
-                                    <div className="space-y-4">
+                                    <div>
                                         <h2 className="text-4xl font-extrabold text-white tracking-tighter uppercase italic">Intake Analysis</h2>
-                                        <DirectiveBanner text="Problem-Solution fit is the EZP Phase 1 priority. AI requires clear geometry of the market friction to calculate downstream probability." />
+                                        <DirectiveBanner text="Problem-Solution fit is the EZP Phase 1 priority. Precise friction mapping is required for downstream predictive validity." />
                                     </div>
                                     <div className="space-y-12">
                                         <div className="space-y-4">
                                             <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Technology ID</label>
-                                            <input type="text" name="techName" value={formData.techName} onChange={handleInput} className="w-full command-input rounded-3xl px-8 py-6 text-white text-xl outline-none" placeholder="Project Alpha-9..." />
+                                            <p className="text-[10px] text-slate-500 uppercase">The specific designation for this IP asset.</p>
+                                            <input type="text" name="techName" value={formData.techName} onChange={handleInput} className="w-full command-input rounded-3xl px-8 py-6 text-white text-xl outline-none" placeholder="Project Identifier..." />
                                         </div>
                                         <div className="grid md:grid-cols-2 gap-12">
                                             <div className="space-y-4">
                                                 <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Observed Market Friction</label>
-                                                <textarea name="problem" value={formData.problem} onChange={handleInput} className="w-full command-input rounded-[2.5rem] p-7 h-48 outline-none resize-none leading-relaxed" placeholder="What is the bleeding neck wound?"></textarea>
+                                                <p className="text-[10px] text-slate-500 uppercase">The critical pain point being solved.</p>
+                                                <textarea name="problem" value={formData.problem} onChange={handleInput} className="w-full command-input rounded-[2.5rem] p-7 h-48 outline-none resize-none leading-relaxed" placeholder="Bleeding neck wound..."></textarea>
                                             </div>
                                             <div className="space-y-4">
                                                 <label className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Technical Solution</label>
-                                                <textarea name="solution" value={formData.solution} onChange={handleInput} className="w-full command-input rounded-[2.5rem] p-7 h-48 outline-none resize-none leading-relaxed" placeholder="The proprietary mechanism..."></textarea>
+                                                <p className="text-[10px] text-slate-500 uppercase">The proprietary mechanism of intervention.</p>
+                                                <textarea name="solution" value={formData.solution} onChange={handleInput} className="w-full command-input rounded-[2.5rem] p-7 h-48 outline-none resize-none leading-relaxed" placeholder="Technical response..."></textarea>
                                             </div>
                                         </div>
                                     </div>
@@ -276,102 +276,129 @@
 
                             {step === 1 && (
                                 <div className="space-y-16">
-                                    <div className="space-y-4">
+                                    <div>
                                         <div className="flex items-center gap-6"><Icon name="zap" className="text-cyan-400" size={36} /><h2 className="text-4xl font-extrabold text-white tracking-tighter uppercase italic">Market Vector</h2></div>
-                                        <DirectiveBanner text="Evaluates macro-volume and temporal viability. Prevents Star Labs capital being spent on solutions to niche or premature problems." />
+                                        <DirectiveBanner text="Detects TAM miscalculation. Star Labs requires billion-dollar scale potential for any standalone spinout." />
                                     </div>
                                     <div className="grid md:grid-cols-3 gap-10">
                                         <div className="space-y-8 bg-black/20 p-10 rounded-[3rem]">
-                                            <div className="flex justify-between items-center"><span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">TAM/SAM Size</span><span className="text-2xl font-black text-cyan-400">{formData.marketSize}</span></div>
+                                            <div className="flex justify-between items-center"><span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">TAM Size</span><span className="text-2xl font-black text-cyan-400">{formData.marketSize}</span></div>
+                                            <p className="text-[9px] text-slate-600 uppercase font-bold">1 = Restricted, 10 = Billion-Scale</p>
                                             <input type="range" name="marketSize" min="1" max="10" value={formData.marketSize} onChange={handleInput} />
-                                            <p className="text-[9px] text-slate-600 uppercase font-bold">1 = Small/Niche, 10 = Billion-Scale</p>
                                         </div>
                                         <div className="space-y-8 bg-black/20 p-10 rounded-[3rem]">
                                             <div className="flex justify-between items-center"><span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Customer Urgency</span><span className="text-2xl font-black text-cyan-400">{formData.customerUrgency}</span></div>
+                                            <p className="text-[9px] text-slate-600 uppercase font-bold">1 = Optional, 10 = Mission Critical</p>
                                             <input type="range" name="customerUrgency" min="1" max="10" value={formData.customerUrgency} onChange={handleInput} />
-                                            <p className="text-[9px] text-slate-600 uppercase font-bold">1 = Optional, 10 = Existential Pain</p>
                                         </div>
                                         <div className="space-y-8 bg-black/20 p-10 rounded-[3rem]">
-                                            <div className="flex justify-between items-center"><span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Timing (Why Now?)</span><span className="text-2xl font-black text-cyan-400">{formData.scenarioResilience}</span></div>
+                                            <div className="flex justify-between items-center"><span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Timing Check</span><span className="text-2xl font-black text-cyan-400">{formData.scenarioResilience}</span></div>
+                                            <p className="text-[9px] text-slate-600 uppercase font-bold">1 = Too Early, 10 = Perfect Tailwind</p>
                                             <input type="range" name="scenarioResilience" min="1" max="10" value={formData.scenarioResilience} onChange={handleInput} />
-                                            <p className="text-[9px] text-slate-600 uppercase font-bold">1 = Pre-Market, 10 = Perfect Tailwind</p>
                                         </div>
                                     </div>
                                     <ExpertOverlay 
-                                        label="Vision 2040 Nuance" 
-                                        name="marketExpertAdj"
-                                        value={formData.marketExpertAdj}
-                                        onChange={handleInput}
-                                        description="Adjust market score based on sovereign mandates, regional partnerships, or local subsidy landscapes."
+                                        label="Vision 2040 Nuance" name="marketExpertAdj" value={formData.marketExpertAdj} onChange={handleInput}
+                                        description="Adjust market score based on sovereign mandates or regional partnership tailwinds."
                                     />
                                 </div>
                             )}
 
                             {step === 2 && (
                                 <div className="space-y-16">
-                                    <div className="space-y-4">
-                                        <h2 className="text-4xl font-extrabold text-white tracking-tighter uppercase italic">Star Labs TRL Matrix</h2>
-                                        <DirectiveBanner text="Detects premature scaling. High Technical Readiness (TRL) without Market Readiness (MRL) is a lead indicator of fund misallocation." />
+                                    <div>
+                                        <h2 className="text-4xl font-extrabold text-white tracking-tighter uppercase italic">Star Labs Readiness</h2>
+                                        <DirectiveBanner text="Detects premature scaling risks. Prevents technical over-engineering before market verification." />
                                     </div>
                                     <div className="grid md:grid-cols-2 gap-14">
-                                        <div className="bg-black/30 p-14 rounded-[4rem] border border-white/5 space-y-12">
-                                            <div className="flex justify-between items-center"><h3 className="text-sm font-black uppercase text-cyan-400 tracking-widest flex items-center gap-4"><Icon name="cpu" size={20}/> Tech Maturity</h3><span className="text-7xl font-black text-white italic">{formData.trl}</span></div>
+                                        <div className="bg-black/30 p-14 rounded-[4rem] border border-white/5 space-y-10">
+                                            <div className="flex justify-between items-center"><h3 className="text-sm font-black uppercase text-cyan-400 tracking-widest flex items-center gap-4"><Icon name="cpu" size={20}/> TRL Standard</h3><span className="text-7xl font-black text-white italic">{formData.trl}</span></div>
+                                            <p className="text-[10px] text-slate-500 uppercase">1 = Lab Theory, 10 = Production Ready</p>
                                             <input type="range" name="trl" min="1" max="10" value={formData.trl} onChange={handleInput} />
-                                            <p className="text-[9px] text-slate-500 uppercase">1 = Lab Theory, 10 = Field Deployment Ready</p>
                                         </div>
-                                        <div className="bg-black/30 p-14 rounded-[4rem] border border-white/5 space-y-12">
-                                            <div className="flex justify-between items-center"><h3 className="text-sm font-black uppercase text-blue-500 tracking-widest flex items-center gap-4"><Icon name="globe" size={20}/> Market Maturity</h3><span className="text-7xl font-black text-white italic">{formData.mrl}</span></div>
+                                        <div className="bg-black/30 p-14 rounded-[4rem] border border-white/5 space-y-10">
+                                            <div className="flex justify-between items-center"><h3 className="text-sm font-black uppercase text-blue-500 tracking-widest flex items-center gap-4"><Icon name="globe" size={20}/> MRL Standard</h3><span className="text-7xl font-black text-white italic">{formData.mrl}</span></div>
+                                            <p className="text-[10px] text-slate-500 uppercase">1 = No Demand, 10 = Scaled Market</p>
                                             <input type="range" name="mrl" min="1" max="10" value={formData.mrl} onChange={handleInput} />
-                                            <p className="text-[9px] text-slate-500 uppercase">1 = Awareness, 10 = Mass Market Dominance</p>
                                         </div>
                                     </div>
-                                    <ExpertOverlay 
-                                        label="IP & Moat Verification" 
-                                        name="techExpertAdj"
-                                        value={formData.techExpertAdj}
-                                        onChange={handleInput}
-                                        description="Apply expert verification of patent depth or technical barrier difficulty that the AI may underestimate."
-                                    />
+                                </div>
+                            )}
+
+                            {step === 3 && (
+                                <div className="space-y-16 animate-ui">
+                                    <div>
+                                        <div className="flex items-center gap-6 mb-4"><Icon name="radar" className="text-cyan-400" size={36} /><h2 className="text-4xl font-extrabold text-white tracking-tighter uppercase italic">Scenario Resilience Radar</h2></div>
+                                        <DirectiveBanner text="Antifragility test. Ensures the project gains value from market volatility rather than collapsing under macro pressure." />
+                                    </div>
+                                    <div className="bg-black/30 p-14 rounded-[4.5rem] border border-white/5 space-y-12 shadow-2xl">
+                                        <div className="space-y-5">
+                                            <h3 className="text-sm font-black text-cyan-400 uppercase tracking-[0.3em] italic">Environmental Stress Test</h3>
+                                            <p className="text-base text-slate-400 leading-relaxed max-w-2xl font-medium">How resilient is this model against unexpected macro shifts (recessions, regulatory freezes, energy shocks)?</p>
+                                        </div>
+                                        <div className="space-y-14 bg-white/5 p-14 rounded-[4rem] border border-white/5 shadow-inner">
+                                            <div className="flex justify-between items-center"><span className="text-[11px] font-black uppercase tracking-[0.3em] text-slate-500">Scenario Stability Index</span><span className="text-6xl font-black text-cyan-400 tracking-tighter">{formData.scenarioResilience}</span></div>
+                                            <p className="text-[10px] text-slate-500 uppercase tracking-widest mt-[-20px]">1 = Fragile in Market Swings, 10 = Antifragile Core</p>
+                                            <input type="range" name="scenarioResilience" min="1" max="10" value={formData.scenarioResilience} onChange={handleInput} />
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {step === 4 && (
+                                <div className="space-y-16">
+                                    <div>
+                                        <h2 className="text-4xl font-extrabold text-white tracking-tighter uppercase italic mb-4">Lean High-Fi Canvas</h2>
+                                        <DirectiveBanner text="Commercial architecture mapping. Ensures monetization and defensibility paths are established early." />
+                                    </div>
+                                    <div className="grid md:grid-cols-2 gap-10">
+                                        {[
+                                            { k: 'uvp', l: 'Value Prop', d: 'The single message of conversion.' },
+                                            { k: 'unfairAdvantage', l: 'Moat Strength', d: 'Patents or barriers to entry.' },
+                                            { k: 'revenueStreams', l: 'Revenue Engine', d: 'Primary monetization pathways.' },
+                                            { k: 'costStructure', l: 'Burn Drivers', d: 'DeepTech resource requirements.' }
+                                        ].map((item) => (
+                                            <div key={item.k} className="space-y-4">
+                                                <label className="text-[11px] font-black uppercase tracking-widest text-slate-500">{item.l}</label>
+                                                <p className="text-[9px] text-slate-600 uppercase font-bold">{item.d}</p>
+                                                <textarea name={item.k} value={formData[item.k]} onChange={handleInput} className="w-full command-input rounded-3xl p-7 h-32 outline-none text-sm leading-relaxed" />
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
                             )}
 
                             {step === 5 && (
                                 <div className="space-y-16">
-                                    <div className="space-y-4">
-                                        <div className="flex items-center gap-6"><Icon name="rocket" className="text-cyan-400" size={36} /><h2 className="text-4xl font-extrabold text-white tracking-tighter uppercase italic">Spinout Velocity</h2></div>
-                                        <DirectiveBanner text="Analyzes if the foundry-built asset is ready for standalone capitalization. Weights team capability against capital burn model." />
+                                    <div>
+                                        <div className="flex items-center gap-6 mb-4"><Icon name="rocket" className="text-cyan-400" size={36} /><h2 className="text-4xl font-extrabold text-white tracking-tighter uppercase italic">Spinout Velocity</h2></div>
+                                        <DirectiveBanner text="Identifies team capability gaps and capital burn risks. Validates the project's standalone survival velocity." />
                                     </div>
                                     <div className="grid md:grid-cols-2 gap-12">
                                         {[
-                                            { k: 'teamExpertise', l: 'Founder Capability', c: 'cyan', d: 'Expertise depth of assigned leads.' },
-                                            { k: 'ipDefensibility', l: 'Defensible Moat', c: 'blue', d: 'Strength of IP and barriers to entry.' },
-                                            { k: 'capitalIntensity', l: 'Capital Burn Model', c: 'rose', d: 'Scale: 10 = Extreme Burn (DeepTech).' },
-                                            { k: 'validationVelocity', l: 'Validation Speed', c: 'emerald', d: 'Velocity of build-measure-learn loops.' }
+                                            { k: 'teamExpertise', l: 'Team Capability', c: 'cyan', d: 'Expertise depth of lead founders.' },
+                                            { k: 'ipDefensibility', l: 'Defensible Moat', c: 'blue', d: 'Strength of technical IP.' },
+                                            { k: 'capitalIntensity', l: 'Burn Intensity', c: 'rose', d: '10 = Extreme Capital Drag.' },
+                                            { k: 'validationVelocity', l: 'Feedback Speed', c: 'emerald', d: 'Velocity of build-measure-learn loops.' }
                                         ].map((m) => (
                                             <div key={m.k} className="p-12 bg-white/5 rounded-[3.5rem] border border-white/5 space-y-8 shadow-xl">
                                                 <div className="flex justify-between items-center"><span className="text-[11px] font-black uppercase tracking-widest text-slate-500">{m.l}</span><span className={`text-4xl font-black text-${m.c}-400 italic`}>{formData[m.k]}</span></div>
-                                                <p className="text-[10px] text-slate-500 uppercase tracking-widest mt-[-10px]">{m.d}</p>
+                                                <p className="text-[10px] text-slate-500 uppercase">{m.d}</p>
                                                 <input type="range" name={m.k} min="1" max="10" value={formData[m.k]} onChange={handleInput} className={`accent-${m.c}-500`} />
                                             </div>
                                         ))}
                                     </div>
                                     <ExpertOverlay 
-                                        label="Foundry Operations Sync" 
-                                        name="executionExpertAdj"
-                                        value={formData.executionExpertAdj}
-                                        onChange={handleInput}
-                                        description="Adjust based on the team's internal velocity or foundry resource availability."
+                                        label="Foundry Operations Sync" name="executionExpertAdj" value={formData.executionExpertAdj} onChange={handleInput}
+                                        description="Calibration of team performance or Star Labs resource availability."
                                     />
                                 </div>
                             )}
 
                             {step === 6 && (
                                 <div className="space-y-16">
-                                    <div className="space-y-4">
-                                        <h2 className="text-3xl font-black text-white uppercase italic tracking-tighter">Final EZP v2.0 Decision</h2>
-                                        <DirectiveBanner text="Synthesizes AI Algorithmic data with Expert Calibration. Proves to Star Labs investors that the logic is strictly quantitative but contextually nuanced." />
-                                    </div>
-                                    <div className={`p-20 md:p-24 rounded-[6rem] border-2 ${analysis.border} ${analysis.bg} relative overflow-hidden shadow-[0_0_100px_rgba(34,211,238,0.1)]`}>
+                                    <DirectiveBanner text="Algorithmic Decision Gate. Eliminates bias and quantifies the Go/Kill probability of deep tech assets." />
+                                    <div className={`p-20 md:p-24 rounded-[6rem] border-2 ${analysis.border} ${analysis.bg} relative overflow-hidden shadow-2xl`}>
                                         <div className="absolute top-0 right-0 p-16 opacity-[0.03] scale-[3.5]"><Icon name={analysis.icon} size={300} /></div>
                                         <div className="relative z-10 grid md:grid-cols-2 gap-24 items-center">
                                             <div className="space-y-12">
@@ -386,9 +413,9 @@
                                                     <div className="w-full h-2.5 bg-slate-800 rounded-full overflow-hidden shadow-inner"><div className="h-full bg-cyan-400 transition-all duration-[3000ms] ease-out shadow-[0_0_15px_#22d3ee]" style={{ width: `${analysis.spinoutIndex * 10}%` }}></div></div>
                                                 </div>
                                                 <textarea 
-                                                    placeholder="Final Expert Recommendation / Justification Note..." 
+                                                    placeholder="Final Expert Decision Sign-off..." 
                                                     name="expertNote" value={formData.expertNote} onChange={handleInput}
-                                                    className="w-full bg-black/40 border border-white/10 rounded-[2.5rem] p-8 h-48 outline-none text-base italic leading-relaxed text-amber-500"
+                                                    className="w-full command-input rounded-[2.5rem] p-8 h-48 outline-none text-base italic leading-relaxed text-amber-500"
                                                 />
                                             </div>
                                         </div>
@@ -399,16 +426,18 @@
                             {/* Tactical Navigation Bar */}
                             <div className="mt-24 pt-14 border-t border-white/10 flex justify-between items-center no-print">
                                 <button onClick={() => setStep(Math.max(0, step - 1))} disabled={step === 0} className="text-[11px] font-black uppercase tracking-[0.5em] text-slate-600 hover:text-white transition-all disabled:opacity-0 active:scale-90">Gate-Back</button>
-                                <div className="text-[10px] font-bold text-slate-800 tracking-[1em] uppercase hidden lg:block italic">Alpha-2 // EZP-Stable Terminal</div>
-                                <button onClick={() => setStep(Math.min(steps.length - 1, step + 1))} disabled={step === steps.length - 1} className="px-16 py-7 bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 text-[12px] font-black uppercase tracking-[0.5em] rounded-[2.5rem] hover:bg-cyan-500 hover:text-white transition-all shadow-2xl active:scale-95 shadow-cyan-900/10">Advance Gate</button>
+                                <div className="text-[10px] font-bold text-slate-800 tracking-[1em] uppercase hidden lg:block italic">Star Labs Alpha-2 // Final EZP Gateway</div>
+                                {step < steps.length - 1 && (
+                                    <button onClick={() => setStep(step + 1)} className="px-16 py-7 bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 text-[12px] font-black uppercase tracking-[0.5em] rounded-[2.5rem] hover:bg-cyan-500 hover:text-white transition-all shadow-2xl active:scale-95 shadow-cyan-900/10">Advance Gate</button>
+                                )}
                             </div>
                         </main>
                     </div>
 
                     <footer className="mt-36 border-t border-white/10 pt-24 grid md:grid-cols-3 gap-24 text-slate-600">
-                        <div className="space-y-10">
-                            <h4 className="text-[14px] font-black uppercase tracking-widest text-white border-b border-cyan-500/30 pb-4 w-fit">Decision Philosophy</h4>
-                            <p className="text-[13px] leading-relaxed font-medium italic">Builders, Not Bankers. We optimize for 'Founder-Problem Fit' and high-velocity intellectual property assets aligning with Oman Vision 2040.</p>
+                        <div className="space-y-10 text-left">
+                            <h4 className="text-[14px] font-black uppercase tracking-widest text-white border-b border-cyan-500/30 pb-4 w-fit">Decision Engine 4.5</h4>
+                            <p className="text-[13px] leading-relaxed font-medium italic">Empowered by Star Labs EZP v2.0. We prioritize capital allocation based on Technical Alpha and Market Resiliency Radar.</p>
                         </div>
                         <div className="flex flex-col items-center justify-center gap-10">
                              <div className="flex gap-8">
@@ -420,7 +449,7 @@
                         </div>
                         <div className="text-right space-y-10 ml-auto">
                              <h4 className="text-[14px] font-black uppercase tracking-widest text-white border-b border-cyan-500/30 pb-4 w-fit ml-auto">Foundry Protocol</h4>
-                             <p className="text-[13px] font-black text-cyan-400 uppercase tracking-[0.6em] animate-pulse italic">Verified: Said Saif Udeen</p>
+                             <p className="text-[13px] font-black text-cyan-400 uppercase tracking-[0.6em] animate-pulse italic text-right">System Signature: Verified</p>
                              <p className="text-[11px] font-bold text-slate-800 uppercase tracking-widest mt-4">Controlled by Star Labs Logic Hub</p>
                         </div>
                     </footer>
