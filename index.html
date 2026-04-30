@@ -404,50 +404,39 @@
                 { label: 'Velocity', value: form.validationVelocity },
             ];
 
+            const GEMINI_KEY = "AIzaSyDEDCbJtpnwY5i-RTPOOYa5OXaFFk3hLf8";
+            const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`;
+
+            const callGemini = async (systemPrompt, userPrompt, onChunk) => {
+                const res = await fetch(GEMINI_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        systemInstruction: { parts: [{ text: systemPrompt }] },
+                        contents: [{ role: "user", parts: [{ text: userPrompt }] }],
+                        generationConfig: { maxOutputTokens: 800, temperature: 0.7 }
+                    })
+                });
+                const data = await res.json();
+                const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "Analysis unavailable.";
+                // Simulate streaming word by word for UX
+                const words = text.split(' ');
+                for (let i = 0; i < words.length; i++) {
+                    onChunk((i === 0 ? '' : ' ') + words[i]);
+                    await new Promise(r => setTimeout(r, 18));
+                }
+            };
+
             // ── AI Engine: Section analysis ────────────────────────────
             const analyzeSection = useCallback(async (sectionKey, prompt) => {
                 setStreamingSection(sectionKey);
                 setSectionAnalysis(prev => ({ ...prev, [sectionKey]: '' }));
                 try {
-                    const res = await fetch("https://api.anthropic.com/v1/messages", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                            model: "claude-sonnet-4-20250514",
-                            max_tokens: 1000,
-                            stream: true,
-                            system: `You are a senior venture analyst at a deep-tech corporate venture studio. 
-You evaluate technology spinouts for investment readiness. 
-Be precise, direct, and institutional — no filler, no fluff. 
-Write in short paragraphs. Max 180 words per response.
-Never use bullet points. No markdown headers. Plain prose only.`,
-                            messages: [{ role: "user", content: prompt }]
-                        })
-                    });
-
-                    const reader = res.body.getReader();
-                    const decoder = new TextDecoder();
-                    let buffer = '';
-
-                    while (true) {
-                        const { done, value } = await reader.read();
-                        if (done) break;
-                        buffer += decoder.decode(value, { stream: true });
-                        const lines = buffer.split('\n');
-                        buffer = lines.pop();
-                        for (const line of lines) {
-                            if (line.startsWith('data: ')) {
-                                const raw = line.slice(6).trim();
-                                if (raw === '[DONE]') continue;
-                                try {
-                                    const parsed = JSON.parse(raw);
-                                    if (parsed.type === 'content_block_delta' && parsed.delta?.text) {
-                                        setSectionAnalysis(prev => ({ ...prev, [sectionKey]: (prev[sectionKey] || '') + parsed.delta.text }));
-                                    }
-                                } catch {}
-                            }
-                        }
-                    }
+                    await callGemini(
+                        `You are a senior venture analyst at a deep-tech corporate venture studio. You evaluate technology spinouts for investment readiness. Be precise, direct, and institutional — no filler, no fluff. Write in short paragraphs. Max 180 words. Never use bullet points. No markdown. Plain prose only.`,
+                        prompt,
+                        (chunk) => setSectionAnalysis(prev => ({ ...prev, [sectionKey]: (prev[sectionKey] || '') + chunk }))
+                    );
                 } catch (err) {
                     setSectionAnalysis(prev => ({ ...prev, [sectionKey]: 'Analysis unavailable. Check API connectivity.' }));
                 } finally {
@@ -488,46 +477,16 @@ Composite VRP Score: ${scores.composite}/10
 Preliminary Verdict: ${scores.verdict.status}
 ${scores.fatalFlaw ? `FATAL FLAW DETECTED: ${scores.fatalFlaw}` : ''}
 
-Write a rigorous 3-paragraph diligence verdict. Paragraph 1: technology and IP moat assessment. Paragraph 2: market opportunity and timing risk. Paragraph 3: execution recommendation and next gate conditions. Be blunt and institutional.`;
+Write a rigorous 3-paragraph diligence verdict. Paragraph 1: technology and IP moat assessment. Paragraph 2: market opportunity and timing risk. Paragraph 3: execution recommendation and next gate conditions. Be blunt and institutional. No bullet points. No markdown. Plain prose only.`;
 
                 try {
-                    const res = await fetch("https://api.anthropic.com/v1/messages", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                            model: "claude-sonnet-4-20250514",
-                            max_tokens: 1000,
-                            stream: true,
-                            system: `You are the Chief Diligence Officer at Star Labs, a deep-tech corporate venture studio in the Gulf. You evaluate technology spinouts. Be blunt, precise, and institutionally credible. No bullet points. No headers. Just rigorous prose that sounds like a seasoned VC partner.`,
-                            messages: [{ role: "user", content: prompt }]
-                        })
-                    });
-
-                    const reader = res.body.getReader();
-                    const decoder = new TextDecoder();
-                    let buffer = '';
-
-                    while (true) {
-                        const { done, value } = await reader.read();
-                        if (done) break;
-                        buffer += decoder.decode(value, { stream: true });
-                        const lines = buffer.split('\n');
-                        buffer = lines.pop();
-                        for (const line of lines) {
-                            if (line.startsWith('data: ')) {
-                                const raw = line.slice(6).trim();
-                                if (raw === '[DONE]') continue;
-                                try {
-                                    const parsed = JSON.parse(raw);
-                                    if (parsed.type === 'content_block_delta' && parsed.delta?.text) {
-                                        setAiText(prev => prev + parsed.delta.text);
-                                    }
-                                } catch {}
-                            }
-                        }
-                    }
+                    await callGemini(
+                        `You are the Chief Diligence Officer at Star Labs, a deep-tech corporate venture studio in the Gulf. You evaluate technology spinouts. Be blunt, precise, and institutionally credible. No bullet points. No headers. No markdown. Just rigorous prose that sounds like a seasoned VC partner.`,
+                        prompt,
+                        (chunk) => setAiText(prev => prev + chunk)
+                    );
                 } catch (err) {
-                    setAiText('AI engine unavailable. Check API connectivity or CORS configuration.');
+                    setAiText('AI engine unavailable. Check API connectivity.');
                 } finally {
                     setIsStreaming(false);
                 }
