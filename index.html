@@ -97,7 +97,7 @@
 
         const Logo = ({ size = "w-40 h-40" }) => {
             const [imgError, setImgError] = useState(false);
-            if (imgError) return <span className="font-black text-white italic tracking-tighter">STAR LABS</span>;
+            if (imgError) return <span className="font-black text-white italic tracking-tighter text-3xl">STAR LABS</span>;
             return <img src="logo.png" alt="Star Labs" className={`${size} object-contain block`} onError={() => setImgError(true)} />;
         };
 
@@ -125,16 +125,26 @@
             ];
 
             const analysis = useMemo(() => {
-                const techScore = (formData.trl * 0.6) + (formData.ipDefensibility * 0.4);
-                const marketScore = (formData.mrl * 0.4) + (formData.customerUrgency * 0.4) + (formData.marketSize * 0.2);
-                const riskFactor = (formData.scenarioResilience * 0.7) + (formData.validationVelocity * 0.3);
+                // REFINED LOGIC: Captures "Failed Startup" dynamics correctly.
+                // 1. Tech is strong if TRL and Patents are high.
+                const techScore = (formData.trl * 0.5) + (formData.ipDefensibility * 0.5);
                 
-                const score = ((techScore * 0.35) + (marketScore * 0.45) + (riskFactor * 0.2)).toFixed(1);
-                const spinoutIndex = ((formData.teamExpertise * 0.4) + (formData.mrl * 0.3) + (10 - formData.capitalIntensity) * 0.3).toFixed(1);
+                // 2. Market is strong if Urgency, Size, and Readiness are high.
+                const marketScore = (formData.mrl * 0.4) + (formData.customerUrgency * 0.4) + (formData.marketSize * 0.2);
+                
+                // 3. Execution Risk penalizes HIGH capital intensity and rewards resilience/velocity.
+                // If Capital Intensity is 10 (Bad), (10-10) = 0. This drastically lowers the Execution score.
+                const executionRisk = ((10 - formData.capitalIntensity) * 0.4) + (formData.scenarioResilience * 0.3) + (formData.validationVelocity * 0.3);
+                
+                // Composite Score
+                const score = ((techScore * 0.3) + (marketScore * 0.4) + (executionRisk * 0.3)).toFixed(1);
+                
+                // Spinout Index specifically looks at the team's ability to operate independently.
+                const spinoutIndex = ((formData.teamExpertise * 0.4) + (formData.mrl * 0.3) + ((10 - formData.capitalIntensity) * 0.3)).toFixed(1);
 
-                let verdict = { status: 'INCUBATE', color: 'text-cyan-400', border: 'border-cyan-500/30', glow: 'shadow-cyan-500/20', advice: "Strong internal R&D potential. Maintain as stealth asset until TRL 6 is achieved." };
-                if (score >= 8.2) verdict = { status: 'SPINOUT READY', color: 'text-emerald-400', border: 'border-emerald-500/30', glow: 'shadow-emerald-500/20', advice: "Exceptional market-timing. Authorize immediate corporate spinout and Seed A round preparation." };
-                else if (score < 5.5) verdict = { status: 'TERMINATE', color: 'text-rose-400', border: 'border-rose-500/30', glow: 'shadow-rose-500/20', advice: "High assumption risk with low capital efficiency. Project flagged for archive to preserve capital." };
+                let verdict = { status: 'INCUBATE', color: 'text-cyan-400', border: 'border-cyan-500/30', glow: 'shadow-cyan-500/20', advice: "Strong internal R&D potential. Maintain as stealth asset until TRL 6 is achieved and capital model is optimized." };
+                if (score >= 8.2) verdict = { status: 'SPINOUT READY', color: 'text-emerald-400', border: 'border-emerald-500/30', glow: 'shadow-emerald-500/20', advice: "Exceptional market-timing and operational efficiency. Authorize immediate corporate spinout and Seed A round preparation." };
+                else if (score < 5.5) verdict = { status: 'TERMINATE', color: 'text-rose-400', border: 'border-rose-500/30', glow: 'shadow-rose-500/20', advice: "High assumption risk coupled with extreme capital drain or low urgency. Project flagged for archive to preserve Star Labs capital." };
 
                 return { score, spinoutIndex, ...verdict };
             }, [formData]);
@@ -283,12 +293,12 @@
 
                             {step === 3 && (
                                 <div className="space-y-16">
-                                    <div className="flex justify-between items-end border-b border-white/10 pb-6"><h2 className="text-4xl font-extrabold text-white tracking-tighter uppercase italic">Readiness matrix</h2><span className="px-6 py-2 bg-slate-900 rounded-full text-[10px] font-black text-cyan-400 uppercase tracking-widest border border-cyan-500/30">NASA TRL v4.0 Standard</span></div>
+                                    <div className="flex justify-between items-end border-b border-white/10 pb-6"><h2 className="text-4xl font-extrabold text-white tracking-tighter uppercase italic">Readiness matrix</h2><span className="px-6 py-2 bg-slate-900 rounded-full text-[10px] font-black text-cyan-400 uppercase tracking-widest border border-cyan-500/30">Star Labs TRL Standard</span></div>
                                     <div className="grid md:grid-cols-2 gap-14">
                                         <div className="bg-black/30 p-14 rounded-[4rem] border border-white/5 space-y-12 shadow-2xl">
                                             <div className="flex justify-between items-center"><h3 className="text-sm font-black uppercase text-cyan-400 tracking-widest flex items-center gap-4"><Icon name="cpu" size={20}/> Tech Maturity</h3><span className="text-7xl font-black text-white italic">{formData.trl}</span></div>
                                             <input type="range" name="trl" min="1" max="10" value={formData.trl} onChange={handleInput} />
-                                            <div className="flex justify-between text-[10px] font-black text-slate-600 uppercase tracking-widest"><span>Basic R&D</span><span>Validation</span><span>Deployment</span></div>
+                                            <div className="flex justify-between text-[10px] font-black text-slate-600 uppercase tracking-widest"><span>Basic R&D</span><span>Validation</span><span>Deployment Ready</span></div>
                                         </div>
                                         <div className="bg-black/30 p-14 rounded-[4rem] border border-white/5 space-y-12 shadow-2xl">
                                             <div className="flex justify-between items-center"><h3 className="text-sm font-black uppercase text-blue-500 tracking-widest flex items-center gap-4"><Icon name="globe" size={20}/> Market Maturity</h3><span className="text-7xl font-black text-white italic">{formData.mrl}</span></div>
@@ -323,12 +333,13 @@
                                         {[
                                             { k: 'teamExpertise', l: 'Founder-Tech Depth', c: 'cyan' },
                                             { k: 'ipDefensibility', l: 'Proprietary Moat', c: 'blue' },
-                                            { k: 'capitalIntensity', l: 'Resource Burn Depth', c: 'rose' },
-                                            { k: 'validationVelocity', l: 'Validation Velocity', c: 'emerald' }
+                                            { k: 'capitalIntensity', l: 'Capital Burn Intensity', c: 'rose' },
+                                            { k: 'validationVelocity', l: 'Lean Validation Speed', c: 'emerald' }
                                         ].map((m) => (
                                             <div key={m.k} className="p-12 bg-white/5 rounded-[3.5rem] border border-white/5 space-y-10 shadow-2xl">
                                                 <div className="flex justify-between items-center"><span className="text-[11px] font-black uppercase tracking-widest text-slate-500">{m.l}</span><span className={`text-4xl font-black text-${m.c}-400 tracking-tighter italic`}>{formData[m.k]}</span></div>
                                                 <input type="range" name={m.k} min="1" max="10" value={formData[m.k]} onChange={handleInput} className={`accent-${m.c}-500`} />
+                                                {m.k === 'capitalIntensity' && <p className="text-[9px] text-rose-400 font-bold uppercase tracking-widest mt-2">Scale: 10 = Extreme Burn Rate</p>}
                                             </div>
                                         ))}
                                     </div>
