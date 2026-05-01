@@ -421,7 +421,16 @@ const STEPS = [
 ];
 
 const GEMINI_KEY = "AIzaSyDEDCbJtpnwY5i-RTPOOYa5OXaFFk3hLf8";
-const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`;
+// Try multiple model endpoints in order — the API has been renamed several times
+const GEMINI_MODELS = [
+    "gemini-flash-latest",
+    "gemini-2.5-flash",
+    "gemini-2.0-flash",
+    "gemini-1.5-flash",
+    "gemini-pro"
+];
+const buildGeminiUrl = (model) =>
+    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_KEY}`;
 
 // ── App ───────────────────────────────────────────────────────────────────────
 const App = () => {
@@ -530,18 +539,55 @@ const App = () => {
 
     // ── Gemini API ────────────────────────────────────────────────────────────
     const callGemini = async (sys, prompt, onChunk) => {
-        const res = await fetch(GEMINI_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                systemInstruction: { parts: [{ text: sys }] },
-                contents: [{ role: "user", parts: [{ text: prompt }] }],
-                generationConfig: { maxOutputTokens: 900, temperature: 0.72 }
-            })
-        });
-        const data = await res.json();
-        const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "Analysis unavailable. Check API connectivity.";
-        const words = text.split(' ');
+        let lastError = null;
+        let workingText = null;
+
+        for (const model of GEMINI_MODELS) {
+            try {
+                const res = await fetch(buildGeminiUrl(model), {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        systemInstruction: { parts: [{ text: sys }] },
+                        contents: [{ role: "user", parts: [{ text: prompt }] }],
+                        generationConfig: { maxOutputTokens: 900, temperature: 0.72 }
+                    })
+                });
+
+                if (!res.ok) {
+                    const errBody = await res.text();
+                    lastError = `[${model}] HTTP ${res.status}: ${errBody.substring(0, 200)}`;
+                    console.warn(lastError);
+                    continue; // try next model
+                }
+
+                const data = await res.json();
+                if (data?.error) {
+                    lastError = `[${model}] API error: ${data.error.message}`;
+                    console.warn(lastError);
+                    continue;
+                }
+
+                const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (text) {
+                    workingText = text;
+                    console.log(`✓ Using model: ${model}`);
+                    break;
+                } else {
+                    lastError = `[${model}] No text in response: ${JSON.stringify(data).substring(0, 200)}`;
+                    console.warn(lastError);
+                }
+            } catch (err) {
+                lastError = `[${model}] Network error: ${err.message}`;
+                console.warn(lastError);
+            }
+        }
+
+        if (!workingText) {
+            throw new Error(lastError || "All Gemini models failed");
+        }
+
+        const words = workingText.split(' ');
         for (let i = 0; i < words.length; i++) {
             onChunk((i === 0 ? '' : ' ') + words[i]);
             await new Promise(r => setTimeout(r, 16));
@@ -556,8 +602,9 @@ const App = () => {
         try {
             await callGemini(SYS, prompt, (chunk) =>
                 setSectionAI(prev => ({ ...prev, [key]: (prev[key] || '') + chunk })));
-        } catch {
-            setSectionAI(prev => ({ ...prev, [key]: 'Analysis unavailable.' }));
+        } catch (err) {
+            console.error('Gemini error:', err);
+            setSectionAI(prev => ({ ...prev, [key]: `⚠ Analysis unavailable.\n\nError: ${err.message}\n\nOpen browser console (F12) for full details.` }));
         } finally {
             setStreamingSection(null);
         }
@@ -601,8 +648,9 @@ Write a rigorous 4-paragraph diligence verdict for the Star Labs investment comm
 
         try {
             await callGemini(SYS, prompt, (chunk) => setAiText(prev => prev + chunk));
-        } catch {
-            setAiText('AI engine unavailable. Check connectivity.');
+        } catch (err) {
+            console.error('Gemini error:', err);
+            setAiText(`⚠ AI engine unavailable.\n\nError: ${err.message}\n\nCommon causes:\n• API key invalid or quota exceeded\n• Model name deprecated (auto-fallback attempted)\n• Network/CORS issue\n\nOpen browser console (F12) for full details.`);
         } finally {
             setIsStreaming(false);
         }
