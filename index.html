@@ -366,9 +366,9 @@ const App = () => {
   const radarData=[{label:'Desirability',value:parseFloat(scores.desirability)},{label:'Feasibility',value:parseFloat(scores.feasibility)},{label:'Viability',value:parseFloat(scores.viability)},{label:'Scalability',value:parseFloat(scores.scalability)},{label:'Confidence',value:parseFloat(scores.confidence)},{label:'ESG',value:parseFloat(scores.esg)}];
 
   // ── Proxy call ──────────────────────────────────────────────────────────────
-  const SYS = `You are the Chief Diligence Officer at Star Labs, a deep-tech corporate venture studio in the Gulf and global emerging markets. You have 20 years of venture diligence experience across 400+ deals. You draw on real historical startup outcomes, sector failure rates, and empirical data. You NEVER summarize scores back to the assessor. Every response must contain at least one specific historical reference, comparable company, or empirical statistic directly relevant to the venture. Be blunt, precise, institutionally credible. Plain prose paragraphs only — no bullets, no headers, no markdown.`;
+  const SYS = `You are the Chief Diligence Officer at Star Labs, a deep-tech corporate venture studio in the Gulf and global emerging markets. You have 20 years of venture diligence experience across 400+ deals. You draw on real historical startup outcomes, sector failure rates, and empirical data. You NEVER summarize scores back to the assessor. Every response must contain at least one specific historical reference, comparable company, or empirical statistic directly relevant to the venture. Be blunt, precise, institutionally credible. Plain prose paragraphs only — no bullets, no headers, no markdown. Always write complete sentences and complete paragraphs — never truncate mid-sentence or mid-thought. If you are running long, conclude the current paragraph cleanly rather than cutting off.`;
 
-  const callProxy = useCallback(async(prompt,onChunk,maxTok=1400)=>{
+  const callProxy = useCallback(async(prompt,onChunk,maxTok=2500)=>{
     const res=await fetch(PROXY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({systemPrompt:SYS,userPrompt:prompt,maxTokens:maxTok})});
     if(!res.ok){const t=await res.text();throw new Error(`Proxy ${res.status}: ${t.substring(0,200)}`);}
     const data=await res.json();
@@ -417,7 +417,7 @@ Para 4 — TEAM AND SCALABILITY: Reference the empirical relationship between fo
 Para 5 — RISK AND ESG: Identify the single most dangerous risk interaction. Cite a historical case. What ESG gap most threatens sovereign capital access?
 Para 6 — GATE VERDICT: State the decision (${scores.verdict.status}, Grade ${scores.verdict.grade}) with precise justification. List exactly 3 specific 90-day conditions that must be met.
 Plain prose only. No bullets. No markdown. Be ruthlessly precise.`;
-    try{ await callProxy(prompt,c=>setFullAI(p=>p+c),1800); }
+    try{ await callProxy(prompt,c=>setFullAI(p=>p+c),3500); }
     catch(e){ setFullAI(`Error: ${e.message}`); }
     finally{ setFullL(false); }
   },[form,scores,docs,docAI,callProxy]);
@@ -449,7 +449,7 @@ Para 3 — ADJUSTED SCORES: For inflated scores, state: "[Score]: Claimed X/10 �
 Para 4 — MISSING EVIDENCE RISK: What gap represents highest investment risk?
 Para 5 — ACTION PLAN: What must be provided before capital deployment, ranked by importance?
 Plain prose for paras 1,2,4. Score format for para 3. Short lines for para 5.`;
-    try{ await callProxy(prompt,c=>setDocAI(p=>p+c)); }
+    try{ await callProxy(prompt,c=>setDocAI(p=>p+c),2500); }
     catch(e){ setDocAI(`Error: ${e.message}`); }
     finally{ setDocL(false); }
   },[docs,form,scores,callProxy]);
