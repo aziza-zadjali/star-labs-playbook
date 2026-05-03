@@ -171,10 +171,10 @@ const Icon = ({name,size=16,style={}}) => {
 };
 
 // ── Logo ─────────────────────────────────────────────────────────────────────
-const Logo = () => {
+const Logo = ({size=36}) => {
   const [err,setErr] = useState(false);
-  if(err) return <span style={{fontFamily:"'Syne',sans-serif",fontWeight:900,color:"#fff",letterSpacing:"-.04em",fontSize:"1.25rem",lineHeight:1}}>STAR<br/><span style={{color:"var(--gold)"}}>LABS</span></span>;
-  return <img src="logo.png" alt="Star Labs" style={{height:36,width:'auto',objectFit:'contain'}} onError={()=>setErr(true)}/>;
+  if(err) return <span style={{fontFamily:"'Syne',sans-serif",fontWeight:900,color:"#fff",letterSpacing:"-.04em",fontSize:size>50?"2rem":"1.25rem",lineHeight:1,textAlign:'center',display:'block'}}>STAR<br/><span style={{color:"var(--gold)"}}>LABS</span></span>;
+  return <img src="logo.png" alt="Star Labs" style={{height:size,width:'auto',objectFit:'contain',display:'block'}} onError={()=>setErr(true)}/>;
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -573,7 +573,7 @@ Plain prose only. No bullet points. No markdown. Be blunt and institutionally pr
     <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',padding:'1.5rem',position:'relative',zIndex:10}}>
       <div style={{width:'100%',maxWidth:360}}>
         <div style={{textAlign:'center',marginBottom:'2.5rem'}}>
-          <div style={{display:'flex',justifyContent:'center',marginBottom:'1.25rem'}}><Logo/></div>
+          <div style={{display:'flex',justifyContent:'center',marginBottom:'1.5rem'}}><Logo size={90}/></div>
           <h1 className="syne" style={{fontSize:'1.5rem',fontWeight:800,textTransform:'uppercase',letterSpacing:'-.02em',color:'#fff'}}>EZP Terminal</h1>
           <p className="mono" style={{fontSize:'.6rem',letterSpacing:'.2em',color:'var(--gold)',marginTop:4}}>AUTHORIZATION REQUIRED</p>
           <p style={{fontSize:'.75rem',color:'#374151',marginTop:8}}>Emerging Zone Protocol · Institutional Grade · 2026</p>
