@@ -264,6 +264,94 @@ const Slider = ({label,name,value,onChange,min=1,max=10,step=1,description,accen
 };
 
 // ── AI Button ─────────────────────────────────────────────────────────────────
+// ── Doc Upload Card ───────────────────────────────────────────────────────────
+const DocUploadCard = ({doc,uploaded,onUpload,onRemove}) => {
+  const inputRef = useRef(null);
+  return (
+    <div style={{
+      background: uploaded ? 'rgba(52,211,153,0.04)' : 'rgba(255,255,255,0.02)',
+      border: `1px solid ${uploaded ? 'rgba(52,211,153,0.2)' : 'rgba(255,255,255,0.07)'}`,
+      borderRadius:'.8rem', padding:'1rem',
+      transition:'all .2s'
+    }}>
+      <div style={{display:'flex',alignItems:'flex-start',gap:12}}>
+        {/* Icon */}
+        <div style={{
+          width:38,height:38,borderRadius:8,flexShrink:0,
+          display:'flex',alignItems:'center',justifyContent:'center',
+          background: uploaded ? 'rgba(52,211,153,0.1)' : 'var(--gold-dim)',
+          border: `1px solid ${uploaded ? 'rgba(52,211,153,0.2)' : 'var(--gold-border)'}`
+        }}>
+          <Icon name={uploaded?'check-circle':doc.icon} size={16}
+            style={{color: uploaded?'#34d399':'var(--gold)'}}/>
+        </div>
+
+        {/* Info */}
+        <div style={{flex:1,minWidth:0}}>
+          <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:3,flexWrap:'wrap'}}>
+            <span className="syne" style={{fontSize:'var(--fs-sm)',fontWeight:700,color:'var(--text)'}}>{doc.label}</span>
+            {false&&null}
+            {uploaded&&(
+              <span className="mono" style={{fontSize:'var(--fs-xs)',color:'#34d399',
+                background:'rgba(52,211,153,0.1)',border:'1px solid rgba(52,211,153,0.2)',
+                padding:'1px 6px',borderRadius:99}}>UPLOADED</span>
+            )}
+          </div>
+          <p style={{fontSize:'var(--fs-xs)',color:'var(--text-3)',marginBottom:4}}>{doc.hint}</p>
+          <p className="mono" style={{fontSize:'var(--fs-xs)',color:'rgba(201,168,76,0.6)'}}>
+            Validates: {doc.scoreLink}
+          </p>
+          {uploaded&&(
+            <div style={{marginTop:6,display:'flex',alignItems:'center',gap:8,flexWrap:'wrap'}}>
+              <span style={{fontSize:'var(--fs-xs)',color:'#34d399'}}>
+                📄 {uploaded.name}
+              </span>
+              <span className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--text-3)'}}>
+                {uploaded.size} · {uploaded.uploaded}
+              </span>
+            </div>
+          )}
+        </div>
+
+        {/* Action */}
+        <div style={{flexShrink:0}}>
+          {uploaded?(
+            <button onClick={()=>onRemove(doc.id)}
+              style={{padding:'5px 10px',borderRadius:6,fontSize:'var(--fs-xs)',
+                fontWeight:700,background:'rgba(248,113,113,0.08)',
+                color:'#f87171',border:'1px solid rgba(248,113,113,0.2)',
+                cursor:'pointer',fontFamily:"'Space Mono',monospace"}}>
+              Remove
+            </button>
+          ):(
+            <>
+              <input ref={inputRef} type="file" accept={doc.accept}
+                style={{display:'none'}}
+                onChange={e=>e.target.files[0]&&onUpload(doc.id,e.target.files[0])}/>
+              <button onClick={()=>inputRef.current.click()}
+                style={{padding:'5px 12px',borderRadius:6,fontSize:'var(--fs-xs)',
+                  fontWeight:700,background:'var(--gold-dim)',
+                  color:'var(--gold)',border:'1px solid var(--gold-border)',
+                  cursor:'pointer',fontFamily:"'Syne',sans-serif",
+                  textTransform:'uppercase',letterSpacing:'.06em'}}>
+                Upload
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Accepted formats */}
+      {!uploaded&&(
+        <p className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--text-3)',marginTop:8,paddingTop:8,
+          borderTop:'1px solid rgba(255,255,255,0.04)'}}>
+          Accepted: {doc.accept.replace(/\./g,'').replace(/,/g,' · ').toUpperCase()}
+        </p>
+      )}
+    </div>
+  );
+};
+
 const AIBtn = ({onClick,loading,label}) => (
   <div style={{display:'flex',justifyContent:'flex-end',marginTop:8}}>
     <button onClick={onClick} disabled={loading}
@@ -277,17 +365,33 @@ const AIBtn = ({onClick,loading,label}) => (
   </div>
 );
 
+// ── Document types ──────────────────────────────────────────────────────────
+const DOC_TYPES = [
+  // Core — required for institutional assessment
+  {id:'pitchDeck',    label:'Pitch Deck',            icon:'presentation',  accept:'.pdf',         required:false,  scoreLink:'Overall narrative',    hint:'Full venture pitch — problem, solution, market, team, financials'},
+  {id:'financialModel',label:'Financial Model',       icon:'bar-chart-2',   accept:'.xlsx,.xls,.pdf', required:false, scoreLink:'Viability scores',  hint:'Revenue projections, unit economics, burn rate, P&L'},
+  {id:'ipSummary',    label:'IP / Patent Summary',   icon:'shield',        accept:'.pdf',         required:false,  scoreLink:'IP Defensibility',     hint:'Patent filings, trade secrets, IP ownership structure'},
+  // Optional — high value
+  {id:'teamCVs',      label:'Founder & Team CVs',    icon:'users',         accept:'.pdf',         required:false, scoreLink:'Team Expertise',       hint:'CVs or LinkedIn exports for key leadership'},
+  {id:'loi',          label:'Letters of Intent / MOUs', icon:'file-text',  accept:'.pdf',         required:false, scoreLink:'Customer Urgency',     hint:'Signed LOIs, MOUs, or customer validation letters'},
+  {id:'techWhitepaper',label:'Technical White Paper', icon:'cpu',          accept:'.pdf',         required:false, scoreLink:'TRL / Feasibility',    hint:'Technical architecture, R&D evidence, prototype specs'},
+  {id:'esgReport',    label:'ESG / Impact Report',   icon:'leaf',          accept:'.pdf',         required:false, scoreLink:'ESG Gate Score',       hint:'Sustainability report, impact assessment, certifications'},
+  {id:'marketResearch',label:'Market Research Report',icon:'trending-up',  accept:'.pdf',         required:false, scoreLink:'Desirability',         hint:'TAM/SAM/SOM analysis, competitive landscape, customer surveys'},
+  {id:'legalDocs',    label:'Corporate Legal Docs',  icon:'scale',         accept:'.pdf',         required:false, scoreLink:'Governance Readiness', hint:'Articles of incorporation, cap table, shareholder agreements'},
+];
+
 // ── Constants ─────────────────────────────────────────────────────────────────
 const STEPS = [
-  {id:'intake',  title:'Intake',    icon:'file-scan',    section:'Foundation'},
-  {id:'market',  title:'Market',    icon:'trending-up',  section:'Foundation'},
-  {id:'tech',    title:'Tech',      icon:'cpu',          section:'Dimensions'},
-  {id:'fin',     title:'Financial', icon:'bar-chart-2',  section:'Dimensions'},
-  {id:'risk',    title:'Risk',      icon:'shield-alert', section:'Dimensions'},
-  {id:'esg',     title:'ESG',       icon:'leaf',         section:'Dimensions'},
-  {id:'team',    title:'Team',      icon:'users',        section:'Dimensions'},
-  {id:'engine',  title:'AI',        icon:'sparkles',     section:'Verdict'},
-  {id:'verdict', title:'Verdict',   icon:'shield-check', section:'Verdict'},
+  {id:'intake',   title:'Intake',    icon:'file-scan',    section:'Foundation'},
+  {id:'market',   title:'Market',    icon:'trending-up',  section:'Foundation'},
+  {id:'tech',     title:'Tech',      icon:'cpu',          section:'Dimensions'},
+  {id:'fin',      title:'Financial', icon:'bar-chart-2',  section:'Dimensions'},
+  {id:'risk',     title:'Risk',      icon:'shield-alert', section:'Dimensions'},
+  {id:'esg',      title:'ESG',       icon:'leaf',         section:'Dimensions'},
+  {id:'team',     title:'Team',      icon:'users',        section:'Dimensions'},
+  {id:'evidence', title:'Evidence',  icon:'paperclip',    section:'Evidence'},
+  {id:'engine',   title:'AI',        icon:'sparkles',     section:'Verdict'},
+  {id:'verdict',  title:'Verdict',   icon:'shield-check', section:'Verdict'},
 ];
 
 // ── Proxy — your Cloudflare Worker ────────────────────────────────────────────
@@ -305,6 +409,9 @@ const App = () => {
   const [streamSec,setStreamSec] = useState(null);
   const [done,setDone]           = useState(new Set());
   const [mobileMenu,setMobileMenu] = useState(false);
+  const [docs,setDocs]             = useState({});   // {docId: {file,name,size,base64,extractedText}}
+  const [docAnalysis,setDocAnalysis] = useState('');
+  const [docStreaming,setDocStreaming] = useState(false);
   const mainRef = useRef(null);
 
   const [form,setForm] = useState({
@@ -422,6 +529,8 @@ const App = () => {
       form.revenueModel, form.tam, form.techNotes, form.financialNotes,
       form.riskNotes, form.esgNotes
     ].filter(v => v && v.trim().length > 10).length;
+    // Evidence docs boost confidence — each required doc = +5%, optional = +2%
+    // Note: docs state not in useMemo deps, but scores recalc on form change anyway
     const assumptionConfidence = Math.round((filledDims / 10) * 100);
 
     // ── KILL SWITCHES (LeanSpark: binary fatal flaws that cap at TERMINATE)
@@ -510,6 +619,140 @@ const App = () => {
     }
   };
 
+  // ── Document helpers ────────────────────────────────────────────────────────
+  const readFileAsBase64 = (file) => new Promise((res,rej)=>{
+    const r = new FileReader();
+    r.onload = () => res(r.result.split(',')[1]);
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+
+  const handleDocUpload = useCallback(async(docId, file)=>{
+    if(!file) return;
+    const base64 = await readFileAsBase64(file);
+    setDocs(p=>({...p,[docId]:{
+      file, name:file.name,
+      size:(file.size/1024/1024).toFixed(2)+'MB',
+      base64, type:file.type,
+      uploaded: new Date().toLocaleTimeString()
+    }}));
+  },[]);
+
+  const removeDoc = useCallback((docId)=>{
+    setDocs(p=>{const n={...p};delete n[docId];return n;});
+  },[]);
+
+  const analyzeDocuments = useCallback(async()=>{
+    const uploaded = Object.entries(docs).filter(([_,d])=>d&&d.base64);
+    if(!uploaded.length){alert('Upload at least one document first.');return;}
+    setDocStreaming(true); setDocAnalysis('');
+
+    // Build detailed evidence manifest with score cross-check context
+    const uploadedList = uploaded.map(([id,d])=>{
+      const docType = DOC_TYPES.find(dt=>dt.id===id);
+      return `• ${docType?.label||id}: "${d.name}" (${d.size}) — validates: ${docType?.scoreLink||'general'}`;
+    }).join('
+');
+
+    const missingList = DOC_TYPES.filter(dt=>!docs[dt.id])
+      .map(dt=>`• ${dt.label} — would validate: ${dt.scoreLink}`)
+      .join('
+');
+
+    // Full score context for cross-checking — every self-assessed score
+    const scoreAuditContext = `
+SELF-ASSESSED SCORES (assessor-provided, to be audited against evidence):
+
+MARKET & DESIRABILITY:
+- Market Size / TAM: ${form.marketSize}/10
+- Customer Urgency: ${form.customerUrgency}/10  [LOI/MOU doc would evidence this]
+- Market Timing: ${form.marketTiming}/10
+- Competitive Moat: ${form.competitiveMoat}/10
+- Revenue Model: ${form.revenueModel||'UNDEFINED'}
+- TAM Estimate: ${form.tam||'Not provided'}
+
+TECHNOLOGY & FEASIBILITY:
+- TRL: ${form.trl}/9  [Technical whitepaper would evidence this]
+- MRL: ${form.mrl}/10
+- IP Defensibility: ${form.ipDefensibility}/10  [Patent/IP doc would evidence this]
+- Tech Scalability: ${form.techScalability}/10
+- Integration Complexity: ${form.integrationComplexity}/10
+
+FINANCIAL VIABILITY:
+- ROI Potential: ${form.roiPotential}/10  [Financial model would evidence this]
+- Revenue Readiness: ${form.revenueReadiness}/10  [LOI/financial model would evidence this]
+- Capital Intensity: ${form.capitalIntensity}/10
+- Burn Risk: ${form.burnRisk}/10  [Financial model would evidence this]
+- Payback Period: ${form.paybackPeriod}/10
+- Funding Stage: ${form.fundingStage}
+
+RISK:
+- Regulatory Risk: ${form.regulatoryRisk}/10  [Legal docs would evidence compliance]
+- Geopolitical Risk: ${form.geopoliticalRisk}/10
+- Supply Chain Risk: ${form.supplychainRisk}/10
+- Cybersecurity Risk: ${form.cybersecurityRisk}/10
+- Talent Risk: ${form.talentRisk}/10  [Team CVs would evidence this]
+- Competition Risk: ${form.competitionRisk}/10  [Market research would evidence this]
+
+ESG:
+- Environmental Impact: ${form.environmentalImpact}/10  [ESG report would evidence this]
+- Social Impact: ${form.socialImpact}/10
+- Governance Readiness: ${form.governanceReadiness}/10  [Legal/corporate docs would evidence this]
+- Regulatory Compliance: ${form.regulatoryCompliance}/10  [Legal docs would evidence this]
+- SDG Alignment: ${form.sdgAlignment}/10
+
+TEAM & SCALABILITY:
+- Founder Domain Depth: ${form.teamExpertise}/10  [Team CVs would evidence this]
+- Advisory Strength: ${form.advisoryStrength}/10
+- Validation Velocity: ${form.validationVelocity}/10
+- Scenario Resilience: ${form.scenarioResilience}/10
+- Partnership Network: ${form.partnershipNetwork}/10  [LOIs/MOUs would evidence this]
+
+COMPUTED PILLAR SCORES:
+- Desirability: ${scores.desirability}/10
+- Feasibility: ${scores.feasibility}/10
+- Viability: ${scores.viability}/10
+- Scalability: ${scores.scalability}/10
+- Risk Confidence: ${scores.confidence}/10
+- Composite EZP: ${scores.composite}/10
+- Gate Verdict: ${scores.verdict.status} (Grade ${scores.verdict.grade})`;
+
+    const prompt = `STAR LABS — AI SCORE AUDIT
+Asset: ${form.techName||'N/A'} | ${form.category} | Stage: ${form.stage}
+
+=== DOCUMENTS UPLOADED (${uploaded.length} of ${DOC_TYPES.length}) ===
+${uploadedList}
+
+=== DOCUMENTS NOT UPLOADED ===
+${missingList||'All documents uploaded'}
+
+${scoreAuditContext}
+
+=== YOUR TASK: SCORE AUDIT ===
+You are auditing the self-assessed scores against the evidence documents uploaded. 
+Cross-reference each uploaded document name and type against the specific scores it should validate.
+
+Write a rigorous 5-paragraph score audit:
+
+Para 1 — EVIDENCE COMPLETENESS: Which documents were uploaded and what scores they can validate. Which are missing and what that means for score confidence. Be specific about which scores now have evidence backing vs which remain self-assessed only.
+
+Para 2 — SCORE INTEGRITY CHECK: For each uploaded document, cross-check the filename and document type against the claimed score. Flag any suspicious mismatches. Examples of red flags to catch: a file called "draft_patent.pdf" or "provisional_application" paired with IP Defensibility 8+/10; a "projected_revenue.xlsx" (not signed contracts) paired with Revenue Readiness 8+/10; generic "team_overview.pdf" paired with Team Expertise 9/10; no LOI/MOU uploaded but Customer Urgency scored 8+/10. Be ruthless — if the document name suggests early-stage evidence but the score claims maturity, say so explicitly.
+
+Para 3 — ADJUSTED SCORE RECOMMENDATIONS: For each score that appears inconsistent with the evidence (or lacks evidence entirely for a high score), state what the adjusted score should be and why. Format as: "[Score name]: Claimed ${'{score}'}/10 → Suggested X/10 — Reason: ..."
+
+Para 4 — MISSING EVIDENCE RISK: What do the missing documents tell us? What risks or assumptions remain unvalidated? Which missing document represents the highest risk to the investment thesis?
+
+Para 5 — EVIDENCE ACTION PLAN: Precise list of what the venture team must provide before capital deployment, ranked by importance. State the specific document, what it must contain, and which score it will validate or invalidate.
+
+Be blunt, precise, institutionally credible. Plain prose paragraphs only for paras 1,2,4. Para 3 may use the score format shown. Para 5 may use short numbered lines. No other markdown or bullets.`;
+
+    try{
+      await callProxy(SYS, prompt, chunk=>setDocAnalysis(p=>p+chunk));
+    }catch(err){
+      setDocAnalysis(`⚠ Error: ${err.message}`);
+    }finally{setDocStreaming(false);}
+  },[docs,form,scores]);
+
   const analyzeSection = useCallback(async(key,prompt)=>{
     setStreamSec(key);
     setSectionAI(p=>({...p,[key]:''}));
@@ -543,6 +786,13 @@ Risk-Adj Confidence:        ${scores.confidence}
 ESG Gate Score:             ${scores.esg}
 Composite EZP Score:        ${scores.composite}/10
 Gate Decision:              ${scores.verdict.status} (Grade ${scores.verdict.grade})
+
+=== EVIDENCE DOCUMENTS ===
+${Object.keys(docs).length===0
+  ? 'NO DOCUMENTS UPLOADED — all scores are self-assessed only, treat with lower confidence'
+  : 'UPLOADED ('+Object.keys(docs).length+'/'+DOC_TYPES.length+'): '+Object.entries(docs).filter(([_,d])=>d).map(([id,d])=>DOC_TYPES.find(dt=>dt.id===id)?.label+': "'+d.name+'"').join('; ')}
+NOT UPLOADED: ${DOC_TYPES.filter(dt=>!docs[dt.id]).map(dt=>dt.label).join(', ')||'None — full evidence package'}
+${docAnalysis?'PRIOR SCORE AUDIT FINDING: '+docAnalysis.substring(0,400)+'...':'NO PRIOR SCORE AUDIT — documents not yet cross-checked'}
 
 === ASSUMPTION CONFIDENCE ===
 ${scores.assumptionConfidence}% of critical assumptions documented (${scores.assumptionConfidence<50?'LOW — high uncertainty':'HIGH — well evidenced'})
@@ -679,7 +929,10 @@ Plain prose only. No bullet points. No markdown. Be blunt and institutionally pr
                 <div className="syne" style={{fontSize:'2rem',fontWeight:800,color:scores.verdict.color,lineHeight:1}}>{scores.composite}</div>
                 <div className="pbar" style={{margin:'6px 0'}}><div className="pfill" style={{width:`${parseFloat(scores.composite)*10}%`,background:scores.verdict.color}}></div></div>
                 <p className="mono" style={{fontSize:'var(--fs-xs)',fontWeight:700,color:scores.verdict.color,marginBottom:4}}>{scores.verdict.status}</p>
-                <p className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--text-3)',marginBottom:8}}>Grade {scores.verdict.grade} · {scores.assumptionConfidence}% confidence</p>
+                <p className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--text-3)',marginBottom:4}}>Grade {scores.verdict.grade} · {scores.assumptionConfidence}% confidence</p>
+                <p className="mono" style={{fontSize:'var(--fs-xs)',color:Object.keys(docs).length>=3?'#34d399':'var(--gold)',marginBottom:8}}>
+                  {Object.keys(docs).length===0?'No docs — low evidence':'Evidence: '+Object.keys(docs).length+'/'+DOC_TYPES.length}
+                </p>
                 {scores.killSwitches.length>0&&(
                   <div style={{background:'rgba(248,113,113,.08)',border:'1px solid rgba(248,113,113,.2)',borderRadius:6,padding:'4px 7px',marginBottom:8}}>
                     <p className="mono" style={{fontSize:'var(--fs-xs)',color:'#f87171',fontWeight:700}}>{scores.killSwitches.length} KILL SWITCH{scores.killSwitches.length>1?'ES':''} ACTIVE</p>
@@ -1082,8 +1335,86 @@ Plain prose only. No bullet points. No markdown. Be blunt and institutionally pr
             </div>
           )}
 
-          {/* ════ STEP 7: AI ENGINE ════ */}
+          {/* ════ STEP 7: EVIDENCE VAULT ════ */}
           {step===7&&(
+            <div className="fade-up" style={{display:'flex',flexDirection:'column',gap:'1.25rem'}}>
+              <div>
+                <h2 className="syne" style={{fontSize:'clamp(1.6rem,4vw,2.4rem)',fontWeight:800,textTransform:'uppercase',letterSpacing:'-.01em',color:'var(--text)'}}>Evidence Vault</h2>
+                <p style={{fontSize:'var(--fs-base)',color:'var(--text-3)',marginTop:4}}>Upload supporting documents — AI will cross-check against your self-assessed scores.</p>
+              </div>
+
+              {/* Notice */}
+              <div className="card-info" style={{padding:'.9rem',display:'flex',gap:10,alignItems:'flex-start'}}>
+                <span style={{fontSize:'1rem',flexShrink:0}}>🔍</span>
+                <div>
+                  <p className="mono" style={{fontSize:'var(--fs-sm)',color:'#60a5fa',fontWeight:700,textTransform:'uppercase',letterSpacing:'.08em',marginBottom:3}}>AI Score Auditor — All Documents Optional</p>
+                  <p style={{fontSize:'var(--fs-sm)',color:'var(--text-3)',lineHeight:1.6}}>All uploads are optional. When you upload a document, the AI audits your self-assessed scores against the evidence — if your claimed score isn't supported by what you uploaded, the AI will flag it and suggest an adjusted score. No document uploaded means the score stands as-is with a lower confidence rating.</p>
+                </div>
+              </div>
+
+              {/* Progress bar */}
+              {(()=>{
+                const allDone = DOC_TYPES.filter(d=>docs[d.id]).length;
+                return (
+                  <div className="card" style={{padding:'1rem'}}>
+                    <div style={{display:'flex',justifyContent:'space-between',marginBottom:8}}>
+                      <span className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--text-3)',textTransform:'uppercase',letterSpacing:'.08em'}}>Evidence Completeness</span>
+                      <span className="mono" style={{fontSize:'var(--fs-xs)',color:reqDone===req.length?'#34d399':'var(--gold)',fontWeight:700}}>
+                        {allDone}/{DOC_TYPES.length} docs · {reqDone}/{req.length} required
+                      </span>
+                    </div>
+                    <div className="pbar" style={{height:5}}>
+                      <div className="pfill" style={{width:`${(allDone/DOC_TYPES.length)*100}%`,height:'100%',background:reqDone===req.length?'#34d399':'var(--gold)'}}></div>
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* All Documents — grouped by score dimension */}
+              <div style={{display:'flex',flexDirection:'column',gap:10}}>
+                {DOC_TYPES.map(doc=>(
+                  <DocUploadCard key={doc.id} doc={doc} uploaded={docs[doc.id]} onUpload={handleDocUpload} onRemove={removeDoc}/>
+                ))}
+              </div>
+
+              {/* AI Score Audit button */}
+              {Object.keys(docs).length>0?(
+                <div style={{display:'flex',flexDirection:'column',gap:'1rem'}}>
+                  <div className="card-gold" style={{padding:'1rem',display:'flex',gap:10,alignItems:'flex-start'}}>
+                    <span style={{fontSize:'1rem',flexShrink:0}}>⚖️</span>
+                    <div>
+                      <p className="mono" style={{fontSize:'var(--fs-sm)',color:'var(--gold)',fontWeight:700,textTransform:'uppercase',letterSpacing:'.08em',marginBottom:3}}>
+                        {Object.keys(docs).length} document{Object.keys(docs).length>1?'s':''} ready for audit
+                      </p>
+                      <p style={{fontSize:'var(--fs-sm)',color:'var(--text-3)',lineHeight:1.5}}>
+                        The AI will cross-check every uploaded document against your self-assessed scores — flagging mismatches, suggesting adjusted scores, and identifying what's still unvalidated.
+                      </p>
+                    </div>
+                  </div>
+                  <AIBtn onClick={analyzeDocuments} loading={docStreaming} label="Run AI Score Audit"/>
+                  {(docAnalysis||docStreaming)&&(
+                    <AIBlock text={docAnalysis} streaming={docStreaming} label="Score Audit — Evidence vs Claims"/>
+                  )}
+                </div>
+              ):(
+                <div className="card" style={{padding:'1.25rem',textAlign:'center'}}>
+                  <div style={{display:'flex',justifyContent:'center',marginBottom:8}}>
+                    <Icon name="upload-cloud" size={28} style={{color:'var(--muted)'}}/>
+                  </div>
+                  <p className="syne" style={{fontSize:'var(--fs-md)',fontWeight:700,color:'var(--text-3)',marginBottom:4}}>No Documents Uploaded</p>
+                  <p style={{fontSize:'var(--fs-sm)',color:'var(--text-3)',lineHeight:1.6,maxWidth:400,margin:'0 auto'}}>
+                    All documents are optional. Upload any combination above to activate the AI Score Auditor — it will verify your self-assessed scores against actual evidence and flag any inconsistencies.
+                  </p>
+                  <p style={{fontSize:'var(--fs-xs)',color:'var(--muted)',marginTop:10}}>
+                    Without uploads, all scores proceed to the AI Engine at face value with reduced confidence.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ════ STEP 8: AI ENGINE ════ */}
+          {step===8&&(
             <div className="fade-up" style={{display:'flex',flexDirection:'column',gap:'1.25rem'}}>
               <div>
                 <h2 className="syne" style={{fontSize:'clamp(1.6rem,4vw,2.4rem)',fontWeight:800,textTransform:'uppercase',letterSpacing:'-.01em',color:'var(--text)'}}>AI Diligence Engine</h2>
@@ -1118,8 +1449,8 @@ Plain prose only. No bullet points. No markdown. Be blunt and institutionally pr
             </div>
           )}
 
-          {/* ════ STEP 8: VERDICT ════ */}
-          {step===8&&(
+          {/* ════ STEP 9: VERDICT ════ */}
+          {step===9&&(
             <div className="fade-up" style={{display:'flex',flexDirection:'column',gap:'1.25rem'}}>
               <div>
                 <h2 className="syne" style={{fontSize:'clamp(1.6rem,4vw,2.4rem)',fontWeight:800,textTransform:'uppercase',letterSpacing:'-.01em',color:'var(--text)'}}>Gate Verdict</h2>
@@ -1290,7 +1621,7 @@ Plain prose only. No bullet points. No markdown. Be blunt and institutionally pr
                 <div className="ai-block" style={{textAlign:'center',padding:'2rem'}}>
                   <div style={{display:'flex',justifyContent:'center',marginBottom:8}}><Icon name="sparkles" size={22} style={{color:'var(--text-3)'}}/></div>
                   <p style={{fontSize:'.8rem',color:'var(--text-3)',marginBottom:12}}>Run the AI Diligence Engine (Step 8) for the full institutional verdict.</p>
-                  <button onClick={()=>goStep(7)} className="syne"
+                  <button onClick={()=>goStep(8)} className="syne"
                     style={{padding:'.5rem 1.1rem',borderRadius:'.7rem',fontSize:'var(--fs-sm)',fontWeight:700,
                       textTransform:'uppercase',letterSpacing:'.08em',background:'var(--gold-dim)',
                       color:'var(--gold)',border:'1px solid var(--gold-border)',cursor:'pointer'}}>
@@ -1349,11 +1680,20 @@ Plain prose only. No bullet points. No markdown. Be blunt and institutionally pr
       </footer>
 
       {/* ── Mobile Bottom Nav ── */}
+      {/* Mobile bottom nav — show condensed key steps only */}
       <nav className="mobile-nav no-print">
-        {STEPS.map((s,i)=>(
-          <button key={s.id} className={`mob-btn ${step===i?'active':''}`} onClick={()=>goStep(i)}>
-            <Icon name={s.icon} size={16} style={{color:step===i?'var(--gold)':done.has(i)?'rgba(201,168,76,.5)':'#374151'}}/>
-            <span style={{color:step===i?'var(--gold)':done.has(i)?'rgba(201,168,76,.4)':'#374151'}}>{s.title}</span>
+        {[
+          {i:0,icon:'file-scan',   title:'Intake'},
+          {i:2,icon:'cpu',         title:'Tech'},
+          {i:3,icon:'bar-chart-2', title:'Finance'},
+          {i:4,icon:'shield-alert',title:'Risk'},
+          {i:7,icon:'paperclip',   title:'Evidence'},
+          {i:8,icon:'sparkles',    title:'AI'},
+          {i:9,icon:'shield-check',title:'Verdict'},
+        ].map(({i,icon,title})=>(
+          <button key={i} className={`mob-btn ${step===i?'active':''}`} onClick={()=>goStep(i)}>
+            <Icon name={icon} size={16} style={{color:step===i?'var(--gold)':done.has(i)?'rgba(201,168,76,.5)':'#555b6a'}}/>
+            <span style={{color:step===i?'var(--gold)':done.has(i)?'rgba(201,168,76,.4)':'#555b6a'}}>{title}</span>
           </button>
         ))}
       </nav>
