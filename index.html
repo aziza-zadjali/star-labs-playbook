@@ -1,1419 +1,1071 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Star Labs | VRP Pro — Venture Readiness Protocol</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<meta name="description" content="Star Labs EZP Pro — Emerging Zone Protocol. AI-powered institutional tech assessment."/>
+<meta property="og:title" content="Star Labs | EZP Pro"/>
+<meta property="og:description" content="Emerging Zone Protocol — 6-Dimension AI Assessment Platform"/>
+<meta name="theme-color" content="#05060a"/>
+<title>Star Labs | EZP Pro — Emerging Zone Protocol</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+:root{
+  --bg:#05060a;--card:#0f1118;--card2:#131620;
+  --gold:#c9a84c;--gold-b:#f0c84a;
+  --gold-dim:rgba(201,168,76,0.12);--gold-border:rgba(201,168,76,0.22);
+  --text:#eeeae0;--muted:#555b6a;
+  --red:#f87171;--green:#34d399;--blue:#60a5fa;--amber:#f59e0b;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;min-height:100vh;}
+.mono{font-family:'Space Mono',monospace;}
+.syne{font-family:'Syne',sans-serif;}
 
-    <style>
-        :root {
-            --bg: #05060a;
-            --surface: #0b0d12;
-            --card: #0f1118;
-            --card2: #131620;
-            --gold: #c9a84c;
-            --gold-b: #f0c84a;
-            --gold-dim: rgba(201,168,76,0.12);
-            --gold-border: rgba(201,168,76,0.22);
-            --text: #eeeae0;
-            --muted: #555b6a;
-            --danger: #f87171;
-            --success: #34d399;
-            --info: #60a5fa;
-            --warn: #fbbf24;
-        }
+/* Grain */
+body::after{content:'';position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:9998;opacity:.5;}
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+/* Orbs */
+.orb{position:fixed;border-radius:50%;pointer-events:none;z-index:0;filter:blur(90px);}
+.orb1{width:500px;height:500px;background:radial-gradient(circle,rgba(201,168,76,.07) 0%,transparent 70%);top:-180px;left:50%;transform:translateX(-50%);}
+.orb2{width:350px;height:350px;background:radial-gradient(circle,rgba(96,165,250,.04) 0%,transparent 70%);bottom:0;right:-80px;}
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            overflow-x: hidden;
-            min-height: 100vh;
-        }
+/* Scrollbar */
+::-webkit-scrollbar{width:3px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:rgba(201,168,76,.2);border-radius:99px;}
 
-        .mono { font-family: 'Space Mono', monospace; }
-        .display { font-family: 'Syne', sans-serif; }
+/* Cards */
+.card{background:var(--card);border:1px solid rgba(255,255,255,.05);border-radius:1.1rem;}
+.card-gold{background:var(--card);border:1px solid var(--gold-border);border-radius:1.1rem;}
+.card-info{background:rgba(96,165,250,.04);border:1px solid rgba(96,165,250,.15);border-radius:1.1rem;}
+.card-success{background:rgba(52,211,153,.04);border:1px solid rgba(52,211,153,.15);border-radius:1.1rem;}
+.card-warn{background:rgba(245,158,11,.04);border:1px solid rgba(245,158,11,.2);border-radius:1.1rem;}
 
-        /* Grain overlay */
-        body::after {
-            content: '';
-            position: fixed; inset: 0;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-            pointer-events: none; z-index: 9998; opacity: 0.5;
-        }
+/* Nav sidebar */
+.nav-item{display:flex;align-items:center;gap:.6rem;padding:.6rem .9rem;border-radius:.55rem;
+  font-size:.65rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  cursor:pointer;transition:all .15s;border:1px solid transparent;
+  color:var(--muted);font-family:'Syne',sans-serif;position:relative;width:100%;background:none;}
+.nav-item:hover{color:rgba(255,255,255,.7);background:rgba(255,255,255,.03);}
+.nav-item.active{background:var(--gold-dim);border-color:var(--gold-border);color:var(--gold);}
+.nav-item.done::after{content:'✓';position:absolute;right:.7rem;font-size:.55rem;color:var(--green);opacity:.8;}
+.nav-section-label{font-size:.5rem;letter-spacing:.15em;color:rgba(255,255,255,.18);
+  text-transform:uppercase;font-family:'Space Mono',monospace;padding:1.1rem .9rem .35rem;}
 
-        /* Ambient orbs */
-        .orb {
-            position: fixed; border-radius: 50%;
-            pointer-events: none; z-index: 0;
-            filter: blur(80px);
-        }
-        .orb-1 {
-            width: 600px; height: 600px;
-            background: radial-gradient(circle, rgba(201,168,76,0.07) 0%, transparent 70%);
-            top: -200px; left: 50%; transform: translateX(-50%);
-        }
-        .orb-2 {
-            width: 400px; height: 400px;
-            background: radial-gradient(circle, rgba(96,165,250,0.04) 0%, transparent 70%);
-            bottom: 0; right: -100px;
-        }
+/* Mobile bottom nav */
+.mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:100;
+  background:rgba(5,6,10,.97);border-top:1px solid rgba(255,255,255,.06);
+  backdrop-filter:blur(20px);padding:.5rem .75rem;padding-bottom:env(safe-area-inset-bottom,.5rem);}
+.mob-btn{display:flex;flex-direction:column;align-items:center;gap:.2rem;
+  padding:.4rem .5rem;border-radius:.5rem;border:none;background:none;
+  color:var(--muted);cursor:pointer;transition:all .15s;flex:1;font-family:'Space Mono',monospace;}
+.mob-btn span{font-size:.45rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;}
+.mob-btn.active{color:var(--gold);}
+.mob-btn.active svg{filter:drop-shadow(0 0 4px rgba(201,168,76,.6));}
 
-        /* Scrollbar */
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(201,168,76,0.18); border-radius: 99px; }
+@media(max-width:768px){
+  .mobile-nav{display:flex;}
+  .desktop-sidebar{display:none!important;}
+  .main-content{padding-bottom:5rem!important;}
+  .header-subtitle{display:none;}
+}
 
-        /* Cards */
-        .card {
-            background: var(--card);
-            border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 1.25rem;
-        }
-        .card-gold {
-            background: var(--card);
-            border: 1px solid var(--gold-border);
-            border-radius: 1.25rem;
-        }
-        .card-danger {
-            background: rgba(248,113,113,0.05);
-            border: 1px solid rgba(248,113,113,0.2);
-            border-radius: 1.25rem;
-        }
-        .card-success {
-            background: rgba(52,211,153,0.05);
-            border: 1px solid rgba(52,211,153,0.2);
-            border-radius: 1.25rem;
-        }
+/* Fields */
+.field{background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.06);color:var(--text);
+  border-radius:.7rem;padding:.75rem 1rem;width:100%;font-family:'Inter',sans-serif;
+  font-size:.875rem;transition:border-color .2s,box-shadow .2s;outline:none;}
+.field:focus{border-color:var(--gold-border);box-shadow:0 0 0 3px rgba(201,168,76,.07);}
+.field::placeholder{color:#2a2f3a;}
+select.field option{background:#0f1118;}
 
-        /* Nav */
-        .nav-item {
-            display: flex; align-items: center; gap: 0.65rem;
-            padding: 0.65rem 1rem;
-            border-radius: 0.6rem;
-            font-size: 0.68rem; font-weight: 700;
-            letter-spacing: 0.06em; text-transform: uppercase;
-            cursor: pointer; transition: all 0.15s;
-            border: 1px solid transparent;
-            color: var(--muted); font-family: 'Syne', sans-serif;
-            position: relative;
-        }
-        .nav-item:hover { color: rgba(255,255,255,0.7); background: rgba(255,255,255,0.03); }
-        .nav-item.active {
-            background: var(--gold-dim);
-            border-color: var(--gold-border);
-            color: var(--gold);
-        }
-        .nav-item.done::after {
-            content: '✓';
-            position: absolute; right: 0.75rem;
-            font-size: 0.6rem; color: var(--success); opacity: 0.8;
-        }
-        .nav-section {
-            font-size: 0.55rem; letter-spacing: 0.15em;
-            color: rgba(255,255,255,0.2); text-transform: uppercase;
-            font-family: 'Space Mono', monospace;
-            padding: 1.25rem 1rem 0.4rem;
-        }
+/* Sliders */
+input[type="range"]{-webkit-appearance:none;width:100%;height:3px;
+  background:rgba(255,255,255,.07);border-radius:99px;cursor:pointer;outline:none;}
+input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;
+  width:15px;height:15px;border-radius:50%;background:var(--bg);
+  border:2px solid var(--gold);box-shadow:0 0 8px rgba(201,168,76,.5);}
+input[type="range"]::-moz-range-thumb{width:15px;height:15px;border-radius:50%;
+  background:var(--bg);border:2px solid var(--gold);cursor:pointer;}
 
-        /* Fields */
-        .field {
-            background: rgba(0,0,0,0.35);
-            border: 1px solid rgba(255,255,255,0.06);
-            color: var(--text);
-            border-radius: 0.75rem;
-            padding: 0.8rem 1.1rem;
-            width: 100%;
-            font-family: 'Inter', sans-serif;
-            font-size: 0.875rem;
-            transition: border-color 0.2s, box-shadow 0.2s;
-            outline: none;
-        }
-        .field:focus {
-            border-color: var(--gold-border);
-            box-shadow: 0 0 0 3px rgba(201,168,76,0.07);
-        }
-        .field::placeholder { color: #2e333d; }
-        select.field option { background: #0f1118; }
+/* Gold text */
+.gold-text{background:linear-gradient(135deg,#c9a84c,#f0c84a 45%,#c9a84c);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
 
-        /* Range sliders */
-        input[type="range"] {
-            -webkit-appearance: none; width: 100%; height: 3px;
-            background: rgba(255,255,255,0.07);
-            border-radius: 99px; cursor: pointer; outline: none;
-        }
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 16px; height: 16px; border-radius: 50%;
-            background: var(--bg);
-            border: 2px solid var(--gold);
-            box-shadow: 0 0 10px rgba(201,168,76,0.5);
-        }
+/* Progress bars */
+.pbar{height:3px;background:rgba(255,255,255,.05);border-radius:99px;overflow:hidden;}
+.pfill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-b));
+  border-radius:99px;transition:width .8s cubic-bezier(.4,0,.2,1);}
 
-        /* Gold text */
-        .gold-text {
-            background: linear-gradient(135deg, #c9a84c, #f0c84a 45%, #c9a84c);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
+/* Tags */
+.tag{font-size:.55rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  padding:.2rem .6rem;border-radius:99px;font-family:'Space Mono',monospace;
+  display:inline-flex;align-items:center;gap:.25rem;}
 
-        /* Progress bar */
-        .pbar { height: 3px; background: rgba(255,255,255,0.05); border-radius: 99px; overflow: hidden; }
-        .pfill { height: 100%; background: linear-gradient(90deg, var(--gold), var(--gold-b)); border-radius: 99px; transition: width 1s cubic-bezier(0.4,0,0.2,1); }
+/* AI block */
+.ai-block{background:linear-gradient(135deg,rgba(201,168,76,.03),rgba(201,168,76,.07));
+  border:1px solid var(--gold-border);border-radius:.9rem;padding:1.5rem;
+  position:relative;overflow:hidden;}
+.ai-block::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);}
 
-        /* Tag */
-        .tag {
-            font-size: 0.58rem; font-weight: 700; letter-spacing: 0.1em;
-            text-transform: uppercase; padding: 0.22rem 0.65rem;
-            border-radius: 99px; font-family: 'Space Mono', monospace;
-            display: inline-flex; align-items: center; gap: 0.3rem;
-        }
+/* Matrix cell (slider card) */
+.mxcell{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);
+  border-radius:.75rem;padding:1rem;transition:all .2s;}
+.mxcell:hover{border-color:var(--gold-border);background:rgba(201,168,76,.02);}
 
-        /* AI block */
-        .ai-block {
-            background: linear-gradient(135deg, rgba(201,168,76,0.03), rgba(201,168,76,0.07));
-            border: 1px solid var(--gold-border);
-            border-radius: 1rem; padding: 1.75rem;
-            position: relative; overflow: hidden;
-        }
-        .ai-block::before {
-            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
-            background: linear-gradient(90deg, transparent, var(--gold), transparent);
-        }
+/* Heatmap cells */
+.hmap0{background:rgba(248,113,113,.15);}
+.hmap1{background:rgba(251,146,60,.12);}
+.hmap2{background:rgba(250,204,21,.1);}
+.hmap3{background:rgba(52,211,153,.1);}
 
-        /* Typing cursor */
-        .typing-cursor::after { content: '▋'; animation: blink 0.9s infinite; color: var(--gold); }
-        @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+/* Animations */
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+.fade-up{animation:fadeUp .3s ease forwards;}
+@keyframes shimmer{0%{background-position:-200% center;}100%{background-position:200% center;}}
+.shimmer-btn{background:linear-gradient(90deg,var(--gold) 0%,var(--gold-b) 25%,var(--gold) 50%,var(--gold-b) 75%,var(--gold) 100%);
+  background-size:200% auto;animation:shimmer 3s linear infinite;}
+@keyframes pulse-ring{0%,100%{box-shadow:0 0 0 0 rgba(201,168,76,.35);}50%{box-shadow:0 0 0 8px rgba(201,168,76,0);}}
+.pulse-gold{animation:pulse-ring 2.5s infinite;}
+@keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+.spin{animation:spin 1s linear infinite;display:inline-block;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+.typing-cursor::after{content:'▋';animation:blink .9s infinite;color:var(--gold);}
 
-        /* Radar label */
-        .rl { font-size: 9px; fill: #555b6a; font-family: 'Space Mono', monospace; text-transform: uppercase; letter-spacing: 0.05em; }
+/* Radar svg labels */
+.rl{font-size:8.5px;fill:#555b6a;font-family:'Space Mono',monospace;text-transform:uppercase;letter-spacing:.05em;}
 
-        /* Animations */
-        @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
-        .fade-up { animation: fadeUp 0.35s ease forwards; }
+/* Step dots */
+.step-dot{height:3px;border-radius:99px;transition:all .3s;}
 
-        @keyframes shimmer {
-            0% { background-position: -200% center; }
-            100% { background-position: 200% center; }
-        }
-        .shimmer-btn {
-            background: linear-gradient(90deg, var(--gold) 0%, var(--gold-b) 25%, var(--gold) 50%, var(--gold-b) 75%, var(--gold) 100%);
-            background-size: 200% auto;
-            animation: shimmer 3s linear infinite;
-        }
-
-        @keyframes pulse-ring { 0%,100% { box-shadow: 0 0 0 0 rgba(201,168,76,0.3); } 50% { box-shadow: 0 0 0 8px rgba(201,168,76,0); } }
-        .pulse-gold { animation: pulse-ring 2.5s infinite; }
-
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        .spin { animation: spin 1s linear infinite; display: inline-block; }
-
-        /* Score ring animation */
-        @keyframes ring-draw { from { stroke-dashoffset: 502; } }
-
-        /* Dimension badge */
-        .dim-badge {
-            width: 2.2rem; height: 2.2rem;
-            border-radius: 0.5rem;
-            display: flex; align-items: center; justify-content: center;
-            font-family: 'Syne', sans-serif; font-weight: 800;
-            font-size: 0.85rem;
-        }
-
-        /* Matrix cell */
-        .matrix-cell {
-            background: rgba(255,255,255,0.02);
-            border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 0.75rem;
-            padding: 1rem;
-            transition: all 0.2s;
-        }
-        .matrix-cell:hover { border-color: var(--gold-border); background: rgba(201,168,76,0.03); }
-
-        /* Risk pill */
-        .risk-low { background: rgba(52,211,153,0.1); color: #34d399; border: 1px solid rgba(52,211,153,0.2); }
-        .risk-mid { background: rgba(201,168,76,0.1); color: var(--gold); border: 1px solid var(--gold-border); }
-        .risk-high { background: rgba(248,113,113,0.1); color: #f87171; border: 1px solid rgba(248,113,113,0.2); }
-
-        /* Heatmap cell */
-        .hmap-0 { background: rgba(248,113,113,0.15); }
-        .hmap-1 { background: rgba(251,146,60,0.12); }
-        .hmap-2 { background: rgba(250,204,21,0.1); }
-        .hmap-3 { background: rgba(52,211,153,0.1); }
-
-        /* Timeline step */
-        .tl-dot {
-            width: 10px; height: 10px;
-            border-radius: 50%; flex-shrink: 0;
-            border: 2px solid var(--gold);
-            background: var(--bg);
-            box-shadow: 0 0 8px rgba(201,168,76,0.4);
-        }
-        .tl-line { width: 2px; background: linear-gradient(to bottom, var(--gold-border), transparent); flex-shrink: 0; min-height: 2rem; }
-
-        @media print {
-            .no-print { display: none !important; }
-            body { background: white; color: black; }
-        }
-    </style>
+/* Print */
+@media print{
+  .no-print{display:none!important;}
+  body{background:#fff;color:#000;}
+  .card,.card-gold{border:1px solid #ddd!important;background:#fafafa!important;}
+}
+</style>
 </head>
 <body>
-<div class="orb orb-1"></div>
-<div class="orb orb-2"></div>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
 <div id="root"></div>
 
 <script type="text/babel">
-const { useState, useMemo, useEffect, useRef, useCallback } = React;
+const {useState,useMemo,useEffect,useRef,useCallback} = React;
 
-// ── Helpers ────────────────────────────────────────────────────────────────────
-const Icon = ({ name, size = 16, className = "", style = {} }) => {
-    const ref = useRef(null);
-    useEffect(() => {
-        if (window.lucide && ref.current) window.lucide.createIcons({ rootNode: ref.current });
-    }, [name]);
-    return (
-        <span ref={ref} style={style}>
-            <i data-lucide={name} className={className}
-               style={{ width: size, height: size, display: 'inline-flex', verticalAlign: 'middle' }}></i>
-        </span>
-    );
+// ── Icon ─────────────────────────────────────────────────────────────────────
+const Icon = ({name,size=16,style={}}) => {
+  const ref = useRef(null);
+  useEffect(()=>{ if(window.lucide&&ref.current) window.lucide.createIcons({rootNode:ref.current}); },[name]);
+  return <span ref={ref} style={style}><i data-lucide={name} style={{width:size,height:size,display:'inline-flex',verticalAlign:'middle'}}></i></span>;
 };
 
+// ── Logo ─────────────────────────────────────────────────────────────────────
 const Logo = () => {
-    const [err, setErr] = useState(false);
-    if (err) return <span className="display font-black text-white tracking-tighter text-xl">STAR LABS</span>;
-    return <img src="logo.png" alt="Star Labs" className="h-9 w-auto object-contain" onError={() => setErr(true)} />;
+  const [err,setErr] = useState(false);
+  if(err) return <span style={{fontFamily:"'Syne',sans-serif",fontWeight:900,color:"#fff",letterSpacing:"-.04em",fontSize:"1.25rem",lineHeight:1}}>STAR<br/><span style={{color:"var(--gold)"}}>LABS</span></span>;
+  return <img src="logo.png" alt="Star Labs" style={{height:36,width:'auto',objectFit:'contain'}} onError={()=>setErr(true)}/>;
 };
 
-const clamp = (v, min = 1, max = 10) => Math.min(max, Math.max(min, v));
-const fmt = (v, d = 1) => parseFloat(v).toFixed(d);
+// ── Helpers ───────────────────────────────────────────────────────────────────
+const clamp = (v,mn=0,mx=10) => Math.min(mx,Math.max(mn,v));
+const fmt = (v,d=1) => parseFloat(v).toFixed(d);
+const scoreColor = v => v>=8?'#34d399':v>=6.5?'#c9a84c':v>=4.5?'#f59e0b':'#f87171';
 
-// Color scale
-const scoreColor = (v) =>
-    v >= 8 ? '#34d399' : v >= 6.5 ? '#c9a84c' : v >= 4.5 ? '#f59e0b' : '#f87171';
-
-// ── Radar Chart ────────────────────────────────────────────────────────────────
-const RadarChart = ({ data, size = 280 }) => {
-    const cx = size / 2, cy = size / 2, r = size * 0.36;
-    const n = data.length;
-    const pts = data.map((d, i) => {
-        const angle = (i / n) * 2 * Math.PI - Math.PI / 2;
-        return { ...d, angle, ox: cx + r * Math.cos(angle), oy: cy + r * Math.sin(angle) };
-    });
-
-    const polyAt = (scale) =>
-        pts.map(p => {
-            const v = scale !== undefined ? scale : (p.value / 10);
-            return `${cx + r * v * Math.cos(p.angle)},${cy + r * v * Math.sin(p.angle)}`;
-        }).join(' ');
-
-    return (
-        <svg viewBox={`0 0 ${size} ${size}`} className="w-full">
-            {[0.2, 0.4, 0.6, 0.8, 1].map(l => (
-                <polygon key={l} points={polyAt(l)} fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth="1" />
-            ))}
-            {pts.map((p, i) => (
-                <line key={i} x1={cx} y1={cy} x2={p.ox} y2={p.oy} stroke="rgba(255,255,255,0.05)" strokeWidth="1" />
-            ))}
-            <polygon points={pts.map(p => {
-                const v = p.value / 10;
-                return `${cx + r * v * Math.cos(p.angle)},${cy + r * v * Math.sin(p.angle)}`;
-            }).join(' ')} fill="rgba(201,168,76,0.12)" stroke="#c9a84c" strokeWidth="1.5" strokeLinejoin="round" />
-            {pts.map((p, i) => {
-                const v = p.value / 10;
-                return <circle key={i} cx={cx + r * v * Math.cos(p.angle)} cy={cy + r * v * Math.sin(p.angle)} r="3.5" fill="#c9a84c" />;
-            })}
-            {pts.map((p, i) => {
-                const lx = cx + (r + 20) * Math.cos(p.angle);
-                const ly = cy + (r + 20) * Math.sin(p.angle);
-                return (
-                    <text key={i} x={lx} y={ly} textAnchor="middle" dominantBaseline="middle" className="rl">{p.label}</text>
-                );
-            })}
-        </svg>
-    );
+// ── Radar ─────────────────────────────────────────────────────────────────────
+const RadarChart = ({data,size=260}) => {
+  const cx=size/2,cy=size/2,r=size*.34,n=data.length;
+  const pts = data.map((d,i)=>{
+    const angle=(i/n)*2*Math.PI-Math.PI/2;
+    return{...d,angle,ox:cx+r*Math.cos(angle),oy:cy+r*Math.sin(angle)};
+  });
+  const polyAt = scale => pts.map(p=>{
+    const v = scale!==undefined?scale:(p.value/10);
+    return `${cx+r*v*Math.cos(p.angle)},${cy+r*v*Math.sin(p.angle)}`;
+  }).join(' ');
+  return (
+    <svg viewBox={`0 0 ${size} ${size}`} style={{width:'100%',maxWidth:300,display:'block',margin:'0 auto'}}>
+      {[.2,.4,.6,.8,1].map(l=><polygon key={l} points={polyAt(l)} fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth="1"/>)}
+      {pts.map((p,i)=><line key={i} x1={cx} y1={cy} x2={p.ox} y2={p.oy} stroke="rgba(255,255,255,0.05)" strokeWidth="1"/>)}
+      <polygon points={pts.map(p=>{const v=p.value/10;return `${cx+r*v*Math.cos(p.angle)},${cy+r*v*Math.sin(p.angle)}`;}).join(' ')}
+        fill="rgba(201,168,76,0.12)" stroke="#c9a84c" strokeWidth="1.5" strokeLinejoin="round"/>
+      {pts.map((p,i)=>{const v=p.value/10;return <circle key={i} cx={cx+r*v*Math.cos(p.angle)} cy={cy+r*v*Math.sin(p.angle)} r="3.5" fill="#c9a84c"/>;})}
+      {pts.map((p,i)=><text key={i} x={cx+(r+18)*Math.cos(p.angle)} y={cy+(r+18)*Math.sin(p.angle)} textAnchor="middle" dominantBaseline="middle" className="rl">{p.label}</text>)}
+    </svg>
+  );
 };
 
 // ── Score Ring ────────────────────────────────────────────────────────────────
-const ScoreRing = ({ score, max = 10, label = "VRP" }) => {
-    const pct = clamp(score, 0, max) / max;
-    const circ = 2 * Math.PI * 80;
-    const offset = circ * (1 - pct);
-    const color = scoreColor(score);
-    return (
-        <svg width="200" height="200" viewBox="0 0 200 200">
-            <circle cx="100" cy="100" r="80" fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth="10" />
-            <circle cx="100" cy="100" r="80" fill="none" stroke={color} strokeWidth="10"
-                strokeLinecap="round"
-                strokeDasharray={circ}
-                strokeDashoffset={offset}
-                transform="rotate(-90 100 100)"
-                style={{ transition: 'stroke-dashoffset 1.8s cubic-bezier(0.4,0,0.2,1)', filter: `drop-shadow(0 0 10px ${color}80)` }}
-            />
-            <text x="100" y="93" textAnchor="middle" dominantBaseline="middle"
-                style={{ fontFamily: 'Syne', fontSize: 38, fontWeight: 800, fill: color }}>{fmt(score)}</text>
-            <text x="100" y="118" textAnchor="middle" dominantBaseline="middle"
-                style={{ fontFamily: 'Space Mono', fontSize: 8, fill: '#555b6a', letterSpacing: 2, textTransform: 'uppercase' }}>/{max} {label}</text>
-        </svg>
-    );
+const ScoreRing = ({score,max=10,label="EZP"}) => {
+  const pct=clamp(score,0,max)/max,circ=2*Math.PI*75,offset=circ*(1-pct),color=scoreColor(score);
+  return (
+    <svg width="180" height="180" viewBox="0 0 180 180">
+      <circle cx="90" cy="90" r="75" fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth="9"/>
+      <circle cx="90" cy="90" r="75" fill="none" stroke={color} strokeWidth="9" strokeLinecap="round"
+        strokeDasharray={circ} strokeDashoffset={offset} transform="rotate(-90 90 90)"
+        style={{transition:'stroke-dashoffset 1.6s cubic-bezier(.4,0,.2,1)',filter:`drop-shadow(0 0 8px ${color}80)`}}/>
+      <text x="90" y="84" textAnchor="middle" dominantBaseline="middle"
+        style={{fontFamily:'Syne',fontSize:34,fontWeight:800,fill:color}}>{fmt(score)}</text>
+      <text x="90" y="106" textAnchor="middle" dominantBaseline="middle"
+        style={{fontFamily:'Space Mono',fontSize:7,fill:'#555b6a',letterSpacing:2,textTransform:'uppercase'}}>/{max} {label}</text>
+    </svg>
+  );
 };
 
-// ── AI Analysis Block ─────────────────────────────────────────────────────────
-const AIBlock = ({ text, streaming, label = "AI Analysis", icon = "cpu" }) => (
-    <div className="ai-block space-y-3">
-        <div className="flex items-center gap-2">
-            <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#c9a84c', boxShadow: '0 0 6px #c9a84c' }}></div>
-            <span className="mono text-xs text-yellow-400 font-bold tracking-wider uppercase">{label}</span>
-            {streaming && (
-                <span className="mono text-xs text-gray-600 flex items-center gap-1">
-                    <span className="spin" style={{ display: 'inline-block', width: 10, height: 10 }}>⟳</span> generating
-                </span>
-            )}
-        </div>
-        <p className={`text-sm leading-relaxed text-gray-300 whitespace-pre-wrap ${streaming ? 'typing-cursor' : ''}`}>
-            {text || (streaming ? '' : <span className="text-gray-600 italic">Analysis will appear here.</span>)}
-        </p>
+// ── AI Block ──────────────────────────────────────────────────────────────────
+const AIBlock = ({text,streaming,label="AI Analysis"}) => (
+  <div className="ai-block" style={{marginTop:'1rem'}}>
+    <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:10}}>
+      <div style={{width:6,height:6,borderRadius:'50%',background:'var(--gold)',boxShadow:'0 0 6px var(--gold)',flexShrink:0}}></div>
+      <span className="mono" style={{fontSize:'.6rem',color:'#fbbf24',fontWeight:700,letterSpacing:'.1em',textTransform:'uppercase'}}>{label}</span>
+      {streaming&&<span className="mono spin" style={{fontSize:'.6rem',color:'#555b6a',marginLeft:4}}>⟳</span>}
     </div>
+    <p className={`${streaming?'typing-cursor':''}`}
+      style={{fontSize:'.85rem',lineHeight:1.7,color:'#d1d5db',whiteSpace:'pre-wrap'}}>
+      {text||(streaming?'':<span style={{color:'#3f4451',fontStyle:'italic'}}>Analysis will appear here.</span>)}
+    </p>
+  </div>
 );
 
-// ── Metric Slider ─────────────────────────────────────────────────────────────
-const Slider = ({ label, name, value, onChange, min = 1, max = 10, step = 1, description, accent }) => {
-    const pct = ((value - min) / (max - min)) * 100;
-    const color = accent || scoreColor(value);
-    return (
-        <div className="matrix-cell space-y-3">
-            <div className="flex justify-between items-center">
-                <span className="display text-xs font-bold uppercase tracking-wider text-gray-400">{label}</span>
-                <span className="mono font-bold text-xl" style={{ color }}>{value > 0 ? value : `${value}`}</span>
-            </div>
-            <div className="relative">
-                <input type="range" name={name} min={min} max={max} step={step} value={value} onChange={onChange} />
-                <div className="pbar mt-1.5">
-                    <div className="pfill" style={{ width: `${pct}%`, background: color }}></div>
-                </div>
-            </div>
-            {description && <p className="text-xs text-gray-600">{description}</p>}
-        </div>
-    );
+// ── Slider Card ───────────────────────────────────────────────────────────────
+const Slider = ({label,name,value,onChange,min=1,max=10,step=1,description,accent}) => {
+  const pct=((value-min)/(max-min))*100,color=accent||scoreColor(value);
+  return (
+    <div className="mxcell">
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
+        <span className="syne" style={{fontSize:'.68rem',fontWeight:700,textTransform:'uppercase',letterSpacing:'.06em',color:'#9ca3af'}}>{label}</span>
+        <span className="mono" style={{fontSize:'1.2rem',fontWeight:700,color}}>{value>0?value:`${value}`}</span>
+      </div>
+      <input type="range" name={name} min={min} max={max} step={step} value={value} onChange={onChange}/>
+      <div className="pbar" style={{marginTop:6}}><div className="pfill" style={{width:`${pct}%`,background:color}}></div></div>
+      {description&&<p style={{fontSize:'.7rem',color:'#4b5563',marginTop:6}}>{description}</p>}
+    </div>
+  );
 };
+
+// ── AI Button ─────────────────────────────────────────────────────────────────
+const AIBtn = ({onClick,loading,label}) => (
+  <div style={{display:'flex',justifyContent:'flex-end',marginTop:8}}>
+    <button onClick={onClick} disabled={loading}
+      style={{display:'flex',alignItems:'center',gap:6,padding:'.55rem 1.1rem',borderRadius:'.7rem',
+        fontSize:'.62rem',fontWeight:700,textTransform:'uppercase',letterSpacing:'.08em',
+        background:'var(--gold-dim)',color:'var(--gold)',border:'1px solid var(--gold-border)',
+        cursor:'pointer',fontFamily:'Syne',transition:'all .2s',opacity:loading?.7:1}}>
+      <Icon name={loading?'loader':'cpu'} size={11} style={{display:'inline-flex',className:loading?'spin':''}}/>
+      {loading?'Analyzing...':label||'AI Analysis'}
+    </button>
+  </div>
+);
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 const STEPS = [
-    { id: 'intake',      title: 'Intake',       icon: 'file-scan',     section: 'Foundation' },
-    { id: 'market',      title: 'Market',        icon: 'trending-up',   section: 'Foundation' },
-    { id: 'technology',  title: 'Technology',    icon: 'cpu',           section: 'Dimensions' },
-    { id: 'financial',   title: 'Financial',     icon: 'bar-chart-2',   section: 'Dimensions' },
-    { id: 'risk',        title: 'Risk',          icon: 'shield-alert',  section: 'Dimensions' },
-    { id: 'esg',         title: 'ESG & Reg',     icon: 'leaf',          section: 'Dimensions' },
-    { id: 'team',        title: 'Team',          icon: 'users',         section: 'Dimensions' },
-    { id: 'engine',      title: 'AI Engine',     icon: 'sparkles',      section: 'Verdict' },
-    { id: 'verdict',     title: 'Verdict',       icon: 'shield-check',  section: 'Verdict' },
+  {id:'intake',  title:'Intake',    icon:'file-scan',    section:'Foundation'},
+  {id:'market',  title:'Market',    icon:'trending-up',  section:'Foundation'},
+  {id:'tech',    title:'Tech',      icon:'cpu',          section:'Dimensions'},
+  {id:'fin',     title:'Financial', icon:'bar-chart-2',  section:'Dimensions'},
+  {id:'risk',    title:'Risk',      icon:'shield-alert', section:'Dimensions'},
+  {id:'esg',     title:'ESG',       icon:'leaf',         section:'Dimensions'},
+  {id:'team',    title:'Team',      icon:'users',        section:'Dimensions'},
+  {id:'engine',  title:'AI',        icon:'sparkles',     section:'Verdict'},
+  {id:'verdict', title:'Verdict',   icon:'shield-check', section:'Verdict'},
 ];
 
-// ── Proxy config — set this to your Cloudflare Worker URL after deploying ──
-// e.g. https://starlabs-vrp-proxy.YOUR-SUBDOMAIN.workers.dev/api/analyze
+// ── Proxy — your Cloudflare Worker ────────────────────────────────────────────
 const PROXY_URL = "https://starlabs-api-proxy.aziza-11a.workers.dev/api/analyze";
 
 // ── App ───────────────────────────────────────────────────────────────────────
 const App = () => {
-    const [locked, setLocked] = useState(true);
-    const [keyVal, setKeyVal] = useState('');
-    const [keyErr, setKeyErr] = useState(false);
-    const [step, setStep] = useState(0);
-    const [aiText, setAiText] = useState('');
-    const [isStreaming, setIsStreaming] = useState(false);
-    const [hasAnalyzed, setHasAnalyzed] = useState(false);
-    const [sectionAI, setSectionAI] = useState({});
-    const [streamingSection, setStreamingSection] = useState(null);
-    const [completedSteps, setCompletedSteps] = useState(new Set());
+  const [locked,setLocked]       = useState(true);
+  const [keyVal,setKeyVal]       = useState('');
+  const [keyErr,setKeyErr]       = useState(false);
+  const [step,setStep]           = useState(0);
+  const [aiText,setAiText]       = useState('');
+  const [streaming,setStreaming] = useState(false);
+  const [sectionAI,setSectionAI] = useState({});
+  const [streamSec,setStreamSec] = useState(null);
+  const [done,setDone]           = useState(new Set());
+  const [mobileMenu,setMobileMenu] = useState(false);
+  const mainRef = useRef(null);
 
-    const [form, setForm] = useState({
-        // Intake
-        techName: '', category: 'DeepTech', sector: '', problem: '', solution: '', whyNow: '',
-        unfairAdvantage: '', stage: 'Concept', partnerName: '', assessorDate: '',
-        // Market
-        marketSize: 6, customerUrgency: 6, marketTiming: 6, competitiveMoat: 5,
-        revenueModel: '', tam: '', marketInsight: '', marketExpertAdj: 0,
-        // Technology
-        trl: 5, mrl: 4, ipDefensibility: 5, techScalability: 6, integrationComplexity: 5,
-        techExpertAdj: 0, techNotes: '',
-        // Financial
-        capitalIntensity: 5, roiPotential: 6, paybackPeriod: 5, fundingStage: 'Pre-Seed',
-        burnRisk: 4, revenueReadiness: 5, financialNotes: '',
-        // Risk
-        regulatoryRisk: 4, geopoliticalRisk: 3, supplychainRisk: 4, cybersecurityRisk: 3,
-        talentRisk: 4, competitionRisk: 5, riskNotes: '',
-        // ESG
-        environmentalImpact: 5, socialImpact: 5, governanceReadiness: 6, regulatoryCompliance: 6,
-        sdgAlignment: 4, esgNotes: '',
-        // Team
-        teamExpertise: 6, advisoryStrength: 5, validationVelocity: 5, scenarioResilience: 5,
-        partnershipNetwork: 5, executionExpertAdj: 0,
-        // Expert
-        expertNote: ''
+  const [form,setForm] = useState({
+    techName:'',category:'DeepTech',sector:'',problem:'',solution:'',whyNow:'',
+    unfairAdvantage:'',stage:'Concept',partnerName:'',assessorDate:'',
+    marketSize:6,customerUrgency:6,marketTiming:6,competitiveMoat:5,
+    revenueModel:'',tam:'',marketInsight:'',marketExpertAdj:0,
+    trl:5,mrl:4,ipDefensibility:5,techScalability:6,integrationComplexity:5,
+    techExpertAdj:0,techNotes:'',
+    capitalIntensity:5,roiPotential:6,paybackPeriod:5,fundingStage:'Pre-Seed',
+    burnRisk:4,revenueReadiness:5,financialNotes:'',
+    regulatoryRisk:4,geopoliticalRisk:3,supplychainRisk:4,cybersecurityRisk:3,
+    talentRisk:4,competitionRisk:5,riskNotes:'',
+    environmentalImpact:5,socialImpact:5,governanceReadiness:6,regulatoryCompliance:6,
+    sdgAlignment:4,esgNotes:'',
+    teamExpertise:6,advisoryStrength:5,validationVelocity:5,scenarioResilience:5,
+    partnershipNetwork:5,executionExpertAdj:0,expertNote:''
+  });
+
+  const hi = e => {
+    const {name,value,type}=e.target;
+    setForm(p=>({...p,[name]:type==='range'?parseFloat(value):value}));
+  };
+
+  // ── Scores ──────────────────────────────────────────────────────────────────
+  const scores = useMemo(()=>{
+    const tech = clamp((form.trl*.35)+(form.ipDefensibility*.3)+(form.techScalability*.2)+((10-form.integrationComplexity)*.15)+form.techExpertAdj,0,10);
+    const market = clamp((form.marketSize*.3)+(form.customerUrgency*.25)+(form.marketTiming*.2)+(form.competitiveMoat*.25)+form.marketExpertAdj,0,10);
+    const financial = clamp((form.roiPotential*.35)+(form.revenueReadiness*.25)+((10-form.capitalIntensity)*.2)+((10-form.burnRisk)*.2),0,10);
+    const risk = clamp(10-((form.regulatoryRisk+form.geopoliticalRisk+form.supplychainRisk+form.cybersecurityRisk+form.talentRisk+form.competitionRisk)/6),0,10);
+    const esg = clamp((form.environmentalImpact*.25)+(form.socialImpact*.2)+(form.governanceReadiness*.25)+(form.regulatoryCompliance*.2)+(form.sdgAlignment*.1),0,10);
+    const team = clamp((form.teamExpertise*.35)+(form.advisoryStrength*.2)+(form.validationVelocity*.2)+(form.scenarioResilience*.15)+(form.partnershipNetwork*.1)+form.executionExpertAdj,0,10);
+    const composite = clamp(tech*.22+market*.28+financial*.15+risk*.12+esg*.08+team*.15,0,10);
+    const fatalFlaw =
+      form.marketSize<=2?"TAM too small — terminal constraint.":
+      form.teamExpertise<=2?"Leadership gap — execution risk critical.":
+      form.capitalIntensity>=9?"Capital intensity unsustainable.":
+      form.regulatoryRisk>=9?"Regulatory blocker — prohibitive risk.":null;
+    const capped = fatalFlaw?Math.min(composite,5.2):composite;
+    const verdict =
+      capped>=8?{status:'SPINOUT READY',color:'#34d399',label:'High Investment Grade — Proceed to Spinout Gate'}:
+      capped>=6.5?{status:'ACCELERATE',color:'#c9a84c',label:'Strong Pipeline — Fast-Track Incubation Recommended'}:
+      capped>=4.5?{status:'INCUBATE',color:'#f59e0b',label:'Foundry Candidate — De-risk Before Capital Commitment'}:
+      {status:'TERMINATE',color:'#f87171',label:fatalFlaw||'Risk profile exceeds terminal value threshold'};
+    return {tech:fmt(tech),market:fmt(market),financial:fmt(financial),risk:fmt(risk),esg:fmt(esg),team:fmt(team),composite:fmt(capped),fatalFlaw,verdict};
+  },[form]);
+
+  const radarData = [
+    {label:'Tech',value:parseFloat(scores.tech)},
+    {label:'Market',value:parseFloat(scores.market)},
+    {label:'Fin',value:parseFloat(scores.financial)},
+    {label:'Risk',value:parseFloat(scores.risk)},
+    {label:'ESG',value:parseFloat(scores.esg)},
+    {label:'Team',value:parseFloat(scores.team)},
+  ];
+
+  // ── Proxy call ───────────────────────────────────────────────────────────────
+  const SYS = `You are the Chief Diligence Officer at Star Labs, a deep-tech corporate venture studio in the Gulf and global emerging markets. Be blunt, precise, institutionally credible. No bullet points. No headers. No markdown. Plain prose paragraphs only.`;
+
+  const callProxy = async (sysPrompt,userPrompt,onChunk) => {
+    const res = await fetch(PROXY_URL,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({systemPrompt:sysPrompt,userPrompt,maxTokens:900})
     });
+    if(!res.ok){const t=await res.text();throw new Error(`Proxy ${res.status}: ${t.substring(0,200)}`);}
+    const data = await res.json();
+    if(data.error) throw new Error(data.error);
+    if(!data.text) throw new Error("Empty response from proxy.");
+    for(let i=0,w=data.text.split(' ');i<w.length;i++){
+      onChunk((i===0?'':' ')+w[i]);
+      await new Promise(r=>setTimeout(r,16));
+    }
+  };
 
-    const hi = (e) => {
-        const { name, value, type } = e.target;
-        setForm(prev => ({ ...prev, [name]: type === 'range' ? parseFloat(value) : value }));
-    };
+  const analyzeSection = useCallback(async(key,prompt)=>{
+    setStreamSec(key);
+    setSectionAI(p=>({...p,[key]:''}));
+    try{
+      await callProxy(SYS,prompt,chunk=>setSectionAI(p=>({...p,[key]:(p[key]||'')+chunk})));
+    }catch(err){
+      setSectionAI(p=>({...p,[key]:`⚠ Error: ${err.message}`}));
+    }finally{setStreamSec(null);}
+  },[]);
 
-    // ── Scoring Engine ────────────────────────────────────────────────────────
-    const scores = useMemo(() => {
-        const tech = clamp(
-            (form.trl * 0.35) + (form.ipDefensibility * 0.3) + (form.techScalability * 0.2) +
-            ((10 - form.integrationComplexity) * 0.15) + form.techExpertAdj, 0, 10);
+  const runFull = useCallback(async()=>{
+    if(!form.techName){alert('Enter Asset Identifier first (Step 1).');return;}
+    setStreaming(true);setAiText('');
+    const prompt=`STAR LABS — EMERGING ZONE PROTOCOL\nFull Institutional Diligence Report\n\nASSET: ${form.techName} | ${form.category} | ${form.sector||'N/A'} | Stage: ${form.stage}\nPROBLEM: ${form.problem||'N/A'}\nSOLUTION: ${form.solution||'N/A'}\nWHY NOW: ${form.whyNow||'N/A'}\nADVANTAGE: ${form.unfairAdvantage||'N/A'}\n\nSCORES:\nTech=${scores.tech}/10 | Market=${scores.market}/10 | Financial=${scores.financial}/10\nRisk=${scores.risk}/10 | ESG=${scores.esg}/10 | Team=${scores.team}/10\nComposite EZP=${scores.composite}/10 | Gate: ${scores.verdict.status}\n${scores.fatalFlaw?`FATAL FLAW: ${scores.fatalFlaw}`:''}\n\nWrite a rigorous 4-paragraph institutional diligence verdict for the Star Labs investment committee. Para 1: technology IP and scalability. Para 2: market and competitive positioning. Para 3: financial viability and risk profile. Para 4: team execution DNA, ESG alignment, and gate conditions. Plain prose only.`;
+    try{
+      await callProxy(SYS,prompt,chunk=>setAiText(p=>p+chunk));
+    }catch(err){
+      setAiText(`⚠ AI engine error: ${err.message}\n\nCheck that your Cloudflare Worker is deployed and secrets are set.`);
+    }finally{setStreaming(false);}
+  },[form,scores]);
 
-        const market = clamp(
-            (form.marketSize * 0.3) + (form.customerUrgency * 0.25) + (form.marketTiming * 0.2) +
-            (form.competitiveMoat * 0.25) + form.marketExpertAdj, 0, 10);
+  const markDone = ()=>setDone(p=>new Set([...p,step]));
+  const goStep = i=>{markDone();setStep(i);setMobileMenu(false);if(mainRef.current)mainRef.current.scrollTo({top:0,behavior:'smooth'});};
+  const next = ()=>{markDone();setStep(s=>Math.min(STEPS.length-1,s+1));if(mainRef.current)mainRef.current.scrollTo({top:0,behavior:'smooth'});};
+  const prev = ()=>{setStep(s=>Math.max(0,s-1));if(mainRef.current)mainRef.current.scrollTo({top:0,behavior:'smooth'});};
 
-        const financial = clamp(
-            (form.roiPotential * 0.35) + (form.revenueReadiness * 0.25) +
-            ((10 - form.capitalIntensity) * 0.2) + ((10 - form.burnRisk) * 0.2), 0, 10);
+  const sections = [...new Set(STEPS.map(s=>s.section))];
+  const cur = STEPS[step];
 
-        const risk = clamp(10 - (
-            (form.regulatoryRisk + form.geopoliticalRisk + form.supplychainRisk +
-             form.cybersecurityRisk + form.talentRisk + form.competitionRisk) / 6
-        ), 0, 10);
+  // ── Lock Screen ──────────────────────────────────────────────────────────────
+  if(locked) return (
+    <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',padding:'1.5rem',position:'relative',zIndex:10}}>
+      <div style={{width:'100%',maxWidth:360}}>
+        <div style={{textAlign:'center',marginBottom:'2.5rem'}}>
+          <div style={{display:'flex',justifyContent:'center',marginBottom:'1.25rem'}}><Logo/></div>
+          <h1 className="syne" style={{fontSize:'1.5rem',fontWeight:800,textTransform:'uppercase',letterSpacing:'-.02em',color:'#fff'}}>EZP Terminal</h1>
+          <p className="mono" style={{fontSize:'.6rem',letterSpacing:'.2em',color:'var(--gold)',marginTop:4}}>AUTHORIZATION REQUIRED</p>
+          <p style={{fontSize:'.75rem',color:'#374151',marginTop:8}}>Emerging Zone Protocol · Institutional Grade · 2026</p>
+        </div>
+        <div className="card-gold" style={{padding:'2rem'}}>
+          <input type="password" placeholder="ACCESS KEY"
+            value={keyVal}
+            onChange={e=>{setKeyVal(e.target.value);setKeyErr(false);}}
+            onKeyDown={e=>{if(e.key==='Enter'){if(keyVal.toUpperCase()==='STAR2026')setLocked(false);else setKeyErr(true);}}}
+            className="field mono"
+            style={{textAlign:'center',fontSize:'1rem',letterSpacing:'.4em',marginBottom:'1rem',
+              borderColor:keyErr?'rgba(248,113,113,.4)':undefined}}
+          />
+          {keyErr&&<p className="mono" style={{fontSize:'.65rem',color:'#f87171',textAlign:'center',marginBottom:'.75rem'}}>ACCESS DENIED — Invalid key</p>}
+          <button
+            onClick={()=>keyVal.toUpperCase()==='STAR2026'?setLocked(false):setKeyErr(true)}
+            className="shimmer-btn syne"
+            style={{width:'100%',padding:'1rem',borderRadius:'.9rem',fontWeight:900,fontSize:'.75rem',
+              textTransform:'uppercase',letterSpacing:'.15em',border:'none',color:'#05060a',cursor:'pointer'}}>
+            Verify Access
+          </button>
+        </div>
+        <p className="mono" style={{textAlign:'center',fontSize:'.55rem',color:'#1f2937',marginTop:'1.5rem',letterSpacing:'.1em'}}>SL-EZP-2026 // CLASSIFIED</p>
+      </div>
+    </div>
+  );
 
-        const esg = clamp(
-            (form.environmentalImpact * 0.25) + (form.socialImpact * 0.2) +
-            (form.governanceReadiness * 0.25) + (form.regulatoryCompliance * 0.2) +
-            (form.sdgAlignment * 0.1), 0, 10);
+  // ── Main App ─────────────────────────────────────────────────────────────────
+  return (
+    <div style={{minHeight:'100vh',position:'relative',zIndex:10,display:'flex',flexDirection:'column'}}>
 
-        const team = clamp(
-            (form.teamExpertise * 0.35) + (form.advisoryStrength * 0.2) +
-            (form.validationVelocity * 0.2) + (form.scenarioResilience * 0.15) +
-            (form.partnershipNetwork * 0.1) + form.executionExpertAdj, 0, 10);
+      {/* ── Header ── */}
+      <header className="no-print" style={{
+        position:'sticky',top:0,zIndex:50,
+        display:'flex',alignItems:'center',justifyContent:'space-between',
+        padding:'.75rem 1.25rem',
+        background:'rgba(5,6,10,.94)',backdropFilter:'blur(20px)',
+        borderBottom:'1px solid rgba(255,255,255,.05)'}}>
+        <div style={{display:'flex',alignItems:'center',gap:'1rem'}}>
+          <Logo/>
+          <div className="header-subtitle" style={{borderLeft:'1px solid rgba(255,255,255,.08)',paddingLeft:'1rem'}}>
+            <div className="syne" style={{fontSize:'.8rem',fontWeight:700,textTransform:'uppercase',letterSpacing:'.04em',color:'#fff'}}>Emerging Zone Protocol</div>
+            <div className="mono" style={{fontSize:'.55rem',color:'#374151'}}>Pro · v2.0 · 2026</div>
+          </div>
+        </div>
+        <div style={{display:'flex',alignItems:'center',gap:8}}>
+          {form.techName&&(
+            <span className="tag" style={{background:'var(--gold-dim)',color:'var(--gold)',border:'1px solid var(--gold-border)'}}>
+              {form.techName.length>12?form.techName.substring(0,12)+'…':form.techName}
+            </span>
+          )}
+          {form.techName&&(
+            <span className="tag" style={{background:'rgba(255,255,255,.04)',
+              color:scoreColor(parseFloat(scores.composite)),
+              border:`1px solid ${scoreColor(parseFloat(scores.composite))}40`}}>
+              {scores.composite}
+            </span>
+          )}
+          <button onClick={()=>window.print()} className="tag no-print"
+            style={{background:'rgba(255,255,255,.04)',color:'#555b6a',border:'1px solid rgba(255,255,255,.07)',cursor:'pointer'}}>
+            <Icon name="printer" size={10}/> PDF
+          </button>
+        </div>
+      </header>
 
-        // Weighted composite: Market > Tech > Team > Financial > Risk > ESG
-        const composite = clamp(
-            tech * 0.22 + market * 0.28 + financial * 0.15 + risk * 0.12 + esg * 0.08 + team * 0.15, 0, 10);
+      {/* ── Body ── */}
+      <div style={{display:'flex',flex:1,maxWidth:1280,margin:'0 auto',width:'100%',padding:'1.25rem 1rem',gap:'1.25rem'}}>
 
-        // Fatal flaws
-        const fatalFlaw =
-            form.marketSize <= 2 ? "TAM too small — terminal constraint." :
-            form.teamExpertise <= 2 ? "Leadership gap — execution risk critical." :
-            form.capitalIntensity >= 9 ? "Capital intensity unsustainable." :
-            form.regulatoryRisk >= 9 ? "Regulatory blocker — prohibitive risk." :
-            null;
+        {/* ── Sidebar ── */}
+        <aside className="desktop-sidebar" style={{width:176,flexShrink:0}}>
+          <div style={{position:'sticky',top:80}}>
+            {sections.map(sec=>(
+              <div key={sec}>
+                <div className="nav-section-label">{sec}</div>
+                {STEPS.filter(s=>s.section===sec).map(s=>{
+                  const idx=STEPS.findIndex(x=>x.id===s.id);
+                  return (
+                    <button key={s.id} onClick={()=>goStep(idx)}
+                      className={`nav-item ${step===idx?'active':''} ${done.has(idx)&&step!==idx?'done':''}`}>
+                      <Icon name={s.icon} size={12}/>
+                      {s.title}
+                    </button>
+                  );
+                })}
+              </div>
+            ))}
 
-        const capped = fatalFlaw ? Math.min(composite, 5.2) : composite;
+            {/* Live score widget */}
+            {form.techName&&(
+              <div className="card" style={{marginTop:'1.25rem',padding:'1rem'}}>
+                <p className="mono" style={{fontSize:'.55rem',color:'#374151',textTransform:'uppercase',letterSpacing:'.1em',marginBottom:6}}>Live Score</p>
+                <div className="syne" style={{fontSize:'2rem',fontWeight:800,color:scores.verdict.color,lineHeight:1}}>{scores.composite}</div>
+                <div className="pbar" style={{margin:'6px 0'}}><div className="pfill" style={{width:`${parseFloat(scores.composite)*10}%`,background:scores.verdict.color}}></div></div>
+                <p className="mono" style={{fontSize:'.5rem',fontWeight:700,color:scores.verdict.color,marginBottom:8}}>{scores.verdict.status}</p>
+                {[['T',scores.tech],['M',scores.market],['F',scores.financial],['R',scores.risk],['E',scores.esg],['X',scores.team]].map(([l,v])=>(
+                  <div key={l} style={{display:'flex',alignItems:'center',gap:5,marginBottom:4}}>
+                    <span className="mono" style={{fontSize:'.55rem',width:10,flexShrink:0,color:scoreColor(parseFloat(v))}}>{l}</span>
+                    <div className="pbar" style={{flex:1}}><div className="pfill" style={{width:`${parseFloat(v)*10}%`,background:scoreColor(parseFloat(v))}}></div></div>
+                    <span className="mono" style={{fontSize:'.55rem',color:'#374151',width:22,textAlign:'right'}}>{v}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </aside>
 
-        const verdict =
-            capped >= 8.0 ? { status: 'SPINOUT READY', color: '#34d399', label: 'High Investment Grade — Proceed to Spinout Gate' } :
-            capped >= 6.5 ? { status: 'ACCELERATE', color: '#c9a84c', label: 'Strong Pipeline — Fast-Track Incubation Recommended' } :
-            capped >= 4.5 ? { status: 'INCUBATE', color: '#f59e0b', label: 'Foundry Candidate — De-risk Before Capital Commitment' } :
-            { status: 'TERMINATE', color: '#f87171', label: fatalFlaw || 'Risk profile exceeds terminal value threshold' };
+        {/* ── Main ── */}
+        <main ref={mainRef} className="main-content" style={{flex:1,minWidth:0,paddingBottom:'2rem'}}>
+          {/* Step header */}
+          <div className="no-print" style={{display:'flex',alignItems:'center',gap:10,marginBottom:'1.5rem'}}>
+            <div style={{width:30,height:30,borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center',
+              background:'var(--gold-dim)',border:'1px solid var(--gold-border)',flexShrink:0}}>
+              <Icon name={cur.icon} size={13} style={{color:'var(--gold)'}}/>
+            </div>
+            <div style={{flex:1}}>
+              <div className="syne" style={{fontSize:'.6rem',fontWeight:700,textTransform:'uppercase',letterSpacing:'.08em',color:'#374151'}}>
+                {cur.section} — Step {step+1}/{STEPS.length}
+              </div>
+            </div>
+            {/* Progress dots */}
+            <div style={{display:'flex',gap:3,alignItems:'center'}}>
+              {STEPS.map((_,i)=>(
+                <div key={i} className="step-dot" style={{
+                  width:i===step?18:5,
+                  background:i===step?'var(--gold)':done.has(i)?'rgba(201,168,76,.3)':'rgba(255,255,255,.07)'
+                }}></div>
+              ))}
+            </div>
+          </div>
 
-        return { tech: fmt(tech), market: fmt(market), financial: fmt(financial), risk: fmt(risk), esg: fmt(esg), team: fmt(team), composite: fmt(capped), fatalFlaw, verdict };
-    }, [form]);
+          {/* ════ STEP 0: INTAKE ════ */}
+          {step===0&&(
+            <div className="fade-up" style={{display:'flex',flexDirection:'column',gap:'1.25rem'}}>
+              <div>
+                <h2 className="syne" style={{fontSize:'clamp(1.5rem,4vw,2.25rem)',fontWeight:800,textTransform:'uppercase',letterSpacing:'-.02em'}}>Foundry Intake</h2>
+                <p style={{fontSize:'.8rem',color:'#4b5563',marginTop:4}}>Establish venture geometry before capital allocation.</p>
+              </div>
+              <div className="card" style={{padding:'1.25rem',display:'flex',flexDirection:'column',gap:'1rem'}}>
+                <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(200px,1fr))',gap:'1rem'}}>
+                  <div style={{flex:2,minWidth:0}}>
+                    <label className="mono" style={{fontSize:'.6rem',fontWeight:700,color:'#6b7280',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>Asset Identifier *</label>
+                    <input name="techName" value={form.techName} onChange={hi} className="field syne" style={{fontSize:'1.1rem',fontWeight:700}} placeholder="e.g. PROJECT HELIOS"/>
+                  </div>
+                  <div>
+                    <label className="mono" style={{fontSize:'.6rem',fontWeight:700,color:'#6b7280',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>Stage</label>
+                    <select name="stage" value={form.stage} onChange={hi} className="field">
+                      {['Concept','Prototype','MVP','Pilot','Scale','Expansion'].map(s=><option key={s}>{s}</option>)}
+                    </select>
+                  </div>
+                </div>
+                <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(180px,1fr))',gap:'1rem'}}>
+                  <div>
+                    <label className="mono" style={{fontSize:'.6rem',fontWeight:700,color:'#6b7280',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>Category</label>
+                    <select name="category" value={form.category} onChange={hi} className="field">
+                      {['DeepTech','FinTech','HealthTech','CleanTech','AgriTech','SpaceTech','AI/ML','Robotics','Biotech','Other'].map(c=><option key={c}>{c}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="mono" style={{fontSize:'.6rem',fontWeight:700,color:'#6b7280',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>Target Sector</label>
+                    <input name="sector" value={form.sector} onChange={hi} className="field" placeholder="Energy, Healthcare, Defense..."/>
+                  </div>
+                </div>
+                <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:'1rem'}}>
+                  <div>
+                    <label className="mono" style={{fontSize:'.6rem',fontWeight:700,color:'#6b7280',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>Market Friction (Problem)</label>
+                    <textarea name="problem" value={form.problem} onChange={hi} className="field" style={{height:110,resize:'none'}} placeholder="The critical problem — specific and quantifiable..."/>
+                  </div>
+                  <div>
+                    <label className="mono" style={{fontSize:'.6rem',fontWeight:700,color:'#6b7280',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>Proposed Resolution (Solution)</label>
+                    <textarea name="solution" value={form.solution} onChange={hi} className="field" style={{height:110,resize:'none'}} placeholder="Proprietary mechanism and technical approach..."/>
+                  </div>
+                </div>
+                <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:'1rem'}}>
+                  <div>
+                    <label className="mono" style={{fontSize:'.6rem',fontWeight:700,color:'#6b7280',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>Why Now</label>
+                    <textarea name="whyNow" value={form.whyNow} onChange={hi} className="field" style={{height:80,resize:'none'}} placeholder="Catalytic conditions — regulatory shifts, tech enablers..."/>
+                  </div>
+                  <div>
+                    <label className="mono" style={{fontSize:'.6rem',fontWeight:700,color:'#6b7280',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>Unfair Advantage</label>
+                    <textarea name="unfairAdvantage" value={form.unfairAdvantage} onChange={hi} className="field" style={{height:80,resize:'none'}} placeholder="IP, data moats, relationships, network effects..."/>
+                  </div>
+                </div>
+                <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(180px,1fr))',gap:'1rem'}}>
+                  <div>
+                    <label className="mono" style={{fontSize:'.6rem',fontWeight:700,color:'#6b7280',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>Lead Assessor</label>
+                    <input name="partnerName" value={form.partnerName} onChange={hi} className="field" placeholder="Partner / Analyst name"/>
+                  </div>
+                  <div>
+                    <label className="mono" style={{fontSize:'.6rem',fontWeight:700,color:'#6b7280',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>Assessment Date</label>
+                    <input name="assessorDate" type="date" value={form.assessorDate} onChange={hi} className="field"/>
+                  </div>
+                </div>
+              </div>
+              {form.problem&&form.solution&&(
+                <AIBtn onClick={()=>analyzeSection('intake',`Assess this venture concept (max 150 words, plain prose):\nAsset: ${form.techName} | ${form.category} | ${form.sector}\nProblem: ${form.problem}\nSolution: ${form.solution}\nWhy Now: ${form.whyNow}\nAdvantage: ${form.unfairAdvantage}\nIs problem-solution fit compelling? Is the "why now" credible? Single biggest question mark?`)}
+                  loading={streamSec==='intake'} label="Quick AI Read"/>
+              )}
+              {(sectionAI.intake||streamSec==='intake')&&<AIBlock text={sectionAI.intake} streaming={streamSec==='intake'} label="Concept Assessment"/>}
+            </div>
+          )}
 
-    const radarData = [
-        { label: 'Tech', value: parseFloat(scores.tech) },
-        { label: 'Market', value: parseFloat(scores.market) },
-        { label: 'Financial', value: parseFloat(scores.financial) },
-        { label: 'Risk', value: parseFloat(scores.risk) },
-        { label: 'ESG', value: parseFloat(scores.esg) },
-        { label: 'Team', value: parseFloat(scores.team) },
-    ];
+          {/* ════ STEP 1: MARKET ════ */}
+          {step===1&&(
+            <div className="fade-up" style={{display:'flex',flexDirection:'column',gap:'1.25rem'}}>
+              <div>
+                <h2 className="syne" style={{fontSize:'clamp(1.5rem,4vw,2.25rem)',fontWeight:800,textTransform:'uppercase',letterSpacing:'-.02em'}}>Market Vector</h2>
+                <p style={{fontSize:'.8rem',color:'#4b5563',marginTop:4}}>TAM calibration — asset must demonstrate global scale potential.</p>
+              </div>
+              <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:'1rem'}}>
+                <Slider label="TAM / SAM Size" name="marketSize" value={form.marketSize} onChange={hi} description="1 = Niche / 10 = Global dominant market"/>
+                <Slider label="Customer Urgency" name="customerUrgency" value={form.customerUrgency} onChange={hi} description="1 = Nice-to-have / 10 = Existential must-solve"/>
+                <Slider label="Market Timing" name="marketTiming" value={form.marketTiming} onChange={hi} description="1 = Too early / 5 = Emerging / 10 = Perfect window"/>
+                <Slider label="Competitive Moat" name="competitiveMoat" value={form.competitiveMoat} onChange={hi} description="Differentiation depth vs existing players"/>
+              </div>
+              <div className="card" style={{padding:'1.25rem',display:'flex',flexDirection:'column',gap:'1rem'}}>
+                <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(180px,1fr))',gap:'1rem'}}>
+                  <div>
+                    <label className="mono" style={{fontSize:'.6rem',fontWeight:700,color:'#6b7280',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>Revenue Model</label>
+                    <select name="revenueModel" value={form.revenueModel} onChange={hi} className="field">
+                      <option value="">Select model...</option>
+                      {['SaaS','Licensing','Marketplace','B2G','B2B Enterprise','B2C','Usage-based','Hardware + Services','Joint Venture'].map(m=><option key={m}>{m}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="mono" style={{fontSize:'.6rem',fontWeight:700,color:'#6b7280',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>TAM Estimate (USD)</label>
+                    <input name="tam" value={form.tam} onChange={hi} className="field" placeholder="e.g. $4.2B by 2030"/>
+                  </div>
+                </div>
+                <div>
+                  <label className="mono" style={{fontSize:'.6rem',fontWeight:700,color:'#6b7280',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>Market Insight / 2040 Tailwinds</label>
+                  <textarea name="marketInsight" value={form.marketInsight} onChange={hi} className="field" style={{height:72,resize:'none'}} placeholder="Sovereign mandates, sector tailwinds, regulatory moats..."/>
+                </div>
+              </div>
+              <div className="mxcell" style={{border:'1px solid rgba(245,158,11,.25)'}}>
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
+                  <span className="mono" style={{fontSize:'.6rem',fontWeight:700,color:'#f59e0b',textTransform:'uppercase',letterSpacing:'.08em'}}>Expert Regional Adjustment</span>
+                  <span className="mono" style={{fontWeight:700,color:'#fbbf24'}}>{form.marketExpertAdj>0?'+':''}{form.marketExpertAdj}</span>
+                </div>
+                <input type="range" name="marketExpertAdj" min="-3" max="3" step=".5" value={form.marketExpertAdj} onChange={hi}/>
+                <p style={{fontSize:'.68rem',color:'#4b5563',marginTop:6}}>GCC/MENA regional knowledge correction (±3).</p>
+              </div>
+              <AIBtn onClick={()=>analyzeSection('market',`Market analysis (max 150 words, plain prose):\nTAM Score: ${form.marketSize}/10 | Urgency: ${form.customerUrgency}/10 | Timing: ${form.marketTiming}/10 | Moat: ${form.competitiveMoat}/10\nRevenue Model: ${form.revenueModel} | TAM: ${form.tam}\nInsight: ${form.marketInsight}\nIs timing credible? Is moat defensible? Biggest market risk?`)}
+                loading={streamSec==='market'} label="AI Market Read"/>
+              {(sectionAI.market||streamSec==='market')&&<AIBlock text={sectionAI.market} streaming={streamSec==='market'} label="Market Assessment"/>}
+            </div>
+          )}
 
-    // ── Gemini API — calls secure backend proxy, no key in browser ─────────
-    const callGemini = async (sys, prompt, onChunk) => {
-        const res = await fetch(PROXY_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ systemPrompt: sys, userPrompt: prompt, maxTokens: 900 })
-        });
-        if (!res.ok) {
-            const errBody = await res.text();
-            throw new Error(`Proxy error ${res.status}: ${errBody.substring(0, 300)}`);
-        }
-        const data = await res.json();
-        if (data.error) throw new Error(`AI error: ${data.error}`);
-        if (!data.text) throw new Error("Empty response from proxy.");
-        const words = data.text.split(" ");
-        for (let i = 0; i < words.length; i++) {
-            onChunk((i === 0 ? "" : " ") + words[i]);
-            await new Promise(r => setTimeout(r, 16));
-        }
-    };
-
-    const SYS = `You are the Chief Diligence Officer at Star Labs, a deep-tech corporate venture studio operating in the Gulf and global emerging markets. You evaluate technology spinouts for strategic investment readiness across technology, market, financial, risk, ESG, and team dimensions. Be blunt, precise, and institutionally credible. No bullet points. No headers. No markdown. Plain prose paragraphs only. Write like a seasoned VC partner with deep operational experience.`;
-
-    const analyzeSection = useCallback(async (key, prompt) => {
-        setStreamingSection(key);
-        setSectionAI(prev => ({ ...prev, [key]: '' }));
-        try {
-            await callGemini(SYS, prompt, (chunk) =>
-                setSectionAI(prev => ({ ...prev, [key]: (prev[key] || '') + chunk })));
-        } catch (err) {
-            console.error('Gemini error:', err);
-            setSectionAI(prev => ({ ...prev, [key]: `⚠ Analysis unavailable.\n\nError: ${err.message}\n\nOpen browser console (F12) for full details.` }));
-        } finally {
-            setStreamingSection(null);
-        }
-    }, []);
-
-    const runFullAnalysis = useCallback(async () => {
-        if (!form.techName) { alert("Enter an Asset Identifier first (Step 1)."); return; }
-        setIsStreaming(true); setAiText(''); setHasAnalyzed(true);
-        const prompt = `
-STAR LABS — VENTURE READINESS PROTOCOL
-Full Institutional Diligence Report
-
-=== ASSET PROFILE ===
-Name: ${form.techName}
-Category: ${form.category} | Sector: ${form.sector || 'Not specified'}
-Stage: ${form.stage}
-Problem: ${form.problem || 'Not specified'}
-Solution: ${form.solution || 'Not specified'}
-Why Now: ${form.whyNow || 'Not specified'}
-Unfair Advantage: ${form.unfairAdvantage || 'Not specified'}
-Revenue Model: ${form.revenueModel || 'Not specified'}
-TAM Estimate: ${form.tam || 'Not specified'}
-Market Insight: ${form.marketInsight || 'Not specified'}
-
-=== QUANTITATIVE SCORES (out of 10) ===
-TECHNOLOGY: TRL=${form.trl}, IP Defensibility=${form.ipDefensibility}, Scalability=${form.techScalability}, Integration Complexity=${form.integrationComplexity}
-MARKET: TAM/SAM=${form.marketSize}, Customer Urgency=${form.customerUrgency}, Timing=${form.marketTiming}, Competitive Moat=${form.competitiveMoat}
-FINANCIAL: ROI Potential=${form.roiPotential}, Revenue Readiness=${form.revenueReadiness}, Capital Intensity=${form.capitalIntensity}, Burn Risk=${form.burnRisk}
-RISK: Regulatory=${form.regulatoryRisk}, Geopolitical=${form.geopoliticalRisk}, Supply Chain=${form.supplychainRisk}, Cybersecurity=${form.cybersecurityRisk}, Talent=${form.talentRisk}, Competition=${form.competitionRisk}
-ESG: Environmental=${form.environmentalImpact}, Social=${form.socialImpact}, Governance=${form.governanceReadiness}, Regulatory Compliance=${form.regulatoryCompliance}, SDG Alignment=${form.sdgAlignment}
-TEAM: Expertise=${form.teamExpertise}, Advisory=${form.advisoryStrength}, Validation Velocity=${form.validationVelocity}, Resilience=${form.scenarioResilience}
-
-=== COMPUTED SCORES ===
-Technology: ${scores.tech}/10 | Market: ${scores.market}/10 | Financial: ${scores.financial}/10
-Risk: ${scores.risk}/10 | ESG: ${scores.esg}/10 | Team: ${scores.team}/10
-Composite VRP Score: ${scores.composite}/10
-Preliminary Gate Decision: ${scores.verdict.status}
-${scores.fatalFlaw ? `FATAL FLAW: ${scores.fatalFlaw}` : ''}
-
-Write a rigorous 4-paragraph diligence verdict for the Star Labs investment committee. Paragraph 1: technology IP moat and scalability assessment. Paragraph 2: market opportunity, timing, and competitive positioning. Paragraph 3: financial viability, capital efficiency, and risk-adjusted return profile. Paragraph 4: team execution DNA, ESG alignment, and specific next gate conditions for the venture. Be blunt. No bullet points. Plain prose only.`;
-
-        try {
-            await callGemini(SYS, prompt, (chunk) => setAiText(prev => prev + chunk));
-        } catch (err) {
-            console.error('Gemini error:', err);
-            setAiText(`⚠ AI engine unavailable.\n\nError: ${err.message}\n\nCommon causes:\n• API key invalid or quota exceeded\n• Model name deprecated (auto-fallback attempted)\n• Network/CORS issue\n\nOpen browser console (F12) for full details.`);
-        } finally {
-            setIsStreaming(false);
-        }
-    }, [form, scores]);
-
-    const markDone = () => setCompletedSteps(prev => new Set([...prev, step]));
-    const goStep = (i) => { markDone(); setStep(i); };
-    const next = () => { markDone(); setStep(s => Math.min(STEPS.length - 1, s + 1)); };
-    const prev = () => setStep(s => Math.max(0, s - 1));
-
-    // ─── Lock Screen ──────────────────────────────────────────────────────────
-    if (locked) return (
-        <div className="min-h-screen flex items-center justify-center p-6 relative z-10">
-            <div className="w-full max-w-sm space-y-8">
-                <div className="text-center space-y-4">
-                    <div className="flex justify-center mb-2"><Logo /></div>
+          {/* ════ STEP 2: TECHNOLOGY ════ */}
+          {step===2&&(
+            <div className="fade-up" style={{display:'flex',flexDirection:'column',gap:'1.25rem'}}>
+              <div>
+                <h2 className="syne" style={{fontSize:'clamp(1.5rem,4vw,2.25rem)',fontWeight:800,textTransform:'uppercase',letterSpacing:'-.02em'}}>Technology Dimension</h2>
+                <p style={{fontSize:'.8rem',color:'#4b5563',marginTop:4}}>Readiness, IP strength, scalability, and integration complexity.</p>
+              </div>
+              <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:'1rem'}}>
+                <div className="card-gold" style={{padding:'1.25rem'}}>
+                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-end',marginBottom:12}}>
                     <div>
-                        <h1 className="display text-2xl font-black uppercase tracking-tighter text-white">VRP Terminal</h1>
-                        <p className="mono text-xs tracking-widest mt-1" style={{ color: '#c9a84c' }}>AUTHORIZATION REQUIRED</p>
+                      <p className="mono" style={{fontSize:'.6rem',color:'#fbbf24',fontWeight:700,textTransform:'uppercase',letterSpacing:'.08em'}}>TRL</p>
+                      <p style={{fontSize:'.68rem',color:'#4b5563',marginTop:2}}>Technology Readiness Level</p>
                     </div>
-                    <p className="text-xs text-gray-600">Venture Readiness Protocol — Institutional Grade</p>
+                    <span className="syne gold-text" style={{fontSize:'2.8rem',fontWeight:800,lineHeight:1}}>{form.trl}</span>
+                  </div>
+                  <input type="range" name="trl" min="1" max="9" value={form.trl} onChange={hi}/>
+                  <div className="pbar" style={{marginTop:6,marginBottom:10}}><div className="pfill" style={{width:`${(form.trl/9)*100}%`}}></div></div>
+                  <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:4,textAlign:'center'}}>
+                    {[['1–3','Research'],['4–6','Prototype'],['7–9','Deployed']].map(([r,l])=>(
+                      <div key={r}><span className="mono" style={{fontSize:'.55rem',color:'#c9a84c',display:'block'}}>{r}</span><span style={{fontSize:'.6rem',color:'#374151'}}>{l}</span></div>
+                    ))}
+                  </div>
                 </div>
-                <div className="card-gold p-8 space-y-4">
-                    <input type="password" placeholder="ACCESS KEY"
-                        value={keyVal}
-                        onChange={e => { setKeyVal(e.target.value); setKeyErr(false); }}
-                        onKeyDown={e => {
-                            if (e.key === 'Enter') {
-                                if (keyVal.toUpperCase() === 'STAR2026') setLocked(false);
-                                else setKeyErr(true);
-                            }
-                        }}
-                        className="field text-center mono text-base tracking-[0.4em]"
-                        style={{ borderColor: keyErr ? 'rgba(248,113,113,0.4)' : undefined }}
-                    />
-                    {keyErr && <p className="mono text-xs text-red-400 text-center">ACCESS DENIED — Invalid key</p>}
-                    <button
-                        onClick={() => keyVal.toUpperCase() === 'STAR2026' ? setLocked(false) : setKeyErr(true)}
-                        className="w-full py-4 rounded-xl font-black text-sm uppercase tracking-widest transition-all display shimmer-btn"
-                        style={{ color: '#05060a' }}>
-                        Verify Access
-                    </button>
+                <div className="card" style={{padding:'1.25rem'}}>
+                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-end',marginBottom:12}}>
+                    <div>
+                      <p className="mono" style={{fontSize:'.6rem',color:'#9ca3af',fontWeight:700,textTransform:'uppercase',letterSpacing:'.08em'}}>MRL</p>
+                      <p style={{fontSize:'.68rem',color:'#4b5563',marginTop:2}}>Market Readiness Level</p>
+                    </div>
+                    <span className="syne" style={{fontSize:'2.8rem',fontWeight:800,lineHeight:1,color:'#fff'}}>{form.mrl}</span>
+                  </div>
+                  <input type="range" name="mrl" min="1" max="10" value={form.mrl} onChange={hi}/>
+                  <div className="pbar" style={{marginTop:6}}><div className="pfill" style={{width:`${form.mrl*10}%`,background:'#9ca3af'}}></div></div>
+                  <p style={{fontSize:'.68rem',color:'#374151',marginTop:8}}>1 = No market engagement → 10 = Full GTM deployed</p>
                 </div>
-                <p className="text-center mono text-xs text-gray-700">SL-VRP-2026 // CLASSIFIED</p>
+              </div>
+              {/* TRL/MRL alignment indicator */}
+              <div className="card" style={{padding:'1rem',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                <span className="mono" style={{fontSize:'.6rem',color:'#6b7280',textTransform:'uppercase'}}>TRL / MRL Alignment</span>
+                <div style={{display:'flex',alignItems:'center',gap:10}}>
+                  <div className="pbar" style={{width:100}}><div className="pfill" style={{width:`${(1-Math.abs(form.trl-form.mrl)/9)*100}%`,background:Math.abs(form.trl-form.mrl)>3?'#f87171':'#c9a84c'}}></div></div>
+                  <span className="mono" style={{fontSize:'.6rem',fontWeight:700,color:Math.abs(form.trl-form.mrl)>3?'#f87171':'#c9a84c'}}>
+                    {Math.abs(form.trl-form.mrl)>3?'MISALIGNED':Math.abs(form.trl-form.mrl)>1?'GAP':'ALIGNED'}
+                  </span>
+                </div>
+              </div>
+              <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:'1rem'}}>
+                <Slider label="IP Defensibility" name="ipDefensibility" value={form.ipDefensibility} onChange={hi} description="Patents, trade secrets, network effects, data moats"/>
+                <Slider label="Tech Scalability" name="techScalability" value={form.techScalability} onChange={hi} description="Architecture's ability to scale globally"/>
+                <Slider label="Integration Complexity" name="integrationComplexity" value={form.integrationComplexity} onChange={hi} description="Lower = faster adoption (high = more complex)" accent="#f59e0b"/>
+                <div className="mxcell" style={{border:'1px solid rgba(245,158,11,.25)'}}>
+                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
+                    <span className="mono" style={{fontSize:'.6rem',fontWeight:700,color:'#f59e0b',textTransform:'uppercase'}}>Tech Expert Adj</span>
+                    <span className="mono" style={{fontWeight:700,color:'#fbbf24'}}>{form.techExpertAdj>0?'+':''}{form.techExpertAdj}</span>
+                  </div>
+                  <input type="range" name="techExpertAdj" min="-3" max="3" step=".5" value={form.techExpertAdj} onChange={hi}/>
+                </div>
+              </div>
+              <div>
+                <label className="mono" style={{fontSize:'.6rem',fontWeight:700,color:'#6b7280',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>Technology Notes</label>
+                <textarea name="techNotes" value={form.techNotes} onChange={hi} className="field" style={{height:72,resize:'none'}} placeholder="Key technical risks, dependencies, breakthroughs..."/>
+              </div>
+              <AIBtn onClick={()=>analyzeSection('tech',`Technology assessment (max 150 words, plain prose):\nTRL: ${form.trl}/9 | MRL: ${form.mrl}/10\nIP: ${form.ipDefensibility}/10 | Scalability: ${form.techScalability}/10 | Complexity: ${form.integrationComplexity}/10\nNotes: ${form.techNotes}\nSpinout readiness and critical technical risk?`)}
+                loading={streamSec==='tech'} label="AI Tech Read"/>
+              {(sectionAI.tech||streamSec==='tech')&&<AIBlock text={sectionAI.tech} streaming={streamSec==='tech'} label="Technology Assessment"/>}
             </div>
-        </div>
-    );
+          )}
 
-    const currentStep = STEPS[step];
-    const sections = [...new Set(STEPS.map(s => s.section))];
-
-    // ─── Main UI ──────────────────────────────────────────────────────────────
-    return (
-        <div className="min-h-screen relative z-10">
-            {/* Header */}
-            <header className="border-b no-print sticky top-0 z-50 px-6 py-3 flex items-center justify-between"
-                style={{ background: 'rgba(5,6,10,0.92)', backdropFilter: 'blur(20px)', borderColor: 'rgba(255,255,255,0.05)' }}>
-                <div className="flex items-center gap-4">
-                    <Logo />
-                    <div className="w-px h-5 bg-white/10 hidden md:block"></div>
-                    <div className="hidden md:block">
-                        <div className="display text-sm font-bold uppercase tracking-wider text-white">Venture Readiness Protocol</div>
-                        <div className="mono text-xs text-gray-600">Pro · v2.0 · 2026</div>
-                    </div>
+          {/* ════ STEP 3: FINANCIAL ════ */}
+          {step===3&&(
+            <div className="fade-up" style={{display:'flex',flexDirection:'column',gap:'1.25rem'}}>
+              <div>
+                <h2 className="syne" style={{fontSize:'clamp(1.5rem,4vw,2.25rem)',fontWeight:800,textTransform:'uppercase',letterSpacing:'-.02em'}}>Financial Dimension</h2>
+                <p style={{fontSize:'.8rem',color:'#4b5563',marginTop:4}}>Capital efficiency, ROI potential, and revenue readiness.</p>
+              </div>
+              <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:'1rem'}}>
+                <Slider label="ROI Potential" name="roiPotential" value={form.roiPotential} onChange={hi} description="Risk-adjusted return multiple expectation" accent="#34d399"/>
+                <Slider label="Revenue Readiness" name="revenueReadiness" value={form.revenueReadiness} onChange={hi} description="Proximity to first contracted revenue"/>
+                <Slider label="Capital Intensity" name="capitalIntensity" value={form.capitalIntensity} onChange={hi} description="Higher = heavier burn — negative signal" accent="#f87171"/>
+                <Slider label="Burn Risk" name="burnRisk" value={form.burnRisk} onChange={hi} description="Probability of runway crisis before revenue" accent="#f59e0b"/>
+              </div>
+              <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(180px,1fr))',gap:'1rem'}}>
+                <div>
+                  <label className="mono" style={{fontSize:'.6rem',fontWeight:700,color:'#6b7280',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>Funding Stage</label>
+                  <select name="fundingStage" value={form.fundingStage} onChange={hi} className="field">
+                    {['Pre-Seed','Seed','Series A','Series B','Series C+','Revenue-Generating','Strategic JV'].map(s=><option key={s}>{s}</option>)}
+                  </select>
                 </div>
-                <div className="flex items-center gap-3">
-                    {form.techName && (
-                        <span className="tag" style={{ background: 'var(--gold-dim)', color: 'var(--gold)', border: '1px solid var(--gold-border)' }}>
-                            {form.techName}
-                        </span>
-                    )}
-                    {form.techName && (
-                        <span className="tag" style={{ background: 'rgba(255,255,255,0.04)', color: scoreColor(parseFloat(scores.composite)), border: `1px solid ${scoreColor(parseFloat(scores.composite))}40` }}>
-                            {scores.composite}
-                        </span>
-                    )}
-                    <button onClick={() => window.print()}
-                        className="tag no-print"
-                        style={{ background: 'rgba(255,255,255,0.04)', color: '#555b6a', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer' }}>
-                        <Icon name="printer" size={11} /> Export
-                    </button>
+                <Slider label="Payback Period" name="paybackPeriod" value={form.paybackPeriod} onChange={hi} description="10 = <12 months / 1 = 10+ years"/>
+              </div>
+              {/* Financial snapshot */}
+              <div className="card" style={{padding:'1.1rem'}}>
+                <p className="mono" style={{fontSize:'.6rem',color:'#4b5563',textTransform:'uppercase',letterSpacing:'.08em',marginBottom:10}}>Financial Health Snapshot</p>
+                <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:8}}>
+                  {[{label:'ROI',value:scores.financial,icon:'trending-up'},{label:'Cap Eff',value:fmt(10-form.capitalIntensity),icon:'zap'},{label:'Rev Ready',value:fmt(form.revenueReadiness),icon:'dollar-sign'},{label:'Payback',value:fmt(form.paybackPeriod),icon:'clock'}].map(({label,value,icon})=>(
+                    <div key={label} className="mxcell" style={{textAlign:'center',padding:'.6rem'}}>
+                      <div style={{display:'flex',justifyContent:'center',marginBottom:4}}><Icon name={icon} size={12} style={{color:scoreColor(parseFloat(value))}}/></div>
+                      <div className="mono" style={{fontSize:'.55rem',color:'#6b7280',textTransform:'uppercase'}}>{label}</div>
+                      <div className="syne" style={{fontSize:'1.25rem',fontWeight:800,color:scoreColor(parseFloat(value))}}>{value}</div>
+                    </div>
+                  ))}
                 </div>
-            </header>
-
-            <div className="max-w-7xl mx-auto px-4 py-6 flex gap-6">
-                {/* Sidebar */}
-                <aside className="w-48 shrink-0 no-print">
-                    <div className="sticky top-20 space-y-0.5">
-                        {sections.map(sec => (
-                            <div key={sec}>
-                                <div className="nav-section">{sec}</div>
-                                {STEPS.filter(s => s.section === sec).map((s, _) => {
-                                    const idx = STEPS.findIndex(x => x.id === s.id);
-                                    return (
-                                        <button key={s.id} onClick={() => goStep(idx)}
-                                            className={`nav-item w-full ${step === idx ? 'active' : ''} ${completedSteps.has(idx) && step !== idx ? 'done' : ''}`}>
-                                            <Icon name={s.icon} size={13} />
-                                            {s.title}
-                                        </button>
-                                    );
-                                })}
-                            </div>
-                        ))}
-
-                        {/* Live Score Widget */}
-                        {form.techName && (
-                            <div className="mt-5 card p-4 space-y-3">
-                                <p className="mono text-xs text-gray-600 uppercase tracking-wider">Live Score</p>
-                                <div className="display text-3xl font-black" style={{ color: scores.verdict.color }}>{scores.composite}</div>
-                                <div className="pbar"><div className="pfill" style={{ width: `${parseFloat(scores.composite) * 10}%`, background: scores.verdict.color }}></div></div>
-                                <p className="mono text-xs font-bold" style={{ color: scores.verdict.color }}>{scores.verdict.status}</p>
-                                <div className="space-y-1.5 pt-1">
-                                    {[['T', scores.tech], ['M', scores.market], ['F', scores.financial], ['R', scores.risk], ['E', scores.esg], ['X', scores.team]].map(([l, v]) => (
-                                        <div key={l} className="flex items-center gap-2">
-                                            <span className="mono text-xs w-3" style={{ color: scoreColor(parseFloat(v)) }}>{l}</span>
-                                            <div className="pbar flex-1">
-                                                <div className="pfill" style={{ width: `${parseFloat(v) * 10}%`, background: scoreColor(parseFloat(v)) }}></div>
-                                            </div>
-                                            <span className="mono text-xs text-gray-600">{v}</span>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                </aside>
-
-                {/* Main Content */}
-                <main className="flex-1 min-w-0 pb-16">
-                    {/* Step Header */}
-                    <div className="flex items-center gap-3 mb-6 no-print">
-                        <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'var(--gold-dim)', border: '1px solid var(--gold-border)' }}>
-                            <Icon name={currentStep.icon} size={14} style={{ color: 'var(--gold)' }} />
-                        </div>
-                        <div className="flex-1">
-                            <div className="display text-xs font-bold uppercase tracking-widest text-gray-600">{currentStep.section} — Step {step + 1}/{STEPS.length}</div>
-                        </div>
-                        <div className="flex gap-1">
-                            {STEPS.map((_, i) => (
-                                <div key={i} className="h-1 rounded-full transition-all" style={{
-                                    width: i === step ? 20 : 6,
-                                    background: i === step ? 'var(--gold)' : completedSteps.has(i) ? 'rgba(201,168,76,0.3)' : 'rgba(255,255,255,0.08)'
-                                }}></div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* ══════════════ STEP 0: INTAKE ══════════════ */}
-                    {step === 0 && (
-                        <div className="fade-up space-y-6">
-                            <div>
-                                <h2 className="display text-3xl font-black uppercase tracking-tight">Foundry Intake</h2>
-                                <p className="text-sm text-gray-500 mt-1">Establish venture geometry before capital allocation.</p>
-                            </div>
-
-                            <div className="card p-6 space-y-5">
-                                <div className="grid md:grid-cols-3 gap-4">
-                                    <div className="md:col-span-2 space-y-2">
-                                        <label className="mono text-xs font-bold text-gray-500 uppercase tracking-wider">Asset Identifier *</label>
-                                        <input name="techName" value={form.techName} onChange={hi} className="field text-lg font-bold display" placeholder="e.g. PROJECT HELIOS" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="mono text-xs font-bold text-gray-500 uppercase tracking-wider">Assessment Stage</label>
-                                        <select name="stage" value={form.stage} onChange={hi} className="field">
-                                            {['Concept','Prototype','MVP','Pilot','Scale','Expansion'].map(s => <option key={s}>{s}</option>)}
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div className="grid md:grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <label className="mono text-xs font-bold text-gray-500 uppercase tracking-wider">Category</label>
-                                        <select name="category" value={form.category} onChange={hi} className="field">
-                                            {['DeepTech','FinTech','HealthTech','CleanTech','AgriTech','SpaceTech','AI/ML','Robotics','Biotech','Other'].map(c => <option key={c}>{c}</option>)}
-                                        </select>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="mono text-xs font-bold text-gray-500 uppercase tracking-wider">Target Sector</label>
-                                        <input name="sector" value={form.sector} onChange={hi} className="field" placeholder="Energy, Healthcare, Defense..." />
-                                    </div>
-                                </div>
-
-                                <div className="grid md:grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <label className="mono text-xs font-bold text-gray-500 uppercase tracking-wider">Market Friction (Problem)</label>
-                                        <textarea name="problem" value={form.problem} onChange={hi} className="field h-32 resize-none" placeholder="The critical problem this solves — be specific and quantifiable..." />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="mono text-xs font-bold text-gray-500 uppercase tracking-wider">Proposed Resolution (Solution)</label>
-                                        <textarea name="solution" value={form.solution} onChange={hi} className="field h-32 resize-none" placeholder="Proprietary mechanism and technical approach..." />
-                                    </div>
-                                </div>
-
-                                <div className="grid md:grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <label className="mono text-xs font-bold text-gray-500 uppercase tracking-wider">Why Now</label>
-                                        <textarea name="whyNow" value={form.whyNow} onChange={hi} className="field h-24 resize-none" placeholder="Catalytic conditions — regulatory shifts, tech enablers, market timing..." />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="mono text-xs font-bold text-gray-500 uppercase tracking-wider">Unfair Advantage</label>
-                                        <textarea name="unfairAdvantage" value={form.unfairAdvantage} onChange={hi} className="field h-24 resize-none" placeholder="What cannot be easily replicated — IP, data, relationships, network effects..." />
-                                    </div>
-                                </div>
-
-                                <div className="grid md:grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <label className="mono text-xs font-bold text-gray-500 uppercase tracking-wider">Lead Assessor</label>
-                                        <input name="partnerName" value={form.partnerName} onChange={hi} className="field" placeholder="Partner / Analyst name" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="mono text-xs font-bold text-gray-500 uppercase tracking-wider">Assessment Date</label>
-                                        <input name="assessorDate" type="date" value={form.assessorDate} onChange={hi} className="field" />
-                                    </div>
-                                </div>
-                            </div>
-
-                            {form.problem && form.solution && (
-                                <div className="flex justify-end">
-                                    <button onClick={() => analyzeSection('intake', `Assess this venture concept (max 160 words, plain prose, no bullets, no markdown):\nAsset: ${form.techName}\nCategory: ${form.category} | Sector: ${form.sector}\nProblem: ${form.problem}\nSolution: ${form.solution}\nWhy Now: ${form.whyNow}\nUnfair Advantage: ${form.unfairAdvantage}\n\nIs the problem-solution fit compelling? Is the "why now" credible? What is the single biggest question mark at this stage?`)}
-                                        className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider display transition-all"
-                                        style={{ background: 'var(--gold-dim)', color: 'var(--gold)', border: '1px solid var(--gold-border)' }}>
-                                        <Icon name="cpu" size={12} />
-                                        {streamingSection === 'intake' ? 'Analyzing...' : 'Quick AI Read'}
-                                    </button>
-                                </div>
-                            )}
-                            {(sectionAI.intake || streamingSection === 'intake') && (
-                                <AIBlock text={sectionAI.intake} streaming={streamingSection === 'intake'} label="Concept Assessment" />
-                            )}
-                        </div>
-                    )}
-
-                    {/* ══════════════ STEP 1: MARKET ══════════════ */}
-                    {step === 1 && (
-                        <div className="fade-up space-y-6">
-                            <div>
-                                <h2 className="display text-3xl font-black uppercase tracking-tight">Market Vector</h2>
-                                <p className="text-sm text-gray-500 mt-1">TAM calibration — asset must demonstrate global scale potential.</p>
-                            </div>
-
-                            <div className="grid md:grid-cols-2 gap-4">
-                                <Slider label="TAM / SAM Size" name="marketSize" value={form.marketSize} onChange={hi} description="1 = Niche / 10 = Global dominant market" />
-                                <Slider label="Customer Urgency" name="customerUrgency" value={form.customerUrgency} onChange={hi} description="1 = Nice-to-have / 10 = Existential must-solve" />
-                                <Slider label="Market Timing" name="marketTiming" value={form.marketTiming} onChange={hi} description="1 = Too early / 5 = Emerging / 10 = Perfect window" />
-                                <Slider label="Competitive Moat" name="competitiveMoat" value={form.competitiveMoat} onChange={hi} description="Differentiation depth vs. existing players" />
-                            </div>
-
-                            <div className="card p-6 space-y-4">
-                                <div className="grid md:grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <label className="mono text-xs font-bold text-gray-500 uppercase tracking-wider">Revenue Model</label>
-                                        <select name="revenueModel" value={form.revenueModel} onChange={hi} className="field">
-                                            <option value="">Select model...</option>
-                                            {['SaaS','Licensing','Marketplace','B2G','B2B Enterprise','B2C','Usage-based','Hardware + Services','Joint Venture'].map(m => <option key={m}>{m}</option>)}
-                                        </select>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="mono text-xs font-bold text-gray-500 uppercase tracking-wider">TAM Estimate (USD)</label>
-                                        <input name="tam" value={form.tam} onChange={hi} className="field" placeholder="e.g. $4.2B by 2030" />
-                                    </div>
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="mono text-xs font-bold text-gray-500 uppercase tracking-wider">Market Insight / Vision 2040 Tailwinds</label>
-                                    <textarea name="marketInsight" value={form.marketInsight} onChange={hi} className="field h-20 resize-none" placeholder="Sovereign mandates, sector tailwinds, regulatory moats, demographic shifts..." />
-                                </div>
-                            </div>
-
-                            <div className="matrix-cell p-5 space-y-3" style={{ border: '1px solid rgba(245,158,11,0.25)' }}>
-                                <div className="flex justify-between items-center">
-                                    <span className="mono text-xs font-bold text-amber-500 uppercase tracking-wider">Expert Regional Adjustment</span>
-                                    <span className="mono font-bold text-amber-400">{form.marketExpertAdj > 0 ? '+' : ''}{form.marketExpertAdj}</span>
-                                </div>
-                                <input type="range" name="marketExpertAdj" min="-3" max="3" step="0.5" value={form.marketExpertAdj} onChange={hi} />
-                                <p className="text-xs text-gray-600">Correct for regional knowledge not captured by raw scores (GCC, MENA context).</p>
-                            </div>
-
-                            <div className="flex justify-end">
-                                <button onClick={() => analyzeSection('market', `Market analysis for a venture (max 160 words, plain prose):\nTAM Score: ${form.marketSize}/10\nCustomer Urgency: ${form.customerUrgency}/10\nTiming: ${form.marketTiming}/10\nCompetitive Moat: ${form.competitiveMoat}/10\nRevenue Model: ${form.revenueModel}\nTAM Estimate: ${form.tam}\nInsight: ${form.marketInsight}\n\nIs the timing credible? Is the moat defensible? What market risk deserves the most scrutiny?`)}
-                                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider display transition-all"
-                                    style={{ background: 'var(--gold-dim)', color: 'var(--gold)', border: '1px solid var(--gold-border)' }}>
-                                    <Icon name="cpu" size={12} />
-                                    {streamingSection === 'market' ? 'Analyzing...' : 'AI Market Read'}
-                                </button>
-                            </div>
-                            {(sectionAI.market || streamingSection === 'market') && (
-                                <AIBlock text={sectionAI.market} streaming={streamingSection === 'market'} label="Market Assessment" />
-                            )}
-                        </div>
-                    )}
-
-                    {/* ══════════════ STEP 2: TECHNOLOGY ══════════════ */}
-                    {step === 2 && (
-                        <div className="fade-up space-y-6">
-                            <div>
-                                <h2 className="display text-3xl font-black uppercase tracking-tight">Technology Dimension</h2>
-                                <p className="text-sm text-gray-500 mt-1">Readiness, IP strength, scalability, and integration complexity.</p>
-                            </div>
-
-                            <div className="grid md:grid-cols-2 gap-4">
-                                <div className="card-gold p-6 space-y-4">
-                                    <div className="flex justify-between items-end">
-                                        <div>
-                                            <p className="mono text-xs text-yellow-400 uppercase tracking-wider font-bold">TRL</p>
-                                            <p className="text-xs text-gray-500 mt-0.5">Technology Readiness Level</p>
-                                        </div>
-                                        <span className="display text-5xl font-black gold-text">{form.trl}</span>
-                                    </div>
-                                    <input type="range" name="trl" min="1" max="9" value={form.trl} onChange={hi} />
-                                    <div className="pbar"><div className="pfill" style={{ width: `${(form.trl / 9) * 100}%` }}></div></div>
-                                    <div className="grid grid-cols-3 gap-1 text-center">
-                                        {[['1-3','Basic Research'],['4-6','Prototype'],['7-9','Deployed']].map(([r, l]) => (
-                                            <div key={r} className="text-xs text-gray-600"><span className="block mono text-yellow-600">{r}</span>{l}</div>
-                                        ))}
-                                    </div>
-                                </div>
-                                <div className="card p-6 space-y-4">
-                                    <div className="flex justify-between items-end">
-                                        <div>
-                                            <p className="mono text-xs text-gray-400 uppercase tracking-wider font-bold">MRL</p>
-                                            <p className="text-xs text-gray-500 mt-0.5">Market Readiness Level</p>
-                                        </div>
-                                        <span className="display text-5xl font-black text-white">{form.mrl}</span>
-                                    </div>
-                                    <input type="range" name="mrl" min="1" max="10" value={form.mrl} onChange={hi} />
-                                    <div className="pbar"><div className="pfill" style={{ width: `${form.mrl * 10}%`, background: '#fff' }}></div></div>
-                                    <p className="text-xs text-gray-600">1 = No market engagement → 10 = Full GTM deployed</p>
-                                </div>
-                            </div>
-
-                            {/* TRL/MRL Gap indicator */}
-                            <div className="card p-4 flex items-center justify-between">
-                                <span className="mono text-xs text-gray-500 uppercase">TRL/MRL Alignment</span>
-                                <div className="flex items-center gap-3">
-                                    <div className="pbar w-32">
-                                        <div className="pfill" style={{ width: `${(1 - Math.abs(form.trl - form.mrl) / 9) * 100}%`, background: Math.abs(form.trl - form.mrl) > 3 ? '#f87171' : '#c9a84c' }}></div>
-                                    </div>
-                                    <span className="mono text-xs font-bold" style={{ color: Math.abs(form.trl - form.mrl) > 3 ? '#f87171' : '#c9a84c' }}>
-                                        {Math.abs(form.trl - form.mrl) > 3 ? 'MISALIGNED' : Math.abs(form.trl - form.mrl) > 1 ? 'MODERATE GAP' : 'ALIGNED'}
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div className="grid md:grid-cols-2 gap-4">
-                                <Slider label="IP Defensibility" name="ipDefensibility" value={form.ipDefensibility} onChange={hi} description="Patents, trade secrets, network effects, data moats" />
-                                <Slider label="Tech Scalability" name="techScalability" value={form.techScalability} onChange={hi} description="Architecture's ability to scale globally without linear cost" />
-                                <Slider label="Integration Complexity" name="integrationComplexity" value={form.integrationComplexity} onChange={hi} description="Lower = faster adoption (high score = more complex)" accent="#f59e0b" />
-                                <div className="matrix-cell p-5 space-y-3" style={{ border: '1px solid rgba(245,158,11,0.25)' }}>
-                                    <div className="flex justify-between items-center">
-                                        <span className="mono text-xs font-bold text-amber-500 uppercase tracking-wider">Tech Expert Adj</span>
-                                        <span className="mono font-bold text-amber-400">{form.techExpertAdj > 0 ? '+' : ''}{form.techExpertAdj}</span>
-                                    </div>
-                                    <input type="range" name="techExpertAdj" min="-3" max="3" step="0.5" value={form.techExpertAdj} onChange={hi} />
-                                    <p className="text-xs text-gray-600">Technical expert correction to raw score</p>
-                                </div>
-                            </div>
-
-                            <div className="space-y-2">
-                                <label className="mono text-xs font-bold text-gray-500 uppercase tracking-wider">Technology Notes</label>
-                                <textarea name="techNotes" value={form.techNotes} onChange={hi} className="field h-20 resize-none" placeholder="Key technical risks, dependencies, breakthroughs..." />
-                            </div>
-
-                            <div className="flex justify-end">
-                                <button onClick={() => analyzeSection('tech', `Technology assessment (max 160 words, plain prose):\nTRL: ${form.trl}/9\nMRL: ${form.mrl}/10\nIP Defensibility: ${form.ipDefensibility}/10\nScalability: ${form.techScalability}/10\nIntegration Complexity: ${form.integrationComplexity}/10\nNotes: ${form.techNotes}\n\nWhat does this tech profile suggest about spinout readiness? What's the critical technical risk to address first?`)}
-                                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider display transition-all"
-                                    style={{ background: 'var(--gold-dim)', color: 'var(--gold)', border: '1px solid var(--gold-border)' }}>
-                                    <Icon name="cpu" size={12} />
-                                    {streamingSection === 'tech' ? 'Analyzing...' : 'AI Tech Read'}
-                                </button>
-                            </div>
-                            {(sectionAI.tech || streamingSection === 'tech') && (
-                                <AIBlock text={sectionAI.tech} streaming={streamingSection === 'tech'} label="Technology Assessment" />
-                            )}
-                        </div>
-                    )}
-
-                    {/* ══════════════ STEP 3: FINANCIAL ══════════════ */}
-                    {step === 3 && (
-                        <div className="fade-up space-y-6">
-                            <div>
-                                <h2 className="display text-3xl font-black uppercase tracking-tight">Financial Dimension</h2>
-                                <p className="text-sm text-gray-500 mt-1">Capital efficiency, ROI potential, and revenue readiness.</p>
-                            </div>
-
-                            <div className="grid md:grid-cols-2 gap-4">
-                                <Slider label="ROI Potential" name="roiPotential" value={form.roiPotential} onChange={hi} description="Risk-adjusted return multiple expectation" accent="#34d399" />
-                                <Slider label="Revenue Readiness" name="revenueReadiness" value={form.revenueReadiness} onChange={hi} description="Proximity to first contracted revenue" />
-                                <Slider label="Capital Intensity" name="capitalIntensity" value={form.capitalIntensity} onChange={hi} description="Higher = heavier burn — negative signal for VRP" accent="#f87171" />
-                                <Slider label="Burn Risk" name="burnRisk" value={form.burnRisk} onChange={hi} description="Probability of runway crisis before revenue" accent="#f59e0b" />
-                            </div>
-
-                            <div className="grid md:grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <label className="mono text-xs font-bold text-gray-500 uppercase tracking-wider">Funding Stage</label>
-                                    <select name="fundingStage" value={form.fundingStage} onChange={hi} className="field">
-                                        {['Pre-Seed','Seed','Series A','Series B','Series C+','Revenue-Generating','Strategic JV'].map(s => <option key={s}>{s}</option>)}
-                                    </select>
-                                </div>
-                                <Slider label="Payback Period Score" name="paybackPeriod" value={form.paybackPeriod} onChange={hi} description="10 = <12 months / 1 = 10+ years" />
-                            </div>
-
-                            {/* Financial snapshot */}
-                            <div className="card p-5 space-y-4">
-                                <p className="mono text-xs text-gray-500 uppercase tracking-wider font-bold">Financial Health Snapshot</p>
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                                    {[
-                                        { label: 'ROI', value: scores.financial, icon: 'trending-up' },
-                                        { label: 'Cap Eff', value: fmt(10 - form.capitalIntensity), icon: 'zap' },
-                                        { label: 'Rev Ready', value: fmt(form.revenueReadiness), icon: 'dollar-sign' },
-                                        { label: 'Payback', value: fmt(form.paybackPeriod), icon: 'clock' },
-                                    ].map(({ label, value, icon }) => (
-                                        <div key={label} className="matrix-cell text-center space-y-1 p-3">
-                                            <Icon name={icon} size={14} className="mx-auto" style={{ color: scoreColor(parseFloat(value)) }} />
-                                            <div className="mono text-xs text-gray-500 uppercase">{label}</div>
-                                            <div className="display text-xl font-black" style={{ color: scoreColor(parseFloat(value)) }}>{value}</div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-
-                            <div className="space-y-2">
-                                <label className="mono text-xs font-bold text-gray-500 uppercase tracking-wider">Financial Notes</label>
-                                <textarea name="financialNotes" value={form.financialNotes} onChange={hi} className="field h-20 resize-none" placeholder="Unit economics, funding pipeline, LOIs, anchor customers..." />
-                            </div>
-
-                            <div className="flex justify-end">
-                                <button onClick={() => analyzeSection('financial', `Financial viability assessment (max 160 words, plain prose):\nROI Potential: ${form.roiPotential}/10\nRevenue Readiness: ${form.revenueReadiness}/10\nCapital Intensity: ${form.capitalIntensity}/10\nBurn Risk: ${form.burnRisk}/10\nPayback Score: ${form.paybackPeriod}/10\nFunding Stage: ${form.fundingStage}\nNotes: ${form.financialNotes}\n\nWhat does this financial profile indicate for spinout viability? What's the critical capital risk?`)}
-                                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider display transition-all"
-                                    style={{ background: 'var(--gold-dim)', color: 'var(--gold)', border: '1px solid var(--gold-border)' }}>
-                                    <Icon name="cpu" size={12} />
-                                    {streamingSection === 'financial' ? 'Analyzing...' : 'AI Financial Read'}
-                                </button>
-                            </div>
-                            {(sectionAI.financial || streamingSection === 'financial') && (
-                                <AIBlock text={sectionAI.financial} streaming={streamingSection === 'financial'} label="Financial Assessment" />
-                            )}
-                        </div>
-                    )}
-
-                    {/* ══════════════ STEP 4: RISK ══════════════ */}
-                    {step === 4 && (
-                        <div className="fade-up space-y-6">
-                            <div>
-                                <h2 className="display text-3xl font-black uppercase tracking-tight">Risk Matrix</h2>
-                                <p className="text-sm text-gray-500 mt-1">Multi-vector risk calibration — lower scores preferred.</p>
-                            </div>
-
-                            <div className="card-gold p-4 flex items-center gap-3">
-                                <Icon name="alert-triangle" size={14} style={{ color: '#f59e0b' }} />
-                                <p className="text-xs text-gray-400">Score risk severity 1–10. Higher = more severe. Score translates inversely to venture health.</p>
-                            </div>
-
-                            <div className="grid md:grid-cols-2 gap-4">
-                                <Slider label="Regulatory Risk" name="regulatoryRisk" value={form.regulatoryRisk} onChange={hi} description="Exposure to adverse regulatory action or prohibition" accent={form.regulatoryRisk >= 7 ? '#f87171' : form.regulatoryRisk >= 4 ? '#f59e0b' : '#34d399'} />
-                                <Slider label="Geopolitical Risk" name="geopoliticalRisk" value={form.geopoliticalRisk} onChange={hi} description="Macro geopolitical exposure and sovereignty risk" accent={form.geopoliticalRisk >= 7 ? '#f87171' : form.geopoliticalRisk >= 4 ? '#f59e0b' : '#34d399'} />
-                                <Slider label="Supply Chain Risk" name="supplychainRisk" value={form.supplychainRisk} onChange={hi} description="Concentration and fragility of input supply" accent={form.supplychainRisk >= 7 ? '#f87171' : form.supplychainRisk >= 4 ? '#f59e0b' : '#34d399'} />
-                                <Slider label="Cybersecurity Risk" name="cybersecurityRisk" value={form.cybersecurityRisk} onChange={hi} description="Attack surface and data sovereignty exposure" accent={form.cybersecurityRisk >= 7 ? '#f87171' : form.cybersecurityRisk >= 4 ? '#f59e0b' : '#34d399'} />
-                                <Slider label="Talent Risk" name="talentRisk" value={form.talentRisk} onChange={hi} description="Dependency on rare expertise or key person risk" accent={form.talentRisk >= 7 ? '#f87171' : form.talentRisk >= 4 ? '#f59e0b' : '#34d399'} />
-                                <Slider label="Competition Risk" name="competitionRisk" value={form.competitionRisk} onChange={hi} description="Incumbent disruption or fast-follower threat" accent={form.competitionRisk >= 7 ? '#f87171' : form.competitionRisk >= 4 ? '#f59e0b' : '#34d399'} />
-                            </div>
-
-                            {/* Risk heatmap */}
-                            <div className="card p-5 space-y-3">
-                                <p className="mono text-xs text-gray-500 uppercase tracking-wider font-bold">Risk Heatmap</p>
-                                <div className="grid grid-cols-3 gap-2">
-                                    {[
-                                        { label: 'Regulatory', v: form.regulatoryRisk },
-                                        { label: 'Geopolitical', v: form.geopoliticalRisk },
-                                        { label: 'Supply Chain', v: form.supplychainRisk },
-                                        { label: 'Cybersecurity', v: form.cybersecurityRisk },
-                                        { label: 'Talent', v: form.talentRisk },
-                                        { label: 'Competition', v: form.competitionRisk },
-                                    ].map(({ label, v }) => {
-                                        const tier = v >= 8 ? 0 : v >= 6 ? 1 : v >= 3 ? 2 : 3;
-                                        const cl = `hmap-${tier}`;
-                                        const col = v >= 8 ? '#f87171' : v >= 6 ? '#f59e0b' : v >= 3 ? '#c9a84c' : '#34d399';
-                                        return (
-                                            <div key={label} className={`${cl} rounded-lg p-3 space-y-1 text-center`}>
-                                                <div className="mono text-xs text-gray-500">{label}</div>
-                                                <div className="display text-xl font-black" style={{ color: col }}>{v}</div>
-                                                <div className="tag mx-auto" style={{ background: 'transparent', color: col, border: `1px solid ${col}40`, fontSize: '0.5rem' }}>
-                                                    {v >= 8 ? 'CRITICAL' : v >= 6 ? 'HIGH' : v >= 3 ? 'MEDIUM' : 'LOW'}
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-
-                            <div className="space-y-2">
-                                <label className="mono text-xs font-bold text-gray-500 uppercase tracking-wider">Risk Notes & Mitigants</label>
-                                <textarea name="riskNotes" value={form.riskNotes} onChange={hi} className="field h-20 resize-none" placeholder="Identified mitigants, insurance, regulatory approvals in progress..." />
-                            </div>
-
-                            <div className="flex justify-end">
-                                <button onClick={() => analyzeSection('risk', `Risk profile assessment for a deep-tech venture (max 160 words, plain prose):\nRegulatory: ${form.regulatoryRisk}/10\nGeopolitical: ${form.geopoliticalRisk}/10\nSupply Chain: ${form.supplychainRisk}/10\nCybersecurity: ${form.cybersecurityRisk}/10\nTalent: ${form.talentRisk}/10\nCompetition: ${form.competitionRisk}/10\nNotes: ${form.riskNotes}\n\nWhat is the most critical risk vector? What mitigation strategy should precede capital deployment?`)}
-                                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider display transition-all"
-                                    style={{ background: 'var(--gold-dim)', color: 'var(--gold)', border: '1px solid var(--gold-border)' }}>
-                                    <Icon name="cpu" size={12} />
-                                    {streamingSection === 'risk' ? 'Analyzing...' : 'AI Risk Read'}
-                                </button>
-                            </div>
-                            {(sectionAI.risk || streamingSection === 'risk') && (
-                                <AIBlock text={sectionAI.risk} streaming={streamingSection === 'risk'} label="Risk Assessment" />
-                            )}
-                        </div>
-                    )}
-
-                    {/* ══════════════ STEP 5: ESG ══════════════ */}
-                    {step === 5 && (
-                        <div className="fade-up space-y-6">
-                            <div>
-                                <h2 className="display text-3xl font-black uppercase tracking-tight">ESG & Regulatory</h2>
-                                <p className="text-sm text-gray-500 mt-1">Environmental, social, governance alignment — mandatory dimension for Gulf markets.</p>
-                            </div>
-
-                            <div className="card p-4 flex items-center gap-3" style={{ borderColor: 'rgba(52,211,153,0.15)' }}>
-                                <Icon name="leaf" size={14} style={{ color: '#34d399' }} />
-                                <p className="text-xs text-gray-400">ESG alignment is increasingly a gate condition for sovereign capital in GCC and global institutional mandates.</p>
-                            </div>
-
-                            <div className="grid md:grid-cols-2 gap-4">
-                                <Slider label="Environmental Impact" name="environmentalImpact" value={form.environmentalImpact} onChange={hi} description="Positive environmental contribution — net zero alignment" accent="#34d399" />
-                                <Slider label="Social Impact" name="socialImpact" value={form.socialImpact} onChange={hi} description="Job creation, community benefit, inclusivity" accent="#60a5fa" />
-                                <Slider label="Governance Readiness" name="governanceReadiness" value={form.governanceReadiness} onChange={hi} description="Board quality, transparency, accountability structures" />
-                                <Slider label="Regulatory Compliance" name="regulatoryCompliance" value={form.regulatoryCompliance} onChange={hi} description="Current compliance posture and audit readiness" />
-                            </div>
-
-                            {/* SDG Alignment */}
-                            <div className="card p-5 space-y-4">
-                                <div className="flex justify-between items-center">
-                                    <p className="mono text-xs text-gray-500 uppercase tracking-wider font-bold">UN SDG Alignment Score</p>
-                                    <span className="display text-2xl font-black gold-text">{form.sdgAlignment}/10</span>
-                                </div>
-                                <input type="range" name="sdgAlignment" min="1" max="10" value={form.sdgAlignment} onChange={hi} />
-                                <div className="pbar"><div className="pfill" style={{ width: `${form.sdgAlignment * 10}%` }}></div></div>
-                                <div className="grid grid-cols-4 gap-2 text-center">
-                                    {[['SDG 9','Innovation'],['SDG 13','Climate'],['SDG 8','Growth'],['SDG 17','Partnerships']].map(([g, l]) => (
-                                        <div key={g} className="matrix-cell p-2 space-y-0.5">
-                                            <div className="mono text-xs" style={{ color: '#c9a84c' }}>{g}</div>
-                                            <div className="text-xs text-gray-600">{l}</div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-
-                            <div className="space-y-2">
-                                <label className="mono text-xs font-bold text-gray-500 uppercase tracking-wider">ESG Notes & Certifications</label>
-                                <textarea name="esgNotes" value={form.esgNotes} onChange={hi} className="field h-20 resize-none" placeholder="ISO certifications, ESG frameworks adopted, impact reporting..." />
-                            </div>
-
-                            <div className="flex justify-end">
-                                <button onClick={() => analyzeSection('esg', `ESG and regulatory assessment (max 160 words, plain prose, no bullets):\nEnvironmental: ${form.environmentalImpact}/10\nSocial: ${form.socialImpact}/10\nGovernance: ${form.governanceReadiness}/10\nRegulatory Compliance: ${form.regulatoryCompliance}/10\nSDG Alignment: ${form.sdgAlignment}/10\nNotes: ${form.esgNotes}\n\nHow strong is this venture's ESG posture? What does it need to achieve institutional-grade compliance for GCC sovereign mandates?`)}
-                                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider display transition-all"
-                                    style={{ background: 'var(--gold-dim)', color: 'var(--gold)', border: '1px solid var(--gold-border)' }}>
-                                    <Icon name="cpu" size={12} />
-                                    {streamingSection === 'esg' ? 'Analyzing...' : 'AI ESG Read'}
-                                </button>
-                            </div>
-                            {(sectionAI.esg || streamingSection === 'esg') && (
-                                <AIBlock text={sectionAI.esg} streaming={streamingSection === 'esg'} label="ESG Assessment" />
-                            )}
-                        </div>
-                    )}
-
-                    {/* ══════════════ STEP 6: TEAM ══════════════ */}
-                    {step === 6 && (
-                        <div className="fade-up space-y-6">
-                            <div>
-                                <h2 className="display text-3xl font-black uppercase tracking-tight">Execution DNA</h2>
-                                <p className="text-sm text-gray-500 mt-1">Team depth, burn efficiency, validation speed, and network capital.</p>
-                            </div>
-
-                            <div className="grid md:grid-cols-2 gap-4">
-                                <Slider label="Founder Domain Depth" name="teamExpertise" value={form.teamExpertise} onChange={hi} description="Technical and domain expertise of leadership team" accent="#f0c84a" />
-                                <Slider label="Advisory Strength" name="advisoryStrength" value={form.advisoryStrength} onChange={hi} description="Quality and commitment of advisors and board" />
-                                <Slider label="Validation Velocity" name="validationVelocity" value={form.validationVelocity} onChange={hi} description="Feedback loop speed and iteration cadence" />
-                                <Slider label="Scenario Resilience" name="scenarioResilience" value={form.scenarioResilience} onChange={hi} description="Antifragility against macro shocks and pivots" />
-                                <Slider label="Partnership Network" name="partnershipNetwork" value={form.partnershipNetwork} onChange={hi} description="Strategic partner depth and commercial pipeline" />
-                                <div className="matrix-cell p-5 space-y-3" style={{ border: '1px solid rgba(245,158,11,0.25)' }}>
-                                    <div className="flex justify-between items-center">
-                                        <span className="mono text-xs font-bold text-amber-500 uppercase tracking-wider">Execution Expert Adj</span>
-                                        <span className="mono font-bold text-amber-400">{form.executionExpertAdj > 0 ? '+' : ''}{form.executionExpertAdj}</span>
-                                    </div>
-                                    <input type="range" name="executionExpertAdj" min="-3" max="3" step="0.5" value={form.executionExpertAdj} onChange={hi} />
-                                    <p className="text-xs text-gray-600">Expert correction for qualitative team assessment</p>
-                                </div>
-                            </div>
-
-                            <div className="flex justify-end">
-                                <button onClick={() => analyzeSection('team', `Team and execution assessment (max 160 words, plain prose):\nFounder Depth: ${form.teamExpertise}/10\nAdvisory Strength: ${form.advisoryStrength}/10\nValidation Velocity: ${form.validationVelocity}/10\nScenario Resilience: ${form.scenarioResilience}/10\nPartnership Network: ${form.partnershipNetwork}/10\n\nWhat does this execution profile imply? What's the highest priority capability gap to address before spinout?`)}
-                                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider display transition-all"
-                                    style={{ background: 'var(--gold-dim)', color: 'var(--gold)', border: '1px solid var(--gold-border)' }}>
-                                    <Icon name="cpu" size={12} />
-                                    {streamingSection === 'team' ? 'Analyzing...' : 'AI Team Read'}
-                                </button>
-                            </div>
-                            {(sectionAI.team || streamingSection === 'team') && (
-                                <AIBlock text={sectionAI.team} streaming={streamingSection === 'team'} label="Team Assessment" />
-                            )}
-                        </div>
-                    )}
-
-                    {/* ══════════════ STEP 7: AI ENGINE ══════════════ */}
-                    {step === 7 && (
-                        <div className="fade-up space-y-6">
-                            <div>
-                                <h2 className="display text-3xl font-black uppercase tracking-tight">AI Diligence Engine</h2>
-                                <p className="text-sm text-gray-500 mt-1">Full institutional-grade 6-dimension venture analysis — powered by Gemini.</p>
-                            </div>
-
-                            {/* Score preview grid */}
-                            <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
-                                {[
-                                    { label: 'Tech', value: scores.tech, icon: 'cpu' },
-                                    { label: 'Market', value: scores.market, icon: 'trending-up' },
-                                    { label: 'Financial', value: scores.financial, icon: 'bar-chart-2' },
-                                    { label: 'Risk', value: scores.risk, icon: 'shield-alert' },
-                                    { label: 'ESG', value: scores.esg, icon: 'leaf' },
-                                    { label: 'Team', value: scores.team, icon: 'users' },
-                                ].map(({ label, value, icon }) => (
-                                    <div key={label} className="card p-3 text-center space-y-1.5">
-                                        <Icon name={icon} size={12} className="mx-auto" style={{ color: scoreColor(parseFloat(value)) }} />
-                                        <p className="mono text-xs text-gray-600 uppercase">{label}</p>
-                                        <p className="display text-xl font-black" style={{ color: scoreColor(parseFloat(value)) }}>{value}</p>
-                                    </div>
-                                ))}
-                            </div>
-
-                            {/* Radar */}
-                            <div className="card p-6">
-                                <p className="mono text-xs text-gray-500 uppercase tracking-wider mb-3 font-bold">6-Dimension Venture Radar</p>
-                                <RadarChart data={radarData} size={300} />
-                            </div>
-
-                            {/* Run button */}
-                            <button onClick={runFullAnalysis} disabled={isStreaming}
-                                className="w-full py-5 rounded-2xl font-black text-sm uppercase tracking-widest display transition-all flex items-center justify-center gap-3 pulse-gold"
-                                style={{
-                                    background: isStreaming ? 'rgba(201,168,76,0.08)' : 'var(--gold)',
-                                    color: isStreaming ? 'var(--gold)' : '#05060a',
-                                    border: '1px solid var(--gold-border)'
-                                }}>
-                                <Icon name={isStreaming ? 'loader' : 'sparkles'} size={16} className={isStreaming ? 'spin' : ''} />
-                                {isStreaming ? 'Diligence Engine Running...' : 'Run Full AI Diligence Report'}
-                            </button>
-
-                            {(aiText || isStreaming) && (
-                                <AIBlock text={aiText} streaming={isStreaming} label="Chief Diligence Officer — Star Labs AI Engine" />
-                            )}
-                        </div>
-                    )}
-
-                    {/* ══════════════ STEP 8: VERDICT ══════════════ */}
-                    {step === 8 && (
-                        <div className="fade-up space-y-6">
-                            <div>
-                                <h2 className="display text-3xl font-black uppercase tracking-tight">Gate Verdict</h2>
-                                <p className="text-sm text-gray-500 mt-1">VRP gate decision — {form.techName || 'Unnamed Asset'}</p>
-                            </div>
-
-                            {/* Main verdict card */}
-                            <div className="card-gold p-7 space-y-7">
-                                <div className="flex flex-col md:flex-row items-center gap-8">
-                                    <ScoreRing score={parseFloat(scores.composite)} />
-                                    <div className="space-y-4 flex-1">
-                                        <div className="display text-5xl font-black" style={{ color: scores.verdict.color }}>{scores.verdict.status}</div>
-                                        <p className="text-sm text-gray-400 italic leading-relaxed">{scores.verdict.label}</p>
-                                        {scores.fatalFlaw && (
-                                            <div className="flex items-center gap-2">
-                                                <span className="tag" style={{ background: 'rgba(248,113,113,0.1)', color: '#f87171', border: '1px solid rgba(248,113,113,0.3)' }}>
-                                                    <Icon name="alert-triangle" size={10} /> FATAL FLAW
-                                                </span>
-                                                <span className="text-xs text-red-400">{scores.fatalFlaw}</span>
-                                            </div>
-                                        )}
-                                        <div className="grid grid-cols-2 gap-2">
-                                            {[
-                                                { label: 'Asset', value: form.techName || '—' },
-                                                { label: 'Stage', value: form.stage },
-                                                { label: 'Category', value: form.category },
-                                                { label: 'Date', value: form.assessorDate || new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) },
-                                            ].map(({ label, value }) => (
-                                                <div key={label}>
-                                                    <span className="mono text-xs text-gray-600 uppercase">{label}: </span>
-                                                    <span className="mono text-xs text-gray-300">{value}</span>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* 6-dimension breakdown */}
-                                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                                    {[
-                                        { label: 'Technology', value: scores.tech, icon: 'cpu', w: 0.22 },
-                                        { label: 'Market', value: scores.market, icon: 'trending-up', w: 0.28 },
-                                        { label: 'Financial', value: scores.financial, icon: 'bar-chart-2', w: 0.15 },
-                                        { label: 'Risk Mgmt', value: scores.risk, icon: 'shield-alert', w: 0.12 },
-                                        { label: 'ESG', value: scores.esg, icon: 'leaf', w: 0.08 },
-                                        { label: 'Team', value: scores.team, icon: 'users', w: 0.15 },
-                                    ].map(({ label, value, icon, w }) => (
-                                        <div key={label} className="space-y-2">
-                                            <div className="flex items-center justify-between">
-                                                <span className="mono text-xs text-gray-500 uppercase flex items-center gap-1">
-                                                    <Icon name={icon} size={10} /> {label}
-                                                </span>
-                                                <span className="mono text-xs font-bold" style={{ color: scoreColor(parseFloat(value)) }}>{value}</span>
-                                            </div>
-                                            <div className="pbar">
-                                                <div className="pfill" style={{ width: `${parseFloat(value) * 10}%`, background: scoreColor(parseFloat(value)) }}></div>
-                                            </div>
-                                            <p className="mono text-xs text-gray-700">Weight: {Math.round(w * 100)}%</p>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* Radar */}
-                            <div className="card p-6">
-                                <p className="mono text-xs text-gray-500 uppercase tracking-wider mb-3 font-bold">Final 6-Dimension Radar</p>
-                                <RadarChart data={radarData} size={300} />
-                            </div>
-
-                            {/* Section insights */}
-                            {Object.keys(sectionAI).length > 0 && (
-                                <div className="card p-5 space-y-4">
-                                    <p className="mono text-xs text-gray-500 uppercase tracking-wider font-bold">Section Insights Summary</p>
-                                    <div className="space-y-3">
-                                        {Object.entries(sectionAI).filter(([_, v]) => v).map(([k, v]) => (
-                                            <div key={k} className="space-y-1">
-                                                <p className="mono text-xs text-yellow-500 uppercase font-bold">{k} dimension</p>
-                                                <p className="text-xs text-gray-400 leading-relaxed">{v.substring(0, 200)}{v.length > 200 ? '...' : ''}</p>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Full AI verdict */}
-                            {aiText ? (
-                                <AIBlock text={aiText} streaming={false} label="Full AI Diligence Verdict" />
-                            ) : (
-                                <div className="ai-block text-center py-8 space-y-3">
-                                    <Icon name="sparkles" size={24} style={{ color: '#555b6a', margin: '0 auto' }} />
-                                    <p className="text-sm text-gray-600">Run the AI Diligence Engine (Step 8) for a full institutional verdict.</p>
-                                    <button onClick={() => setStep(7)} className="px-5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider display"
-                                        style={{ background: 'var(--gold-dim)', color: 'var(--gold)', border: '1px solid var(--gold-border)' }}>
-                                        Go to AI Engine →
-                                    </button>
-                                </div>
-                            )}
-
-                            {/* Expert sign-off */}
-                            <div className="space-y-3">
-                                <label className="mono text-xs font-bold text-gray-500 uppercase tracking-wider">Expert Sign-off & Gate Conditions</label>
-                                <textarea name="expertNote" value={form.expertNote} onChange={hi}
-                                    className="field h-28 resize-none"
-                                    placeholder="Senior analyst recommendation, conditions precedent, next milestones, escalation path..." />
-                            </div>
-
-                            {/* Footer metadata */}
-                            <div className="border-t pt-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-2" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
-                                <div className="space-y-0.5">
-                                    <p className="mono text-xs text-gray-700">SL-VRP-2026 // CONFIDENTIAL</p>
-                                    <p className="mono text-xs text-gray-700">6-Dimension Institutional Assessment Framework</p>
-                                </div>
-                                <div className="space-y-0.5 text-right">
-                                    {form.partnerName && <p className="mono text-xs text-gray-600">{form.partnerName}</p>}
-                                    <p className="mono text-xs text-gray-700">Star Labs Global Intelligence</p>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Navigation */}
-                    <div className="mt-10 flex justify-between items-center no-print">
-                        <button onClick={prev} disabled={step === 0}
-                            className="flex items-center gap-2 text-xs font-bold text-gray-600 hover:text-white uppercase tracking-wider disabled:opacity-0 transition-colors display">
-                            <Icon name="arrow-left" size={12} /> Back
-                        </button>
-                        {step < STEPS.length - 1 && (
-                            <button onClick={next}
-                                className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest display transition-all"
-                                style={{ background: 'var(--gold-dim)', color: 'var(--gold)', border: '1px solid var(--gold-border)' }}>
-                                Next <Icon name="arrow-right" size={12} />
-                            </button>
-                        )}
-                    </div>
-                </main>
+              </div>
+              <div>
+                <label className="mono" style={{fontSize:'.6rem',fontWeight:700,color:'#6b7280',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>Financial Notes</label>
+                <textarea name="financialNotes" value={form.financialNotes} onChange={hi} className="field" style={{height:72,resize:'none'}} placeholder="Unit economics, funding pipeline, LOIs, anchor customers..."/>
+              </div>
+              <AIBtn onClick={()=>analyzeSection('financial',`Financial viability (max 150 words, plain prose):\nROI: ${form.roiPotential}/10 | Revenue Readiness: ${form.revenueReadiness}/10 | Capital Intensity: ${form.capitalIntensity}/10 | Burn Risk: ${form.burnRisk}/10 | Payback: ${form.paybackPeriod}/10 | Stage: ${form.fundingStage}\nNotes: ${form.financialNotes}\nSpinout financial viability and critical capital risk?`)}
+                loading={streamSec==='financial'} label="AI Financial Read"/>
+              {(sectionAI.financial||streamSec==='financial')&&<AIBlock text={sectionAI.financial} streaming={streamSec==='financial'} label="Financial Assessment"/>}
             </div>
+          )}
 
-            {/* Footer */}
-            <footer className="border-t mt-8 px-6 py-5 flex justify-between items-center no-print" style={{ borderColor: 'rgba(255,255,255,0.04)' }}>
-                <p className="mono text-xs text-gray-700 uppercase tracking-wider">Star Labs Global Intelligence // VRP Pro 2.0</p>
-                <div className="flex items-center gap-4">
-                    <span className="mono text-xs text-gray-700">6 Dimensions · AI-Powered · Institutional Grade</span>
-                    <div className="flex items-center gap-1.5">
-                        <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#34d399', boxShadow: '0 0 5px #34d399', animation: 'pulse 2s infinite' }}></div>
-                        <span className="mono text-xs text-gray-700">Engine Online</span>
-                    </div>
+          {/* ════ STEP 4: RISK ════ */}
+          {step===4&&(
+            <div className="fade-up" style={{display:'flex',flexDirection:'column',gap:'1.25rem'}}>
+              <div>
+                <h2 className="syne" style={{fontSize:'clamp(1.5rem,4vw,2.25rem)',fontWeight:800,textTransform:'uppercase',letterSpacing:'-.02em'}}>Risk Matrix</h2>
+                <p style={{fontSize:'.8rem',color:'#4b5563',marginTop:4}}>Multi-vector risk calibration — lower scores preferred.</p>
+              </div>
+              <div className="card-warn" style={{padding:'.85rem',display:'flex',alignItems:'center',gap:8}}>
+                <Icon name="alert-triangle" size={13} style={{color:'#f59e0b',flexShrink:0}}/>
+                <p style={{fontSize:'.72rem',color:'#9ca3af'}}>Score severity 1–10. Higher = more severe. Translates inversely to venture health.</p>
+              </div>
+              <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:'1rem'}}>
+                {[
+                  {label:'Regulatory Risk',name:'regulatoryRisk',v:form.regulatoryRisk,desc:'Adverse regulatory action or prohibition'},
+                  {label:'Geopolitical Risk',name:'geopoliticalRisk',v:form.geopoliticalRisk,desc:'Macro geopolitical and sovereignty exposure'},
+                  {label:'Supply Chain Risk',name:'supplychainRisk',v:form.supplychainRisk,desc:'Concentration and fragility of input supply'},
+                  {label:'Cybersecurity Risk',name:'cybersecurityRisk',v:form.cybersecurityRisk,desc:'Attack surface and data sovereignty exposure'},
+                  {label:'Talent Risk',name:'talentRisk',v:form.talentRisk,desc:'Dependency on rare expertise or key persons'},
+                  {label:'Competition Risk',name:'competitionRisk',v:form.competitionRisk,desc:'Incumbent disruption or fast-follower threat'},
+                ].map(({label,name,v,desc})=>(
+                  <Slider key={name} label={label} name={name} value={v} onChange={hi} description={desc} accent={v>=7?'#f87171':v>=4?'#f59e0b':'#34d399'}/>
+                ))}
+              </div>
+              {/* Heatmap */}
+              <div className="card" style={{padding:'1.1rem'}}>
+                <p className="mono" style={{fontSize:'.6rem',color:'#4b5563',textTransform:'uppercase',letterSpacing:'.08em',marginBottom:10}}>Risk Heatmap</p>
+                <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8}}>
+                  {[{label:'Regulatory',v:form.regulatoryRisk},{label:'Geopolitical',v:form.geopoliticalRisk},{label:'Supply Chain',v:form.supplychainRisk},{label:'Cybersec',v:form.cybersecurityRisk},{label:'Talent',v:form.talentRisk},{label:'Competition',v:form.competitionRisk}].map(({label,v})=>{
+                    const tier=v>=8?0:v>=6?1:v>=3?2:3;
+                    const col=v>=8?'#f87171':v>=6?'#f59e0b':v>=3?'#c9a84c':'#34d399';
+                    return(
+                      <div key={label} className={`hmap${tier}`} style={{borderRadius:8,padding:'.6rem',textAlign:'center'}}>
+                        <div className="mono" style={{fontSize:'.55rem',color:'#6b7280',marginBottom:3}}>{label}</div>
+                        <div className="syne" style={{fontSize:'1.35rem',fontWeight:800,color:col}}>{v}</div>
+                        <div className="tag" style={{background:'transparent',color:col,border:`1px solid ${col}40`,fontSize:'.45rem',margin:'3px auto 0',display:'inline-flex'}}>
+                          {v>=8?'CRITICAL':v>=6?'HIGH':v>=3?'MEDIUM':'LOW'}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
-            </footer>
+              </div>
+              <div>
+                <label className="mono" style={{fontSize:'.6rem',fontWeight:700,color:'#6b7280',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>Risk Notes & Mitigants</label>
+                <textarea name="riskNotes" value={form.riskNotes} onChange={hi} className="field" style={{height:72,resize:'none'}} placeholder="Identified mitigants, insurance, regulatory approvals..."/>
+              </div>
+              <AIBtn onClick={()=>analyzeSection('risk',`Risk profile assessment (max 150 words, plain prose):\nRegulatory: ${form.regulatoryRisk} | Geopolitical: ${form.geopoliticalRisk} | Supply Chain: ${form.supplychainRisk} | Cybersec: ${form.cybersecurityRisk} | Talent: ${form.talentRisk} | Competition: ${form.competitionRisk}\nNotes: ${form.riskNotes}\nMost critical risk vector and mitigation priority?`)}
+                loading={streamSec==='risk'} label="AI Risk Read"/>
+              {(sectionAI.risk||streamSec==='risk')&&<AIBlock text={sectionAI.risk} streaming={streamSec==='risk'} label="Risk Assessment"/>}
+            </div>
+          )}
+
+          {/* ════ STEP 5: ESG ════ */}
+          {step===5&&(
+            <div className="fade-up" style={{display:'flex',flexDirection:'column',gap:'1.25rem'}}>
+              <div>
+                <h2 className="syne" style={{fontSize:'clamp(1.5rem,4vw,2.25rem)',fontWeight:800,textTransform:'uppercase',letterSpacing:'-.02em'}}>ESG & Regulatory</h2>
+                <p style={{fontSize:'.8rem',color:'#4b5563',marginTop:4}}>Environmental, social, governance — mandatory for Gulf sovereign capital.</p>
+              </div>
+              <div className="card-success" style={{padding:'.85rem',display:'flex',alignItems:'center',gap:8}}>
+                <Icon name="leaf" size={13} style={{color:'#34d399',flexShrink:0}}/>
+                <p style={{fontSize:'.72rem',color:'#9ca3af'}}>ESG alignment is a gate condition for sovereign capital in GCC and global institutional mandates.</p>
+              </div>
+              <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:'1rem'}}>
+                <Slider label="Environmental Impact" name="environmentalImpact" value={form.environmentalImpact} onChange={hi} description="Positive environmental contribution — net zero alignment" accent="#34d399"/>
+                <Slider label="Social Impact" name="socialImpact" value={form.socialImpact} onChange={hi} description="Job creation, community benefit, inclusivity" accent="#60a5fa"/>
+                <Slider label="Governance Readiness" name="governanceReadiness" value={form.governanceReadiness} onChange={hi} description="Board quality, transparency, accountability structures"/>
+                <Slider label="Regulatory Compliance" name="regulatoryCompliance" value={form.regulatoryCompliance} onChange={hi} description="Current compliance posture and audit readiness"/>
+              </div>
+              <div className="card" style={{padding:'1.1rem'}}>
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
+                  <p className="mono" style={{fontSize:'.6rem',color:'#4b5563',textTransform:'uppercase',letterSpacing:'.08em'}}>UN SDG Alignment</p>
+                  <span className="syne gold-text" style={{fontSize:'1.5rem',fontWeight:800}}>{form.sdgAlignment}/10</span>
+                </div>
+                <input type="range" name="sdgAlignment" min="1" max="10" value={form.sdgAlignment} onChange={hi}/>
+                <div className="pbar" style={{margin:'6px 0 12px'}}><div className="pfill" style={{width:`${form.sdgAlignment*10}%`}}></div></div>
+                <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:6}}>
+                  {[['SDG 9','Innovation'],['SDG 13','Climate'],['SDG 8','Growth'],['SDG 17','Partners']].map(([g,l])=>(
+                    <div key={g} className="mxcell" style={{textAlign:'center',padding:'.5rem'}}>
+                      <div className="mono" style={{fontSize:'.55rem',color:'#c9a84c'}}>{g}</div>
+                      <div style={{fontSize:'.6rem',color:'#4b5563',marginTop:2}}>{l}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="mono" style={{fontSize:'.6rem',fontWeight:700,color:'#6b7280',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>ESG Notes & Certifications</label>
+                <textarea name="esgNotes" value={form.esgNotes} onChange={hi} className="field" style={{height:72,resize:'none'}} placeholder="ISO certifications, ESG frameworks, impact reporting..."/>
+              </div>
+              <AIBtn onClick={()=>analyzeSection('esg',`ESG assessment (max 150 words, plain prose):\nEnvironmental: ${form.environmentalImpact}/10 | Social: ${form.socialImpact}/10 | Governance: ${form.governanceReadiness}/10 | Compliance: ${form.regulatoryCompliance}/10 | SDG: ${form.sdgAlignment}/10\nNotes: ${form.esgNotes}\nESG posture strength and gaps for GCC sovereign mandate compliance?`)}
+                loading={streamSec==='esg'} label="AI ESG Read"/>
+              {(sectionAI.esg||streamSec==='esg')&&<AIBlock text={sectionAI.esg} streaming={streamSec==='esg'} label="ESG Assessment"/>}
+            </div>
+          )}
+
+          {/* ════ STEP 6: TEAM ════ */}
+          {step===6&&(
+            <div className="fade-up" style={{display:'flex',flexDirection:'column',gap:'1.25rem'}}>
+              <div>
+                <h2 className="syne" style={{fontSize:'clamp(1.5rem,4vw,2.25rem)',fontWeight:800,textTransform:'uppercase',letterSpacing:'-.02em'}}>Execution DNA</h2>
+                <p style={{fontSize:'.8rem',color:'#4b5563',marginTop:4}}>Team depth, validation speed, resilience, and network capital.</p>
+              </div>
+              <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:'1rem'}}>
+                <Slider label="Founder Domain Depth" name="teamExpertise" value={form.teamExpertise} onChange={hi} description="Technical and domain expertise of leadership" accent="#f0c84a"/>
+                <Slider label="Advisory Strength" name="advisoryStrength" value={form.advisoryStrength} onChange={hi} description="Quality and commitment of advisors and board"/>
+                <Slider label="Validation Velocity" name="validationVelocity" value={form.validationVelocity} onChange={hi} description="Feedback loop speed and iteration cadence"/>
+                <Slider label="Scenario Resilience" name="scenarioResilience" value={form.scenarioResilience} onChange={hi} description="Antifragility against macro shocks and pivots"/>
+                <Slider label="Partnership Network" name="partnershipNetwork" value={form.partnershipNetwork} onChange={hi} description="Strategic partner depth and commercial pipeline"/>
+                <div className="mxcell" style={{border:'1px solid rgba(245,158,11,.25)'}}>
+                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
+                    <span className="mono" style={{fontSize:'.6rem',fontWeight:700,color:'#f59e0b',textTransform:'uppercase'}}>Execution Expert Adj</span>
+                    <span className="mono" style={{fontWeight:700,color:'#fbbf24'}}>{form.executionExpertAdj>0?'+':''}{form.executionExpertAdj}</span>
+                  </div>
+                  <input type="range" name="executionExpertAdj" min="-3" max="3" step=".5" value={form.executionExpertAdj} onChange={hi}/>
+                  <p style={{fontSize:'.68rem',color:'#4b5563',marginTop:6}}>Expert correction for qualitative team assessment</p>
+                </div>
+              </div>
+              <AIBtn onClick={()=>analyzeSection('team',`Team/execution assessment (max 150 words, plain prose):\nFounder Depth: ${form.teamExpertise}/10 | Advisory: ${form.advisoryStrength}/10 | Velocity: ${form.validationVelocity}/10 | Resilience: ${form.scenarioResilience}/10 | Network: ${form.partnershipNetwork}/10\nExecution profile implications and highest priority capability gap?`)}
+                loading={streamSec==='team'} label="AI Team Read"/>
+              {(sectionAI.team||streamSec==='team')&&<AIBlock text={sectionAI.team} streaming={streamSec==='team'} label="Team Assessment"/>}
+            </div>
+          )}
+
+          {/* ════ STEP 7: AI ENGINE ════ */}
+          {step===7&&(
+            <div className="fade-up" style={{display:'flex',flexDirection:'column',gap:'1.25rem'}}>
+              <div>
+                <h2 className="syne" style={{fontSize:'clamp(1.5rem,4vw,2.25rem)',fontWeight:800,textTransform:'uppercase',letterSpacing:'-.02em'}}>AI Diligence Engine</h2>
+                <p style={{fontSize:'.8rem',color:'#4b5563',marginTop:4}}>Full 6-dimension institutional analysis — powered by Gemini.</p>
+              </div>
+              {/* Score grid */}
+              <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8}}>
+                {[{label:'Tech',value:scores.tech,icon:'cpu'},{label:'Market',value:scores.market,icon:'trending-up'},{label:'Financial',value:scores.financial,icon:'bar-chart-2'},{label:'Risk',value:scores.risk,icon:'shield-alert'},{label:'ESG',value:scores.esg,icon:'leaf'},{label:'Team',value:scores.team,icon:'users'}].map(({label,value,icon})=>(
+                  <div key={label} className="card" style={{padding:'.75rem',textAlign:'center'}}>
+                    <div style={{display:'flex',justifyContent:'center',marginBottom:4}}><Icon name={icon} size={11} style={{color:scoreColor(parseFloat(value))}}/></div>
+                    <p className="mono" style={{fontSize:'.5rem',color:'#6b7280',textTransform:'uppercase'}}>{label}</p>
+                    <p className="syne" style={{fontSize:'1.35rem',fontWeight:800,color:scoreColor(parseFloat(value))}}>{value}</p>
+                  </div>
+                ))}
+              </div>
+              {/* Radar */}
+              <div className="card" style={{padding:'1.25rem'}}>
+                <p className="mono" style={{fontSize:'.6rem',color:'#4b5563',textTransform:'uppercase',letterSpacing:'.08em',marginBottom:12}}>6-Dimension Venture Radar</p>
+                <RadarChart data={radarData}/>
+              </div>
+              {/* Run button */}
+              <button onClick={runFull} disabled={streaming} className="pulse-gold"
+                style={{width:'100%',padding:'1.1rem',borderRadius:'1rem',fontFamily:'Syne',fontWeight:900,
+                  fontSize:'.75rem',textTransform:'uppercase',letterSpacing:'.15em',border:'1px solid var(--gold-border)',
+                  background:streaming?'var(--gold-dim)':'var(--gold)',
+                  color:streaming?'var(--gold)':'#05060a',cursor:streaming?'not-allowed':'pointer',
+                  display:'flex',alignItems:'center',justifyContent:'center',gap:8,transition:'all .2s'}}>
+                <span className={streaming?'spin':''}><Icon name={streaming?'loader':'sparkles'} size={14}/></span>
+                {streaming?'Diligence Engine Running...':'Run Full AI Diligence Report'}
+              </button>
+              {(aiText||streaming)&&<AIBlock text={aiText} streaming={streaming} label="Chief Diligence Officer — Star Labs AI Engine"/>}
+            </div>
+          )}
+
+          {/* ════ STEP 8: VERDICT ════ */}
+          {step===8&&(
+            <div className="fade-up" style={{display:'flex',flexDirection:'column',gap:'1.25rem'}}>
+              <div>
+                <h2 className="syne" style={{fontSize:'clamp(1.5rem,4vw,2.25rem)',fontWeight:800,textTransform:'uppercase',letterSpacing:'-.02em'}}>Gate Verdict</h2>
+                <p style={{fontSize:'.8rem',color:'#4b5563',marginTop:4}}>EZP gate decision — {form.techName||'Unnamed Asset'}</p>
+              </div>
+              {/* Main verdict */}
+              <div className="card-gold" style={{padding:'1.5rem'}}>
+                <div style={{display:'flex',flexWrap:'wrap',alignItems:'center',gap:'1.5rem'}}>
+                  <ScoreRing score={parseFloat(scores.composite)}/>
+                  <div style={{flex:1,minWidth:200}}>
+                    <div className="syne" style={{fontSize:'clamp(1.6rem,5vw,2.5rem)',fontWeight:800,color:scores.verdict.color,lineHeight:1}}>{scores.verdict.status}</div>
+                    <p style={{fontSize:'.8rem',color:'#9ca3af',fontStyle:'italic',marginTop:6,lineHeight:1.5}}>{scores.verdict.label}</p>
+                    {scores.fatalFlaw&&(
+                      <div style={{display:'flex',alignItems:'center',gap:6,marginTop:10}}>
+                        <span className="tag" style={{background:'rgba(248,113,113,.1)',color:'#f87171',border:'1px solid rgba(248,113,113,.3)'}}>
+                          ⚠ FATAL FLAW
+                        </span>
+                        <span style={{fontSize:'.72rem',color:'#f87171'}}>{scores.fatalFlaw}</span>
+                      </div>
+                    )}
+                    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'4px 12px',marginTop:12}}>
+                      {[['Asset',form.techName||'—'],['Stage',form.stage],['Category',form.category],['Date',form.assessorDate||new Date().toLocaleDateString('en-US',{month:'short',year:'numeric'})]].map(([l,v])=>(
+                        <div key={l}><span className="mono" style={{fontSize:'.58rem',color:'#4b5563'}}>{l}: </span><span className="mono" style={{fontSize:'.58rem',color:'#d1d5db'}}>{v}</span></div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                {/* Dimension bars */}
+                <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(160px,1fr))',gap:'1rem',marginTop:'1.25rem',paddingTop:'1.25rem',borderTop:'1px solid rgba(255,255,255,.05)'}}>
+                  {[{label:'Technology',value:scores.tech,w:'22%'},{label:'Market',value:scores.market,w:'28%'},{label:'Financial',value:scores.financial,w:'15%'},{label:'Risk Mgmt',value:scores.risk,w:'12%'},{label:'ESG',value:scores.esg,w:'8%'},{label:'Team',value:scores.team,w:'15%'}].map(({label,value,w})=>(
+                    <div key={label}>
+                      <div style={{display:'flex',justifyContent:'space-between',marginBottom:5}}>
+                        <span className="mono" style={{fontSize:'.58rem',color:'#6b7280',textTransform:'uppercase'}}>{label}</span>
+                        <span className="mono" style={{fontSize:'.58rem',fontWeight:700,color:scoreColor(parseFloat(value))}}>{value}</span>
+                      </div>
+                      <div className="pbar"><div className="pfill" style={{width:`${parseFloat(value)*10}%`,background:scoreColor(parseFloat(value))}}></div></div>
+                      <div className="mono" style={{fontSize:'.5rem',color:'#374151',marginTop:3}}>Weight {w}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {/* Radar */}
+              <div className="card" style={{padding:'1.25rem'}}>
+                <p className="mono" style={{fontSize:'.6rem',color:'#4b5563',textTransform:'uppercase',letterSpacing:'.08em',marginBottom:12}}>Final 6-Dimension Radar</p>
+                <RadarChart data={radarData}/>
+              </div>
+              {/* Section insights */}
+              {Object.keys(sectionAI).length>0&&(
+                <div className="card" style={{padding:'1.1rem'}}>
+                  <p className="mono" style={{fontSize:'.6rem',color:'#4b5563',textTransform:'uppercase',letterSpacing:'.08em',marginBottom:10}}>Section Insights Summary</p>
+                  <div style={{display:'flex',flexDirection:'column',gap:10}}>
+                    {Object.entries(sectionAI).filter(([_,v])=>v).map(([k,v])=>(
+                      <div key={k}>
+                        <p className="mono" style={{fontSize:'.58rem',color:'#fbbf24',textTransform:'uppercase',fontWeight:700,marginBottom:3}}>{k} dimension</p>
+                        <p style={{fontSize:'.72rem',color:'#6b7280',lineHeight:1.5}}>{v.substring(0,180)}{v.length>180?'…':''}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {/* AI verdict */}
+              {aiText?(
+                <AIBlock text={aiText} streaming={false} label="Full AI Diligence Verdict"/>
+              ):(
+                <div className="ai-block" style={{textAlign:'center',padding:'2rem'}}>
+                  <div style={{display:'flex',justifyContent:'center',marginBottom:8}}><Icon name="sparkles" size={22} style={{color:'#374151'}}/></div>
+                  <p style={{fontSize:'.8rem',color:'#4b5563',marginBottom:12}}>Run the AI Diligence Engine (Step 8) for the full institutional verdict.</p>
+                  <button onClick={()=>goStep(7)} className="syne"
+                    style={{padding:'.5rem 1.1rem',borderRadius:'.7rem',fontSize:'.65rem',fontWeight:700,
+                      textTransform:'uppercase',letterSpacing:'.08em',background:'var(--gold-dim)',
+                      color:'var(--gold)',border:'1px solid var(--gold-border)',cursor:'pointer'}}>
+                    Go to AI Engine →
+                  </button>
+                </div>
+              )}
+              {/* Expert sign-off */}
+              <div>
+                <label className="mono" style={{fontSize:'.6rem',fontWeight:700,color:'#6b7280',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>Expert Sign-off & Gate Conditions</label>
+                <textarea name="expertNote" value={form.expertNote} onChange={hi} className="field" style={{height:96,resize:'none'}}
+                  placeholder="Analyst recommendation, conditions precedent, next milestones, escalation path..."/>
+              </div>
+              {/* Footer */}
+              <div style={{display:'flex',flexWrap:'wrap',justifyContent:'space-between',alignItems:'center',gap:8,paddingTop:'1rem',borderTop:'1px solid rgba(255,255,255,.05)'}}>
+                <div><p className="mono" style={{fontSize:'.58rem',color:'#1f2937'}}>SL-EZP-2026 // CONFIDENTIAL</p><p className="mono" style={{fontSize:'.58rem',color:'#1f2937'}}>6-Dimension Institutional Assessment Framework</p></div>
+                <div style={{textAlign:'right'}}>{form.partnerName&&<p className="mono" style={{fontSize:'.58rem',color:'#374151'}}>{form.partnerName}</p>}<p className="mono" style={{fontSize:'.58rem',color:'#1f2937'}}>Star Labs Global Intelligence</p></div>
+              </div>
+            </div>
+          )}
+
+          {/* Navigation */}
+          <div className="no-print" style={{marginTop:'2rem',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+            <button onClick={prev} disabled={step===0}
+              style={{display:'flex',alignItems:'center',gap:6,fontSize:'.68rem',fontWeight:700,
+                color:'#374151',textTransform:'uppercase',letterSpacing:'.08em',background:'none',
+                border:'none',cursor:'pointer',fontFamily:'Syne',opacity:step===0?0:1,transition:'color .2s'}}
+              onMouseOver={e=>e.currentTarget.style.color='#fff'}
+              onMouseOut={e=>e.currentTarget.style.color='#374151'}>
+              <Icon name="arrow-left" size={11}/> Back
+            </button>
+            {step<STEPS.length-1&&(
+              <button onClick={next}
+                style={{display:'flex',alignItems:'center',gap:6,padding:'.6rem 1.4rem',borderRadius:'.8rem',
+                  fontSize:'.68rem',fontWeight:700,textTransform:'uppercase',letterSpacing:'.1em',
+                  background:'var(--gold-dim)',color:'var(--gold)',border:'1px solid var(--gold-border)',
+                  cursor:'pointer',fontFamily:'Syne',transition:'all .2s'}}>
+                Next <Icon name="arrow-right" size={11}/>
+              </button>
+            )}
+          </div>
+        </main>
+      </div>
+
+      {/* ── Footer ── */}
+      <footer className="no-print" style={{borderTop:'1px solid rgba(255,255,255,.04)',padding:'1rem 1.5rem',
+        display:'flex',flexWrap:'wrap',justifyContent:'space-between',alignItems:'center',gap:8}}>
+        <p className="mono" style={{fontSize:'.55rem',color:'#1f2937',textTransform:'uppercase',letterSpacing:'.1em'}}>Star Labs Global Intelligence // EZP Pro 2.0</p>
+        <div style={{display:'flex',alignItems:'center',gap:12}}>
+          <span className="mono" style={{fontSize:'.55rem',color:'#1f2937'}}>6 Dimensions · AI-Powered · Institutional Grade</span>
+          <div style={{display:'flex',alignItems:'center',gap:5}}>
+            <div style={{width:5,height:5,borderRadius:'50%',background:'#34d399',boxShadow:'0 0 4px #34d399'}}></div>
+            <span className="mono" style={{fontSize:'.55rem',color:'#1f2937'}}>Engine Online</span>
+          </div>
         </div>
-    );
+      </footer>
+
+      {/* ── Mobile Bottom Nav ── */}
+      <nav className="mobile-nav no-print">
+        {STEPS.map((s,i)=>(
+          <button key={s.id} className={`mob-btn ${step===i?'active':''}`} onClick={()=>goStep(i)}>
+            <Icon name={s.icon} size={16} style={{color:step===i?'var(--gold)':done.has(i)?'rgba(201,168,76,.5)':'#374151'}}/>
+            <span style={{color:step===i?'var(--gold)':done.has(i)?'rgba(201,168,76,.4)':'#374151'}}>{s.title}</span>
+          </button>
+        ))}
+      </nav>
+
+    </div>
+  );
 };
 
-ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
 </script>
 </body>
 </html>
