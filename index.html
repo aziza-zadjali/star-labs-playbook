@@ -319,36 +319,167 @@ const App = () => {
     setForm(p=>({...p,[name]:type==='range'?parseFloat(value):value}));
   };
 
-  // ── Scores ──────────────────────────────────────────────────────────────────
+  // ══════════════════════════════════════════════════════════════════════════════
+  // STRESS-TEST ENGINE — LeanSpark-style Venture Validation Framework
+  // Pillars: Desirability · Feasibility · Viability · Scalability · Risk-Confidence
+  // ══════════════════════════════════════════════════════════════════════════════
   const scores = useMemo(()=>{
-    const tech = clamp((form.trl*.35)+(form.ipDefensibility*.3)+(form.techScalability*.2)+((10-form.integrationComplexity)*.15)+form.techExpertAdj,0,10);
-    const market = clamp((form.marketSize*.3)+(form.customerUrgency*.25)+(form.marketTiming*.2)+(form.competitiveMoat*.25)+form.marketExpertAdj,0,10);
-    const financial = clamp((form.roiPotential*.35)+(form.revenueReadiness*.25)+((10-form.capitalIntensity)*.2)+((10-form.burnRisk)*.2),0,10);
-    const risk = clamp(10-((form.regulatoryRisk+form.geopoliticalRisk+form.supplychainRisk+form.cybersecurityRisk+form.talentRisk+form.competitionRisk)/6),0,10);
-    const esg = clamp((form.environmentalImpact*.25)+(form.socialImpact*.2)+(form.governanceReadiness*.25)+(form.regulatoryCompliance*.2)+(form.sdgAlignment*.1),0,10);
-    const team = clamp((form.teamExpertise*.35)+(form.advisoryStrength*.2)+(form.validationVelocity*.2)+(form.scenarioResilience*.15)+(form.partnershipNetwork*.1)+form.executionExpertAdj,0,10);
-    const composite = clamp(tech*.22+market*.28+financial*.15+risk*.12+esg*.08+team*.15,0,10);
-    const fatalFlaw =
-      form.marketSize<=2?"TAM too small — terminal constraint.":
-      form.teamExpertise<=2?"Leadership gap — execution risk critical.":
-      form.capitalIntensity>=9?"Capital intensity unsustainable.":
-      form.regulatoryRisk>=9?"Regulatory blocker — prohibitive risk.":null;
-    const capped = fatalFlaw?Math.min(composite,5.2):composite;
+
+    // ── 1. DESIRABILITY (Market pull — does anyone urgently need this?)
+    // LeanSpark rule: customer urgency is the #1 leading indicator of PMF.
+    // Weight urgency heavily; timing is a multiplier not an additive.
+    const desirability = clamp(
+      (form.marketSize      * 0.25) +   // TAM ceiling
+      (form.customerUrgency * 0.40) +   // ← LeanSpark: urgency dominates
+      (form.marketTiming    * 0.20) +   // window of opportunity
+      (form.competitiveMoat * 0.15),    // differentiation
+      0, 10
+    );
+
+    // ── 2. FEASIBILITY (Technology — can it actually be built/deployed?)
+    // LeanSpark: TRL alone is insufficient; market-readiness gap is the killer.
+    const trlMrlGap    = Math.abs(form.trl - form.mrl);          // gap penalty
+    const trlNorm      = form.trl / 9 * 10;                      // scale to /10
+    const gapPenalty   = clamp(trlMrlGap * 0.4, 0, 2);          // max -2 pts
+    const feasibility  = clamp(
+      (trlNorm             * 0.30) +
+      (form.ipDefensibility* 0.25) +
+      (form.techScalability* 0.20) +
+      ((10-form.integrationComplexity) * 0.15) +
+      (form.mrl            * 0.10) -
+      gapPenalty +
+      form.techExpertAdj,
+      0, 10
+    );
+
+    // ── 3. VIABILITY (Financial — does the business model generate returns?)
+    // LeanSpark: penalise ventures that haven't modelled unit economics.
+    const hasRevenueModel = form.revenueModel ? 0 : -0.5;        // blank = penalty
+    const viability = clamp(
+      (form.roiPotential      * 0.30) +
+      (form.revenueReadiness  * 0.25) +
+      ((10-form.capitalIntensity) * 0.20) +
+      ((10-form.burnRisk)     * 0.15) +
+      (form.paybackPeriod     * 0.10) +
+      hasRevenueModel,
+      0, 10
+    );
+
+    // ── 4. SCALABILITY (Team × Network — can they execute at scale?)
+    // LeanSpark: execution DNA + partnership leverage = scale multiplier.
+    const scalability = clamp(
+      (form.teamExpertise      * 0.30) +
+      (form.advisoryStrength   * 0.15) +
+      (form.validationVelocity * 0.20) +   // ← LeanSpark: speed of learning
+      (form.scenarioResilience * 0.20) +   // pivot capacity
+      (form.partnershipNetwork * 0.15) +
+      form.executionExpertAdj,
+      0, 10
+    );
+
+    // ── 5. RISK-ADJUSTED CONFIDENCE (Inverse risk × ESG compliance gate)
+    // LeanSpark: risk score reduces confidence interval, ESG is a binary gate.
+    const avgRisk = (form.regulatoryRisk+form.geopoliticalRisk+form.supplychainRisk+
+                     form.cybersecurityRisk+form.talentRisk+form.competitionRisk) / 6;
+    const riskScore   = clamp(10 - avgRisk, 0, 10);
+    const esgScore    = clamp(
+      (form.environmentalImpact * 0.25) +
+      (form.socialImpact        * 0.20) +
+      (form.governanceReadiness * 0.25) +
+      (form.regulatoryCompliance* 0.20) +
+      (form.sdgAlignment        * 0.10),
+      0, 10
+    );
+    // ESG gate: below 4.0 applies a confidence penalty (LeanSpark sovereign rule)
+    const esgGatePenalty = esgScore < 4.0 ? -0.8 : 0;
+    const confidence = clamp((riskScore * 0.65) + (esgScore * 0.35) + esgGatePenalty, 0, 10);
+
+    // ── COMPOSITE EZP SCORE
+    // Weighted: Desirability (market pull) dominates, then Feasibility, Scalability
+    const rawComposite = clamp(
+      desirability * 0.28 +   // market pull is the primary validator
+      feasibility  * 0.22 +   // can it be built
+      viability    * 0.18 +   // does the model work
+      scalability  * 0.17 +   // can team execute
+      confidence   * 0.15,    // risk-adjusted confidence
+      0, 10
+    );
+
+    // ── ASSUMPTION CONFIDENCE LEVEL
+    // LeanSpark: tracks how many dimensions have been stress-tested
+    const filledDims = [
+      form.problem, form.solution, form.whyNow, form.unfairAdvantage,
+      form.revenueModel, form.tam, form.techNotes, form.financialNotes,
+      form.riskNotes, form.esgNotes
+    ].filter(v => v && v.trim().length > 10).length;
+    const assumptionConfidence = Math.round((filledDims / 10) * 100);
+
+    // ── KILL SWITCHES (LeanSpark: binary fatal flaws that cap at TERMINATE)
+    const killSwitches = [];
+    if(form.marketSize    <= 2) killSwitches.push({code:'K1', label:'TAM KILL', reason:'Market too small — no path to venture-scale returns.'});
+    if(form.customerUrgency<=2) killSwitches.push({code:'K2', label:'URGENCY KILL', reason:'No evidence of customer urgency — solution looking for a problem.'});
+    if(form.teamExpertise <= 2) killSwitches.push({code:'K3', label:'TEAM KILL', reason:'Leadership gap — execution risk is terminal.'});
+    if(form.capitalIntensity>=9) killSwitches.push({code:'K4', label:'CAPITAL KILL', reason:'Capital intensity unsustainable — no viable path to profitability.'});
+    if(form.regulatoryRisk>=9)  killSwitches.push({code:'K5', label:'REGULATORY KILL', reason:'Regulatory blocker — prohibitive compliance risk.'});
+    if(form.trl<=2 && form.mrl>=7) killSwitches.push({code:'K6', label:'READINESS KILL', reason:'TRL/MRL gap critical — market-pushing unproven technology.'});
+    if(esgScore < 3.0)           killSwitches.push({code:'K7', label:'ESG KILL', reason:'ESG posture below sovereign capital threshold — GCC gate failed.'});
+    if(form.burnRisk>=9)         killSwitches.push({code:'K8', label:'BURN KILL', reason:'Burn rate unsustainable — runway crisis before first revenue.'});
+
+    const hasKillSwitch = killSwitches.length > 0;
+    const composite = hasKillSwitch ? Math.min(rawComposite, 4.5) : rawComposite;
+
+    // ── RED FLAGS (warnings, not kills)
+    const redFlags = [];
+    if(form.marketTiming <= 3)  redFlags.push('Timing risk: market may not be ready yet.');
+    if(form.competitiveMoat<=3) redFlags.push('Weak moat: differentiation insufficient for defensible position.');
+    if(trlMrlGap >= 4)          redFlags.push(`TRL/MRL gap of ${trlMrlGap} — commercialisation lag risk.`);
+    if(form.advisoryStrength<=3)redFlags.push('Thin advisory bench — domain credibility gap.');
+    if(form.sdgAlignment<=3)    redFlags.push('Low SDG alignment — sovereign mandate risk in GCC.');
+    if(form.validationVelocity<=3) redFlags.push('Slow validation velocity — pivoting capability inadequate.');
+    if(!form.revenueModel)      redFlags.push('Revenue model undefined — unit economics unvalidated.');
+
+    // ── STRENGTHS
+    const strengths = [];
+    if(form.customerUrgency>=8) strengths.push('Strong customer urgency — high pull signal.');
+    if(form.ipDefensibility>=8) strengths.push('Strong IP moat — defensible technology position.');
+    if(form.teamExpertise>=8)   strengths.push('Exceptional founder depth — execution confidence high.');
+    if(form.competitiveMoat>=8) strengths.push('Deep competitive moat — market position well defended.');
+    if(esgScore>=7.5)           strengths.push('Strong ESG posture — sovereign capital eligible.');
+    if(form.roiPotential>=8)    strengths.push('High ROI potential — return profile attractive.');
+    if(form.validationVelocity>=8) strengths.push('Fast validation velocity — lean execution confirmed.');
+
+    // ── GATE VERDICT
     const verdict =
-      capped>=8?{status:'SPINOUT READY',color:'#34d399',label:'High Investment Grade — Proceed to Spinout Gate'}:
-      capped>=6.5?{status:'ACCELERATE',color:'#c9a84c',label:'Strong Pipeline — Fast-Track Incubation Recommended'}:
-      capped>=4.5?{status:'INCUBATE',color:'#f59e0b',label:'Foundry Candidate — De-risk Before Capital Commitment'}:
-      {status:'TERMINATE',color:'#f87171',label:fatalFlaw||'Risk profile exceeds terminal value threshold'};
-    return {tech:fmt(tech),market:fmt(market),financial:fmt(financial),risk:fmt(risk),esg:fmt(esg),team:fmt(team),composite:fmt(capped),fatalFlaw,verdict};
+      composite >= 8.0 ? {status:'SPINOUT READY',  color:'#34d399', grade:'A', label:'High Investment Grade — Proceed to Spinout Gate'} :
+      composite >= 6.5 ? {status:'ACCELERATE',      color:'#c9a84c', grade:'B', label:'Strong Pipeline — Fast-Track Incubation Recommended'} :
+      composite >= 4.5 ? {status:'INCUBATE',         color:'#f59e0b', grade:'C', label:'Foundry Candidate — De-risk Before Capital Commitment'} :
+      composite >= 3.0 ? {status:'PIVOT REQUIRED',  color:'#f97316', grade:'D', label:'Core assumptions failing — Mandatory pivot or redesign'} :
+                         {status:'TERMINATE',        color:'#f87171', grade:'F', label:'Kill switches triggered — Do not deploy capital'};
+
+    return {
+      // Pillar scores
+      desirability:fmt(desirability), feasibility:fmt(feasibility),
+      viability:fmt(viability), scalability:fmt(scalability), confidence:fmt(confidence),
+      // Legacy dimension labels (used in radar + sidebar)
+      tech:fmt(feasibility), market:fmt(desirability), financial:fmt(viability),
+      risk:fmt(riskScore), esg:fmt(esgScore), team:fmt(scalability),
+      // Composite
+      composite:fmt(composite), rawComposite:fmt(rawComposite),
+      // Diagnostics
+      killSwitches, redFlags, strengths,
+      assumptionConfidence, trlMrlGap, esgScore:fmt(esgScore),
+      hasKillSwitch, verdict,
+      fatalFlaw: hasKillSwitch ? killSwitches[0].reason : null
+    };
   },[form]);
 
   const radarData = [
-    {label:'Tech',value:parseFloat(scores.tech)},
-    {label:'Market',value:parseFloat(scores.market)},
-    {label:'Fin',value:parseFloat(scores.financial)},
-    {label:'Risk',value:parseFloat(scores.risk)},
-    {label:'ESG',value:parseFloat(scores.esg)},
-    {label:'Team',value:parseFloat(scores.team)},
+    {label:'Desirability', value:parseFloat(scores.desirability)},
+    {label:'Feasibility',  value:parseFloat(scores.feasibility)},
+    {label:'Viability',    value:parseFloat(scores.viability)},
+    {label:'Scalability',  value:parseFloat(scores.scalability)},
+    {label:'Confidence',   value:parseFloat(scores.confidence)},
+    {label:'ESG',          value:parseFloat(scores.esg)},
   ];
 
   // ── Proxy call ───────────────────────────────────────────────────────────────
@@ -382,7 +513,46 @@ const App = () => {
   const runFull = useCallback(async()=>{
     if(!form.techName){alert('Enter Asset Identifier first (Step 1).');return;}
     setStreaming(true);setAiText('');
-    const prompt=`STAR LABS — EMERGING ZONE PROTOCOL\nFull Institutional Diligence Report\n\nASSET: ${form.techName} | ${form.category} | ${form.sector||'N/A'} | Stage: ${form.stage}\nPROBLEM: ${form.problem||'N/A'}\nSOLUTION: ${form.solution||'N/A'}\nWHY NOW: ${form.whyNow||'N/A'}\nADVANTAGE: ${form.unfairAdvantage||'N/A'}\n\nSCORES:\nTech=${scores.tech}/10 | Market=${scores.market}/10 | Financial=${scores.financial}/10\nRisk=${scores.risk}/10 | ESG=${scores.esg}/10 | Team=${scores.team}/10\nComposite EZP=${scores.composite}/10 | Gate: ${scores.verdict.status}\n${scores.fatalFlaw?`FATAL FLAW: ${scores.fatalFlaw}`:''}\n\nWrite a rigorous 4-paragraph institutional diligence verdict for the Star Labs investment committee. Para 1: technology IP and scalability. Para 2: market and competitive positioning. Para 3: financial viability and risk profile. Para 4: team execution DNA, ESG alignment, and gate conditions. Plain prose only.`;
+    const prompt=`STAR LABS — EMERGING ZONE PROTOCOL
+Full Institutional Diligence Report — LeanSpark Stress-Test Framework
+
+=== ASSET PROFILE ===
+Name: ${form.techName} | Category: ${form.category} | Sector: ${form.sector||'N/A'} | Stage: ${form.stage}
+Problem: ${form.problem||'N/A'}
+Solution: ${form.solution||'N/A'}
+Why Now: ${form.whyNow||'N/A'}
+Unfair Advantage: ${form.unfairAdvantage||'N/A'}
+Revenue Model: ${form.revenueModel||'UNDEFINED'}
+
+=== STRESS-TEST PILLAR SCORES (/10) ===
+Desirability (Market Pull): ${scores.desirability}
+Feasibility (Technology):   ${scores.feasibility}
+Viability (Financial Model):${scores.viability}
+Scalability (Team/Exec):    ${scores.scalability}
+Risk-Adj Confidence:        ${scores.confidence}
+ESG Gate Score:             ${scores.esg}
+Composite EZP Score:        ${scores.composite}/10
+Gate Decision:              ${scores.verdict.status} (Grade ${scores.verdict.grade})
+
+=== ASSUMPTION CONFIDENCE ===
+${scores.assumptionConfidence}% of critical assumptions documented (${scores.assumptionConfidence<50?'LOW — high uncertainty':'HIGH — well evidenced'})
+
+=== KILL SWITCHES TRIGGERED ===
+${scores.killSwitches.length===0?'NONE — No binary kill conditions detected':scores.killSwitches.map(k=>k.code+': '+k.label+' — '+k.reason).join('\n')}
+
+=== RED FLAGS ===
+${scores.redFlags.length===0?'None':scores.redFlags.join('\n')}
+
+=== CONFIRMED STRENGTHS ===
+${scores.strengths.length===0?'None identified at current score levels':scores.strengths.join('\n')}
+
+Write a rigorous 5-paragraph institutional diligence verdict for the Star Labs investment committee.
+Para 1: Desirability assessment — is the problem real, urgent, and large enough?
+Para 2: Feasibility and IP — can this technology reach deployment readiness?
+Para 3: Financial viability — does the model generate risk-adjusted returns?
+Para 4: Scalability and team execution DNA — can this team win?
+Para 5: Verdict — cite specific kill switches or strengths, state gate conditions precisely, and recommend next 90-day actions.
+Plain prose only. No bullet points. No markdown. Be blunt and institutionally precise.`;
     try{
       await callProxy(SYS,prompt,chunk=>setAiText(p=>p+chunk));
     }catch(err){
@@ -497,8 +667,14 @@ const App = () => {
                 <p className="mono" style={{fontSize:'.55rem',color:'#374151',textTransform:'uppercase',letterSpacing:'.1em',marginBottom:6}}>Live Score</p>
                 <div className="syne" style={{fontSize:'2rem',fontWeight:800,color:scores.verdict.color,lineHeight:1}}>{scores.composite}</div>
                 <div className="pbar" style={{margin:'6px 0'}}><div className="pfill" style={{width:`${parseFloat(scores.composite)*10}%`,background:scores.verdict.color}}></div></div>
-                <p className="mono" style={{fontSize:'.5rem',fontWeight:700,color:scores.verdict.color,marginBottom:8}}>{scores.verdict.status}</p>
-                {[['T',scores.tech],['M',scores.market],['F',scores.financial],['R',scores.risk],['E',scores.esg],['X',scores.team]].map(([l,v])=>(
+                <p className="mono" style={{fontSize:'.5rem',fontWeight:700,color:scores.verdict.color,marginBottom:4}}>{scores.verdict.status}</p>
+                <p className="mono" style={{fontSize:'.48rem',color:'#374151',marginBottom:8}}>Grade {scores.verdict.grade} · {scores.assumptionConfidence}% confidence</p>
+                {scores.killSwitches.length>0&&(
+                  <div style={{background:'rgba(248,113,113,.08)',border:'1px solid rgba(248,113,113,.2)',borderRadius:6,padding:'4px 7px',marginBottom:8}}>
+                    <p className="mono" style={{fontSize:'.48rem',color:'#f87171',fontWeight:700}}>{scores.killSwitches.length} KILL SWITCH{scores.killSwitches.length>1?'ES':''} ACTIVE</p>
+                  </div>
+                )}
+                {[['D',scores.desirability],['F',scores.feasibility],['V',scores.viability],['S',scores.scalability],['C',scores.confidence]].map(([l,v])=>(
                   <div key={l} style={{display:'flex',alignItems:'center',gap:5,marginBottom:4}}>
                     <span className="mono" style={{fontSize:'.55rem',width:10,flexShrink:0,color:scoreColor(parseFloat(v))}}>{l}</span>
                     <div className="pbar" style={{flex:1}}><div className="pfill" style={{width:`${parseFloat(v)*10}%`,background:scoreColor(parseFloat(v))}}></div></div>
@@ -540,6 +716,13 @@ const App = () => {
               <div>
                 <h2 className="syne" style={{fontSize:'clamp(1.5rem,4vw,2.25rem)',fontWeight:800,textTransform:'uppercase',letterSpacing:'-.02em'}}>Foundry Intake</h2>
                 <p style={{fontSize:'.8rem',color:'#4b5563',marginTop:4}}>Establish venture geometry before capital allocation.</p>
+              </div>
+              <div className="card-info" style={{padding:'.85rem',display:'flex',gap:10,alignItems:'flex-start'}}>
+                <span style={{fontSize:'.9rem',flexShrink:0}}>🔬</span>
+                <div>
+                  <p className="mono" style={{fontSize:'.6rem',color:'#60a5fa',fontWeight:700,textTransform:'uppercase',letterSpacing:'.08em',marginBottom:3}}>LeanSpark Stress-Test Active</p>
+                  <p style={{fontSize:'.72rem',color:'#6b7280',lineHeight:1.5}}>This assessment runs 8 binary Kill Switches, tracks Assumption Confidence across 5 pillars (Desirability · Feasibility · Viability · Scalability · Risk-Confidence), and auto-flags Red Flags and Strengths in real-time. Fill in all text fields to maximise your confidence score.</p>
+                </div>
               </div>
               <div className="card" style={{padding:'1.25rem',display:'flex',flexDirection:'column',gap:'1rem'}}>
                 <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(200px,1fr))',gap:'1rem'}}>
@@ -895,9 +1078,9 @@ const App = () => {
                 <h2 className="syne" style={{fontSize:'clamp(1.5rem,4vw,2.25rem)',fontWeight:800,textTransform:'uppercase',letterSpacing:'-.02em'}}>AI Diligence Engine</h2>
                 <p style={{fontSize:'.8rem',color:'#4b5563',marginTop:4}}>Full 6-dimension institutional analysis — powered by Gemini.</p>
               </div>
-              {/* Score grid */}
+              {/* Score grid — LeanSpark pillars */}
               <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8}}>
-                {[{label:'Tech',value:scores.tech,icon:'cpu'},{label:'Market',value:scores.market,icon:'trending-up'},{label:'Financial',value:scores.financial,icon:'bar-chart-2'},{label:'Risk',value:scores.risk,icon:'shield-alert'},{label:'ESG',value:scores.esg,icon:'leaf'},{label:'Team',value:scores.team,icon:'users'}].map(({label,value,icon})=>(
+                {[{label:'Desirability',value:scores.desirability,icon:'trending-up'},{label:'Feasibility',value:scores.feasibility,icon:'cpu'},{label:'Viability',value:scores.viability,icon:'bar-chart-2'},{label:'Scalability',value:scores.scalability,icon:'users'},{label:'Confidence',value:scores.confidence,icon:'shield-check'},{label:'ESG Gate',value:scores.esg,icon:'leaf'}].map(({label,value,icon})=>(
                   <div key={label} className="card" style={{padding:'.75rem',textAlign:'center'}}>
                     <div style={{display:'flex',justifyContent:'center',marginBottom:4}}><Icon name={icon} size={11} style={{color:scoreColor(parseFloat(value))}}/></div>
                     <p className="mono" style={{fontSize:'.5rem',color:'#6b7280',textTransform:'uppercase'}}>{label}</p>
@@ -953,23 +1136,126 @@ const App = () => {
                     </div>
                   </div>
                 </div>
-                {/* Dimension bars */}
-                <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(160px,1fr))',gap:'1rem',marginTop:'1.25rem',paddingTop:'1.25rem',borderTop:'1px solid rgba(255,255,255,.05)'}}>
-                  {[{label:'Technology',value:scores.tech,w:'22%'},{label:'Market',value:scores.market,w:'28%'},{label:'Financial',value:scores.financial,w:'15%'},{label:'Risk Mgmt',value:scores.risk,w:'12%'},{label:'ESG',value:scores.esg,w:'8%'},{label:'Team',value:scores.team,w:'15%'}].map(({label,value,w})=>(
-                    <div key={label}>
-                      <div style={{display:'flex',justifyContent:'space-between',marginBottom:5}}>
-                        <span className="mono" style={{fontSize:'.58rem',color:'#6b7280',textTransform:'uppercase'}}>{label}</span>
-                        <span className="mono" style={{fontSize:'.58rem',fontWeight:700,color:scoreColor(parseFloat(value))}}>{value}</span>
+                {/* Stress-Test Pillar Bars */}
+                <div style={{marginTop:'1.25rem',paddingTop:'1.25rem',borderTop:'1px solid rgba(255,255,255,.05)'}}>
+                  <p className="mono" style={{fontSize:'.55rem',color:'#374151',textTransform:'uppercase',letterSpacing:'.12em',marginBottom:10}}>LeanSpark Stress-Test Pillars</p>
+                  <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(150px,1fr))',gap:'1rem'}}>
+                    {[
+                      {label:'Desirability',value:scores.desirability,w:'28%',desc:'Market pull'},
+                      {label:'Feasibility', value:scores.feasibility, w:'22%',desc:'Tech readiness'},
+                      {label:'Viability',   value:scores.viability,   w:'18%',desc:'Financial model'},
+                      {label:'Scalability', value:scores.scalability, w:'17%',desc:'Team execution'},
+                      {label:'Confidence',  value:scores.confidence,  w:'15%',desc:'Risk-adjusted'},
+                    ].map(({label,value,w,desc})=>(
+                      <div key={label}>
+                        <div style={{display:'flex',justifyContent:'space-between',marginBottom:4}}>
+                          <div>
+                            <span className="mono" style={{fontSize:'.56rem',color:'#6b7280',textTransform:'uppercase',display:'block'}}>{label}</span>
+                            <span style={{fontSize:'.58rem',color:'#374151'}}>{desc}</span>
+                          </div>
+                          <span className="mono" style={{fontSize:'.75rem',fontWeight:700,color:scoreColor(parseFloat(value))}}>{value}</span>
+                        </div>
+                        <div className="pbar"><div className="pfill" style={{width:`${parseFloat(value)*10}%`,background:scoreColor(parseFloat(value))}}></div></div>
+                        <div className="mono" style={{fontSize:'.48rem',color:'#1f2937',marginTop:3}}>Weight {w}</div>
                       </div>
-                      <div className="pbar"><div className="pfill" style={{width:`${parseFloat(value)*10}%`,background:scoreColor(parseFloat(value))}}></div></div>
-                      <div className="mono" style={{fontSize:'.5rem',color:'#374151',marginTop:3}}>Weight {w}</div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
+              {/* ── STRESS-TEST DIAGNOSTICS ── */}
+
+              {/* Assumption Confidence Meter */}
+              <div className="card" style={{padding:'1.1rem'}}>
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
+                  <div>
+                    <p className="mono" style={{fontSize:'.6rem',color:'#4b5563',textTransform:'uppercase',letterSpacing:'.08em'}}>Assumption Confidence</p>
+                    <p style={{fontSize:'.68rem',color:'#374151',marginTop:2}}>Documented assumptions vs total critical dimensions</p>
+                  </div>
+                  <div style={{textAlign:'right'}}>
+                    <span className="syne" style={{fontSize:'1.75rem',fontWeight:800,
+                      color:scores.assumptionConfidence>=70?'#34d399':scores.assumptionConfidence>=40?'#f59e0b':'#f87171'}}>
+                      {scores.assumptionConfidence}%
+                    </span>
+                    <p className="mono" style={{fontSize:'.5rem',color:'#374151',marginTop:1}}>
+                      {scores.assumptionConfidence>=70?'HIGH CONFIDENCE':scores.assumptionConfidence>=40?'MODERATE':'LOW — HIGH UNCERTAINTY'}
+                    </p>
+                  </div>
+                </div>
+                <div className="pbar" style={{height:5}}>
+                  <div className="pfill" style={{
+                    width:`${scores.assumptionConfidence}%`,height:'100%',
+                    background:scores.assumptionConfidence>=70?'#34d399':scores.assumptionConfidence>=40?'#f59e0b':'#f87171'
+                  }}></div>
+                </div>
+                <p style={{fontSize:'.65rem',color:'#374151',marginTop:6}}>
+                  Fill in problem, solution, why-now, advantage, revenue model, TAM, notes in each section to increase confidence.
+                </p>
+              </div>
+
+              {/* Kill Switches */}
+              {scores.killSwitches.length>0&&(
+                <div style={{background:'rgba(248,113,113,.05)',border:'1px solid rgba(248,113,113,.25)',borderRadius:'1.1rem',padding:'1.1rem'}}>
+                  <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:10}}>
+                    <div style={{width:6,height:6,borderRadius:'50%',background:'#f87171',boxShadow:'0 0 6px #f87171',flexShrink:0}}></div>
+                    <p className="mono" style={{fontSize:'.6rem',color:'#f87171',fontWeight:700,textTransform:'uppercase',letterSpacing:'.1em'}}>
+                      Kill Switches Triggered ({scores.killSwitches.length})
+                    </p>
+                  </div>
+                  <div style={{display:'flex',flexDirection:'column',gap:8}}>
+                    {scores.killSwitches.map(k=>(
+                      <div key={k.code} style={{display:'flex',gap:10,alignItems:'flex-start',
+                        background:'rgba(248,113,113,.06)',borderRadius:8,padding:'.6rem .8rem'}}>
+                        <span className="mono" style={{fontSize:'.55rem',fontWeight:700,color:'#f87171',
+                          background:'rgba(248,113,113,.15)',padding:'2px 6px',borderRadius:4,flexShrink:0}}>{k.code}</span>
+                        <div>
+                          <p className="mono" style={{fontSize:'.6rem',color:'#f87171',fontWeight:700}}>{k.label}</p>
+                          <p style={{fontSize:'.7rem',color:'#9ca3af',marginTop:2,lineHeight:1.4}}>{k.reason}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Red Flags & Strengths side by side */}
+              <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(240px,1fr))',gap:'1rem'}}>
+                {/* Red Flags */}
+                {scores.redFlags.length>0&&(
+                  <div style={{background:'rgba(245,158,11,.04)',border:'1px solid rgba(245,158,11,.2)',borderRadius:'1.1rem',padding:'1rem'}}>
+                    <p className="mono" style={{fontSize:'.58rem',color:'#f59e0b',fontWeight:700,textTransform:'uppercase',letterSpacing:'.1em',marginBottom:8}}>
+                      ⚠ Red Flags ({scores.redFlags.length})
+                    </p>
+                    <div style={{display:'flex',flexDirection:'column',gap:6}}>
+                      {scores.redFlags.map((f,i)=>(
+                        <div key={i} style={{display:'flex',gap:7,alignItems:'flex-start'}}>
+                          <span style={{color:'#f59e0b',flexShrink:0,marginTop:1,fontSize:'.65rem'}}>›</span>
+                          <p style={{fontSize:'.7rem',color:'#9ca3af',lineHeight:1.4}}>{f}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {/* Strengths */}
+                {scores.strengths.length>0&&(
+                  <div style={{background:'rgba(52,211,153,.04)',border:'1px solid rgba(52,211,153,.15)',borderRadius:'1.1rem',padding:'1rem'}}>
+                    <p className="mono" style={{fontSize:'.58rem',color:'#34d399',fontWeight:700,textTransform:'uppercase',letterSpacing:'.1em',marginBottom:8}}>
+                      ✓ Confirmed Strengths ({scores.strengths.length})
+                    </p>
+                    <div style={{display:'flex',flexDirection:'column',gap:6}}>
+                      {scores.strengths.map((s,i)=>(
+                        <div key={i} style={{display:'flex',gap:7,alignItems:'flex-start'}}>
+                          <span style={{color:'#34d399',flexShrink:0,marginTop:1,fontSize:'.65rem'}}>✓</span>
+                          <p style={{fontSize:'.7rem',color:'#9ca3af',lineHeight:1.4}}>{s}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
               {/* Radar */}
               <div className="card" style={{padding:'1.25rem'}}>
-                <p className="mono" style={{fontSize:'.6rem',color:'#4b5563',textTransform:'uppercase',letterSpacing:'.08em',marginBottom:12}}>Final 6-Dimension Radar</p>
+                <p className="mono" style={{fontSize:'.6rem',color:'#4b5563',textTransform:'uppercase',letterSpacing:'.08em',marginBottom:12}}>LeanSpark 5-Pillar Radar</p>
                 <RadarChart data={radarData}/>
               </div>
               {/* Section insights */}
