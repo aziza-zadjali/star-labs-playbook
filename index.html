@@ -871,187 +871,142 @@ Plain prose only for all paragraphs. No bullet points. No markdown. No score rep
           </div>`;
         }).join('');
 
-    const html = `<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Star Labs EZP Report — ${form.techName||'Unnamed Asset'}</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
-<style>
-  *{box-sizing:border-box;margin:0;padding:0;}
-  body{font-family:'Inter',sans-serif;background:#0a0b0e;color:#e8e4d8;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-  @media print{
-    body{background:#fff!important;color:#111!important;}
-    .no-print{display:none!important;}
-    .page-break{page-break-before:always;}
-    .card{background:#f9f9f9!important;border-color:#ddd!important;}
-    h1,h2,h3{color:#111!important;}
-    p,td,li{color:#333!important;}
-    .verdict-status{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-  }
-</style>
-</head>
-<body style="max-width:900px;margin:0 auto;padding:40px 32px;">
+    const assessorSpan = form.partnerName
+      ? `<span>Assessor: <strong style="color:#b8b4a8;">${form.partnerName}</strong></span>`
+      : '';
+    const sectionHTML = Object.keys(sectionAI).length > 0
+      ? '<div style="margin-bottom:36px;"><h2 style="font-family:Syne,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#e8e4d8;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid #1e2028;">Dimensional AI Analyses</h2>'
+        + Object.entries(sectionAI).filter(([_,v])=>v&&v.length>20).map(([k,v])=>section(k.toUpperCase()+' DIMENSION',v)).join('')
+        + '</div>'
+      : '';
+    const docAuditHTML = docAnalysis
+      ? '<div style="margin-bottom:36px;"><h2 style="font-family:Syne,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#e8e4d8;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid #1e2028;">Evidence Score Audit</h2>'
+        + section('AI SCORE AUDIT — EVIDENCE VS CLAIMS', docAnalysis)
+        + '</div>'
+      : '';
+    const verdictHTML = aiText
+      ? '<div style="page-break-before:always;margin-bottom:36px;"><h2 style="font-family:Syne,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#e8e4d8;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid #1e2028;">Full AI Diligence Verdict</h2>'
+        + '<div style="background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.25);border-radius:10px;padding:24px;">'
+        + '<p style="font-size:14px;line-height:1.85;color:#ccc9bc;">' + aiText.replace(/\n/g,'<br/>') + '</p></div></div>'
+      : '';
+    const partnerLine = form.partnerName
+      ? '<div style="text-align:right;margin-top:12px;font-family:Space Mono,monospace;font-size:11px;color:#555b6a;">Signed: ' + form.partnerName + ' &middot; ' + date + '</div>'
+      : '';
+    const profileCards = [
+      ['Problem Statement', form.problem],
+      ['Proposed Solution', form.solution],
+      ['Why Now', form.whyNow],
+      ['Unfair Advantage', form.unfairAdvantage],
+      ['Revenue Model', form.revenueModel||'Not defined'],
+      ['TAM Estimate', form.tam||'Not provided'],
+      ['Target Sector', form.sector||'Not specified'],
+      ['Funding Stage', form.fundingStage],
+    ].filter(([_,v])=>v).map(([label,value])=>
+      '<div style="background:#111318;border:1px solid #1e2028;border-radius:8px;padding:12px 14px;">'
+      + '<div style="font-family:Space Mono,monospace;font-size:10px;color:#555b6a;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px;">'+label+'</div>'
+      + '<p style="font-size:13px;color:#b8b4a8;line-height:1.6;">'+value+'</p>'
+      + '</div>'
+    ).join('');
+    const pillarCards = [
+      {label:'Desirability (Market Pull)',value:scores.desirability,w:'28%'},
+      {label:'Feasibility (Technology)', value:scores.feasibility,  w:'22%'},
+      {label:'Viability (Financial)',    value:scores.viability,    w:'18%'},
+      {label:'Scalability (Team/Exec)',  value:scores.scalability,  w:'17%'},
+      {label:'Risk-Adj Confidence',      value:scores.confidence,   w:'15%'},
+      {label:'ESG Gate Score',           value:scores.esg,          w:'—'},
+    ].map(({label,value,w})=>
+      '<div style="background:#111318;border:1px solid #1e2028;border-radius:10px;padding:14px 16px;">'
+      + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">'
+      + '<span style="font-family:Space Mono,monospace;font-size:11px;color:#7a7878;text-transform:uppercase;">'+label+'</span>'
+      + '<span style="font-family:Space Mono,monospace;font-size:11px;color:#555b6a;">Weight '+w+'</span></div>'
+      + scoreBar(value)
+      + '</div>'
+    ).join('');
 
-  <!-- COVER -->
-  <div style="text-align:center;padding:48px 0 40px;border-bottom:1px solid #1e2028;margin-bottom:40px;">
-    <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.25em;color:#555b6a;text-transform:uppercase;margin-bottom:16px;">STAR LABS GLOBAL INTELLIGENCE</div>
-    <h1 style="font-family:'Syne',sans-serif;font-size:32px;font-weight:800;text-transform:uppercase;letter-spacing:0.04em;color:#e8e4d8;margin-bottom:8px;">${form.techName||'Asset Assessment'}</h1>
-    <div style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:0.15em;color:#c9a84c;margin-bottom:24px;">EMERGING ZONE PROTOCOL — INSTITUTIONAL DILIGENCE REPORT</div>
-    <div style="display:inline-flex;gap:24px;font-family:'Space Mono',monospace;font-size:11px;color:#7a7878;">
-      <span>Category: <strong style="color:#b8b4a8;">${form.category}</strong></span>
-      <span>Stage: <strong style="color:#b8b4a8;">${form.stage}</strong></span>
-      <span>Date: <strong style="color:#b8b4a8;">${date}</strong></span>
-      ${form.partnerName?`<span>Assessor: <strong style="color:#b8b4a8;">${form.partnerName}</strong></span>`:''}
-    </div>
-  </div>
+    const html = '<!DOCTYPE html>'
+      + '<html lang="en"><head><meta charset="UTF-8"/>'
+      + '<meta name="viewport" content="width=device-width,initial-scale=1"/>'
+      + '<title>Star Labs EZP — ' + (form.techName||'Report') + '</title>'
+      + '<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>'
+      + '<style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:Inter,sans-serif;background:#0a0b0e;color:#e8e4d8;-webkit-print-color-adjust:exact;print-color-adjust:exact;}@media print{body{background:#fff!important;color:#111!important;}.no-print{display:none!important;}h1,h2,h3{color:#111!important;}p{color:#333!important;}}</style>'
+      + '</head><body style="max-width:900px;margin:0 auto;padding:40px 32px;">'
 
-  <!-- GATE VERDICT BANNER -->
-  <div class="verdict-status" style="background:${scores.verdict.color}14;border:2px solid ${scores.verdict.color}50;border-radius:12px;padding:24px 28px;margin-bottom:36px;display:flex;align-items:center;gap:28px;">
-    <div>
-      <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.15em;color:${scores.verdict.color};opacity:.7;text-transform:uppercase;margin-bottom:4px;">Gate Decision</div>
-      <div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:${scores.verdict.color};">${scores.verdict.status}</div>
-      <div style="font-size:13px;color:#9a9690;margin-top:4px;font-style:italic;">${scores.verdict.label}</div>
-    </div>
-    <div style="margin-left:auto;text-align:center;">
-      <div style="font-family:'Syne',sans-serif;font-size:52px;font-weight:800;color:${scores.verdict.color};line-height:1;">${scores.composite}</div>
-      <div style="font-family:'Space Mono',monospace;font-size:10px;color:#555b6a;margin-top:2px;">/ 10 EZP SCORE</div>
-      <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:${scores.verdict.color};margin-top:4px;">GRADE ${scores.verdict.grade}</div>
-    </div>
-  </div>
+      // Cover
+      + '<div style="text-align:center;padding:48px 0 40px;border-bottom:1px solid #1e2028;margin-bottom:40px;">'
+      + '<div style="font-family:Space Mono,monospace;font-size:10px;letter-spacing:0.25em;color:#555b6a;text-transform:uppercase;margin-bottom:16px;">STAR LABS GLOBAL INTELLIGENCE</div>'
+      + '<h1 style="font-family:Syne,sans-serif;font-size:32px;font-weight:800;text-transform:uppercase;letter-spacing:0.04em;color:#e8e4d8;margin-bottom:8px;">' + (form.techName||'Asset Assessment') + '</h1>'
+      + '<div style="font-family:Space Mono,monospace;font-size:11px;letter-spacing:0.15em;color:#c9a84c;margin-bottom:24px;">EMERGING ZONE PROTOCOL — INSTITUTIONAL DILIGENCE REPORT</div>'
+      + '<div style="display:inline-flex;gap:24px;flex-wrap:wrap;justify-content:center;font-family:Space Mono,monospace;font-size:11px;color:#7a7878;">'
+      + '<span>Category: <strong style="color:#b8b4a8;">' + form.category + '</strong></span>'
+      + '<span>Stage: <strong style="color:#b8b4a8;">' + form.stage + '</strong></span>'
+      + '<span>Date: <strong style="color:#b8b4a8;">' + date + '</strong></span>'
+      + assessorSpan
+      + '</div></div>'
 
-  <!-- PILLAR SCORES -->
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:36px;">
-    ${[
-      {label:'Desirability (Market Pull)',   value:scores.desirability, w:'28%'},
-      {label:'Feasibility (Technology)',      value:scores.feasibility,  w:'22%'},
-      {label:'Viability (Financial Model)',   value:scores.viability,    w:'18%'},
-      {label:'Scalability (Team/Exec)',       value:scores.scalability,  w:'17%'},
-      {label:'Risk-Adj Confidence',           value:scores.confidence,   w:'15%'},
-      {label:'ESG Gate Score',                value:scores.esg,          w:'—'},
-    ].map(({label,value,w})=>`
-      <div style="background:#111318;border:1px solid #1e2028;border-radius:10px;padding:14px 16px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-          <span style="font-family:'Space Mono',monospace;font-size:11px;color:#7a7878;text-transform:uppercase;">${label}</span>
-          <span style="font-family:'Space Mono',monospace;font-size:11px;color:#555b6a;">Weight ${w}</span>
-        </div>
-        ${scoreBar(value)}
-      </div>`).join('')}
-  </div>
+      // Gate Verdict Banner
+      + '<div style="background:' + scores.verdict.color + '14;border:2px solid ' + scores.verdict.color + '50;border-radius:12px;padding:24px 28px;margin-bottom:36px;display:flex;align-items:center;gap:28px;flex-wrap:wrap;">'
+      + '<div><div style="font-family:Space Mono,monospace;font-size:10px;letter-spacing:0.15em;color:' + scores.verdict.color + ';opacity:.7;text-transform:uppercase;margin-bottom:4px;">Gate Decision</div>'
+      + '<div style="font-family:Syne,sans-serif;font-size:28px;font-weight:800;color:' + scores.verdict.color + ';">' + scores.verdict.status + '</div>'
+      + '<div style="font-size:13px;color:#9a9690;margin-top:4px;font-style:italic;">' + scores.verdict.label + '</div></div>'
+      + '<div style="margin-left:auto;text-align:center;">'
+      + '<div style="font-family:Syne,sans-serif;font-size:52px;font-weight:800;color:' + scores.verdict.color + ';line-height:1;">' + scores.composite + '</div>'
+      + '<div style="font-family:Space Mono,monospace;font-size:10px;color:#555b6a;margin-top:2px;">/ 10 EZP SCORE</div>'
+      + '<div style="font-family:Syne,sans-serif;font-size:22px;font-weight:800;color:' + scores.verdict.color + ';margin-top:4px;">GRADE ' + scores.verdict.grade + '</div>'
+      + '</div></div>'
 
-  <!-- ASSUMPTION CONFIDENCE + DOCS -->
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:36px;">
-    <div style="background:#111318;border:1px solid #1e2028;border-radius:10px;padding:16px;">
-      <h3 style="font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#7a7878;margin-bottom:10px;">Assumption Confidence</h3>
-      <div style="font-family:'Syne',sans-serif;font-size:36px;font-weight:800;color:${scores.assumptionConfidence>=70?'#34d399':scores.assumptionConfidence>=40?'#c9a84c':'#f87171'};">${scores.assumptionConfidence}%</div>
-      <div style="font-family:'Space Mono',monospace;font-size:10px;color:#555b6a;margin-top:4px;">${scores.assumptionConfidence>=70?'HIGH CONFIDENCE':scores.assumptionConfidence>=40?'MODERATE':'LOW — HIGH UNCERTAINTY'}</div>
-    </div>
-    <div style="background:#111318;border:1px solid #1e2028;border-radius:10px;padding:16px;">
-      <h3 style="font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#7a7878;margin-bottom:10px;">Evidence Documents (${Object.keys(docs).length}/${DOC_TYPES.length})</h3>
-      ${docsHTML}
-    </div>
-  </div>
+      // Pillar scores
+      + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:36px;">' + pillarCards + '</div>'
 
-  <!-- KILL SWITCHES + FLAGS + STRENGTHS -->
-  <div style="margin-bottom:36px;">
-    <h2 style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#e8e4d8;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid #1e2028;">Stress-Test Diagnostics</h2>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;">
-      <div style="background:#111318;border:1px solid #1e2028;border-radius:10px;padding:14px;">
-        <h3 style="font-family:'Space Mono',monospace;font-size:10px;color:#f87171;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;">Kill Switches (${scores.killSwitches.length})</h3>
-        ${killHTML}
-      </div>
-      <div style="background:#111318;border:1px solid #1e2028;border-radius:10px;padding:14px;">
-        <h3 style="font-family:'Space Mono',monospace;font-size:10px;color:#f59e0b;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;">Red Flags (${scores.redFlags.length})</h3>
-        ${redHTML}
-      </div>
-      <div style="background:#111318;border:1px solid #1e2028;border-radius:10px;padding:14px;">
-        <h3 style="font-family:'Space Mono',monospace;font-size:10px;color:#34d399;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;">Strengths (${scores.strengths.length})</h3>
-        ${strHTML}
-      </div>
-    </div>
-  </div>
+      // Confidence + Docs
+      + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:36px;">'
+      + '<div style="background:#111318;border:1px solid #1e2028;border-radius:10px;padding:16px;">'
+      + '<h3 style="font-family:Syne,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#7a7878;margin-bottom:10px;">Assumption Confidence</h3>'
+      + '<div style="font-family:Syne,sans-serif;font-size:36px;font-weight:800;color:' + (scores.assumptionConfidence>=70?'#34d399':scores.assumptionConfidence>=40?'#c9a84c':'#f87171') + ';">' + scores.assumptionConfidence + '%</div>'
+      + '<div style="font-family:Space Mono,monospace;font-size:10px;color:#555b6a;margin-top:4px;">' + (scores.assumptionConfidence>=70?'HIGH CONFIDENCE':scores.assumptionConfidence>=40?'MODERATE':'LOW — HIGH UNCERTAINTY') + '</div></div>'
+      + '<div style="background:#111318;border:1px solid #1e2028;border-radius:10px;padding:16px;">'
+      + '<h3 style="font-family:Syne,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#7a7878;margin-bottom:10px;">Evidence Documents (' + Object.keys(docs).length + '/' + DOC_TYPES.length + ')</h3>'
+      + docsHTML + '</div></div>'
 
-  <!-- VENTURE PROFILE -->
-  <div class="page-break" style="margin-bottom:36px;">
-    <h2 style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#e8e4d8;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid #1e2028;">Venture Profile</h2>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
-      ${[
-        ['Problem Statement', form.problem],
-        ['Proposed Solution', form.solution],
-        ['Why Now', form.whyNow],
-        ['Unfair Advantage', form.unfairAdvantage],
-        ['Revenue Model', form.revenueModel||'Not defined'],
-        ['TAM Estimate', form.tam||'Not provided'],
-        ['Target Sector', form.sector||'Not specified'],
-        ['Funding Stage', form.fundingStage],
-      ].filter(([_,v])=>v).map(([label,value])=>`
-        <div style="background:#111318;border:1px solid #1e2028;border-radius:8px;padding:12px 14px;">
-          <div style="font-family:'Space Mono',monospace;font-size:10px;color:#555b6a;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px;">${label}</div>
-          <p style="font-size:13px;color:#b8b4a8;line-height:1.6;">${value}</p>
-        </div>`).join('')}
-    </div>
-  </div>
+      // Diagnostics
+      + '<div style="margin-bottom:36px;"><h2 style="font-family:Syne,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#e8e4d8;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid #1e2028;">Stress-Test Diagnostics</h2>'
+      + '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;">'
+      + '<div style="background:#111318;border:1px solid #1e2028;border-radius:10px;padding:14px;"><h3 style="font-family:Space Mono,monospace;font-size:10px;color:#f87171;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;">Kill Switches (' + scores.killSwitches.length + ')</h3>' + killHTML + '</div>'
+      + '<div style="background:#111318;border:1px solid #1e2028;border-radius:10px;padding:14px;"><h3 style="font-family:Space Mono,monospace;font-size:10px;color:#f59e0b;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;">Red Flags (' + scores.redFlags.length + ')</h3>' + redHTML + '</div>'
+      + '<div style="background:#111318;border:1px solid #1e2028;border-radius:10px;padding:14px;"><h3 style="font-family:Space Mono,monospace;font-size:10px;color:#34d399;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;">Strengths (' + scores.strengths.length + ')</h3>' + strHTML + '</div>'
+      + '</div></div>'
 
-  <!-- AI SECTION ANALYSES -->
-  ${Object.keys(sectionAI).length>0?`
-  <div style="margin-bottom:36px;">
-    <h2 style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#e8e4d8;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid #1e2028;">Dimensional AI Analyses</h2>
-    ${Object.entries(sectionAI).filter(([_,v])=>v&&v.length>20).map(([k,v])=>section(k.toUpperCase()+' DIMENSION',v)).join('')}
-  </div>`:''}
+      // Venture Profile
+      + '<div style="page-break-before:always;margin-bottom:36px;"><h2 style="font-family:Syne,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#e8e4d8;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid #1e2028;">Venture Profile</h2>'
+      + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">' + profileCards + '</div></div>'
 
-  <!-- DOCUMENT AUDIT -->
-  ${docAnalysis?`
-  <div style="margin-bottom:36px;">
-    <h2 style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#e8e4d8;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid #1e2028;">Evidence Score Audit</h2>
-    ${section('AI SCORE AUDIT — EVIDENCE VS CLAIMS', docAnalysis)}
-  </div>`:''}
+      // AI Sections
+      + sectionHTML
 
-  <!-- FULL AI VERDICT -->
-  ${aiText?`
-  <div class="page-break" style="margin-bottom:36px;">
-    <h2 style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#e8e4d8;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid #1e2028;">Full AI Diligence Verdict</h2>
-    <div style="background:linear-gradient(135deg,rgba(201,168,76,0.04),rgba(201,168,76,0.08));border:1px solid rgba(201,168,76,0.25);border-radius:10px;padding:24px;">
-      <div style="width:100%;height:1px;background:linear-gradient(90deg,transparent,#c9a84c,transparent);margin-bottom:18px;"></div>
-      <p style="font-size:14px;line-height:1.85;color:#ccc9bc;">${aiText.replace(/\n/g,'<br/>')}</p>
-    </div>
-  </div>`:''}
+      // Doc Audit
+      + docAuditHTML
 
-  <!-- EXPERT SIGN-OFF -->
-  <div style="margin-bottom:40px;">
-    <h2 style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#e8e4d8;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid #1e2028;">Expert Sign-off & Gate Conditions</h2>
-    <div style="background:#111318;border:1px solid rgba(201,168,76,0.2);border-radius:10px;padding:20px;min-height:80px;">
-      <p style="font-size:14px;line-height:1.75;color:${form.expertNote?'#b8b4a8':'#4a4f5c'};font-style:${form.expertNote?'normal':'italic'};">
-        ${form.expertNote||'No expert sign-off recorded.'}
-      </p>
-    </div>
-    ${form.partnerName?`<div style="text-align:right;margin-top:12px;font-family:'Space Mono',monospace;font-size:11px;color:#555b6a;">Signed: ${form.partnerName} · ${date}</div>`:''}
-  </div>
+      // Full Verdict
+      + verdictHTML
 
-  <!-- FOOTER -->
-  <div style="border-top:1px solid #1e2028;padding-top:20px;display:flex;justify-content:space-between;align-items:center;">
-    <div>
-      <p style="font-family:'Space Mono',monospace;font-size:10px;color:#374151;">SL-EZP-2026 // CONFIDENTIAL</p>
-      <p style="font-family:'Space Mono',monospace;font-size:10px;color:#374151;">5-Pillar LeanSpark Stress-Test Framework · Star Labs Global Intelligence</p>
-    </div>
-    <div style="text-align:right;">
-      <p style="font-family:'Space Mono',monospace;font-size:10px;color:#374151;">${form.techName||'—'} · ${form.category}</p>
-      <p style="font-family:'Space Mono',monospace;font-size:10px;color:#374151;">Generated ${new Date().toLocaleString()}</p>
-    </div>
-  </div>
+      // Expert Sign-off
+      + '<div style="margin-bottom:40px;"><h2 style="font-family:Syne,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#e8e4d8;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid #1e2028;">Expert Sign-off &amp; Gate Conditions</h2>'
+      + '<div style="background:#111318;border:1px solid rgba(201,168,76,0.2);border-radius:10px;padding:20px;min-height:80px;">'
+      + '<p style="font-size:14px;line-height:1.75;color:' + (form.expertNote?'#b8b4a8':'#4a4f5c') + ';font-style:' + (form.expertNote?'normal':'italic') + ';">'
+      + (form.expertNote||'No expert sign-off recorded.') + '</p></div>'
+      + partnerLine + '</div>'
 
-  <!-- Print button -->
-  <div class="no-print" style="position:fixed;bottom:24px;right:24px;">
-    <button onclick="window.print()" style="display:flex;align-items:center;gap:8px;padding:12px 20px;
-      background:linear-gradient(90deg,#c9a84c,#e8c76a);color:#05060a;border:none;border-radius:10px;
-      font-family:'Syne',sans-serif;font-size:13px;font-weight:800;text-transform:uppercase;
-      letter-spacing:0.1em;cursor:pointer;box-shadow:0 4px 20px rgba(201,168,76,0.4);">
-      ⬇ Save as PDF
-    </button>
-  </div>
+      // Footer
+      + '<div style="border-top:1px solid #1e2028;padding-top:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">'
+      + '<div><p style="font-family:Space Mono,monospace;font-size:10px;color:#374151;">SL-EZP-2026 // CONFIDENTIAL</p>'
+      + '<p style="font-family:Space Mono,monospace;font-size:10px;color:#374151;">5-Pillar LeanSpark Stress-Test &middot; Star Labs Global Intelligence</p></div>'
+      + '<div style="text-align:right;"><p style="font-family:Space Mono,monospace;font-size:10px;color:#374151;">' + (form.techName||'—') + ' &middot; ' + form.category + '</p>'
+      + '<p style="font-family:Space Mono,monospace;font-size:10px;color:#374151;">Generated ' + new Date().toLocaleString() + '</p></div></div>'
 
-</body>
-</html>`;
+      // Print button
+      + '<div class="no-print" style="position:fixed;bottom:24px;right:24px;">'
+      + '<button onclick="window.print()" style="display:flex;align-items:center;gap:8px;padding:12px 20px;background:linear-gradient(90deg,#c9a84c,#e8c76a);color:#05060a;border:none;border-radius:10px;font-family:Syne,sans-serif;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;cursor:pointer;box-shadow:0 4px 20px rgba(201,168,76,0.4);">&#8595; Save as PDF</button></div>'
+
+      + '</body></html>';
 
     const win = window.open('','_blank');
     win.document.write(html);
@@ -1319,17 +1274,17 @@ Plain prose only for all paragraphs. No bullet points. No markdown. No score rep
               </div>
               {form.problem&&form.solution&&(
                 <AIBtn onClick={()=>analyzeSection('intake',`STAR LABS — CONCEPT STRESS TEST
-Asset: \${form.techName} | \${form.category} | Sector: \${form.sector||'Unspecified'} | Stage: \${form.stage}
-Problem: \${form.problem||'Not stated'}
-Solution: \${form.solution||'Not stated'}
-Why Now: \${form.whyNow||'Not stated'}
-Unfair Advantage: \${form.unfairAdvantage||'Not stated'}
+Asset: ${form.techName} | ${form.category} | Sector: ${form.sector||'Unspecified'} | Stage: ${form.stage}
+Problem: ${form.problem||'Not stated'}
+Solution: ${form.solution||'Not stated'}
+Why Now: ${form.whyNow||'Not stated'}
+Unfair Advantage: ${form.unfairAdvantage||'Not stated'}
 
 Do NOT summarize the above back to me. Instead, write two analytical paragraphs:
 
 Paragraph 1 — CONCEPT REALITY CHECK: Is this problem genuinely urgent and underserved, or is it a solution looking for a problem? Draw on real historical parallels — name 2-3 comparable ventures that attacked similar problems and explain what happened to them (succeeded, pivoted, or failed, and why). What does the "why now" claim actually require to be true — and is there empirical evidence that those conditions exist today? Be specific about what market or technology shift makes this moment different from 5 years ago.
 
-Paragraph 2 — UNFAIR ADVANTAGE AUDIT: Most ventures that fail do so because their claimed advantage is not actually defensible. Assess this venture's stated advantage against the three most common failure modes in this category: (1) the advantage is real but temporary, (2) the advantage exists but is in the wrong dimension to matter at scale, (3) the advantage is claimed but not yet earned. Based on comparable deals in \${form.category} and \${form.sector||'this sector'}, what is the realistic probability that this advantage holds for 36 months? What is the single most important question that must be answered in the next 90 days?`)}
+Paragraph 2 — UNFAIR ADVANTAGE AUDIT: Most ventures that fail do so because their claimed advantage is not actually defensible. Assess this venture's stated advantage against the three most common failure modes in this category: (1) the advantage is real but temporary, (2) the advantage exists but is in the wrong dimension to matter at scale, (3) the advantage is claimed but not yet earned. Based on comparable deals in ${form.category} and ${form.sector||'this sector'}, what is the realistic probability that this advantage holds for 36 months? What is the single most important question that must be answered in the next 90 days?`)}
                   loading={streamSec==='intake'} label="Quick AI Read"/>
               )}
               {(sectionAI.intake||streamSec==='intake')&&<AIBlock text={sectionAI.intake} streaming={streamSec==='intake'} label="Concept Assessment"/>}
@@ -1377,16 +1332,16 @@ Paragraph 2 — UNFAIR ADVANTAGE AUDIT: Most ventures that fail do so because th
                 <p style={{fontSize:'var(--fs-sm)',color:'var(--text-3)',marginTop:6}}>GCC/MENA regional knowledge correction (±3).</p>
               </div>
               <AIBtn onClick={()=>analyzeSection('market',`STAR LABS — MARKET VECTOR ANALYSIS
-Asset: \${form.techName} | \${form.category} | Sector: \${form.sector||'Unspecified'}
-TAM/SAM Score: \${form.marketSize}/10 | Customer Urgency: \${form.customerUrgency}/10 | Market Timing: \${form.marketTiming}/10 | Competitive Moat: \${form.competitiveMoat}/10
-Revenue Model: \${form.revenueModel||'Undefined'} | TAM Estimate: \${form.tam||'Not provided'}
-Market Insight: \${form.marketInsight||'Not provided'}
+Asset: ${form.techName} | ${form.category} | Sector: ${form.sector||'Unspecified'}
+TAM/SAM Score: ${form.marketSize}/10 | Customer Urgency: ${form.customerUrgency}/10 | Market Timing: ${form.marketTiming}/10 | Competitive Moat: ${form.competitiveMoat}/10
+Revenue Model: ${form.revenueModel||'Undefined'} | TAM Estimate: ${form.tam||'Not provided'}
+Market Insight: ${form.marketInsight||'Not provided'}
 
 Do NOT repeat these scores. Write two analytical paragraphs:
 
-Paragraph 1 — MARKET TIMING VERDICT: Market timing kills more ventures than bad products — CB Insights data shows "no market need" accounts for 42% of startup failures. Assess whether this venture's timing is genuinely right or premature. Name specific ventures in \${form.category||'this space'} that entered at the wrong time and what it cost them, and name ventures that timed an equivalent market correctly. Given the stated TAM of \${form.tam||'an unspecified size'} and urgency score of \${form.customerUrgency}/10, what does the historical base rate for ventures at this urgency level look like — what percentage reach Series A in comparable sectors?
+Paragraph 1 — MARKET TIMING VERDICT: Market timing kills more ventures than bad products — CB Insights data shows "no market need" accounts for 42% of startup failures. Assess whether this venture's timing is genuinely right or premature. Name specific ventures in ${form.category||'this space'} that entered at the wrong time and what it cost them, and name ventures that timed an equivalent market correctly. Given the stated TAM of ${form.tam||'an unspecified size'} and urgency score of ${form.customerUrgency}/10, what does the historical base rate for ventures at this urgency level look like — what percentage reach Series A in comparable sectors?
 
-Paragraph 2 — MOAT DURABILITY ANALYSIS: A competitive moat score of \${form.competitiveMoat}/10 must be stress-tested against real market dynamics. In \${form.category||'this category'}, what is the average time before a well-funded competitor replicates a first-mover's position? Reference 2 specific historical examples of moat erosion in comparable markets. For the stated revenue model (\${form.revenueModel||'undefined'}), what is the typical customer acquisition cost trajectory, and what does that imply for the viability of this moat at scale? What is the single most dangerous competitive threat not currently on this assessor's radar?`)}
+Paragraph 2 — MOAT DURABILITY ANALYSIS: A competitive moat score of ${form.competitiveMoat}/10 must be stress-tested against real market dynamics. In ${form.category||'this category'}, what is the average time before a well-funded competitor replicates a first-mover's position? Reference 2 specific historical examples of moat erosion in comparable markets. For the stated revenue model (${form.revenueModel||'undefined'}), what is the typical customer acquisition cost trajectory, and what does that imply for the viability of this moat at scale? What is the single most dangerous competitive threat not currently on this assessor's radar?`)}
                 loading={streamSec==='market'} label="AI Market Read"/>
               {(sectionAI.market||streamSec==='market')&&<AIBlock text={sectionAI.market} streaming={streamSec==='market'} label="Market Assessment"/>}
             </div>
@@ -1456,16 +1411,16 @@ Paragraph 2 — MOAT DURABILITY ANALYSIS: A competitive moat score of \${form.co
                 <textarea name="techNotes" value={form.techNotes} onChange={hi} className="field" style={{height:72,resize:'none'}} placeholder="Key technical risks, dependencies, breakthroughs..."/>
               </div>
               <AIBtn onClick={()=>analyzeSection('tech',`STAR LABS — TECHNOLOGY FEASIBILITY ANALYSIS
-Asset: \${form.techName} | \${form.category}
-TRL: \${form.trl}/9 | MRL: \${form.mrl}/10 | TRL-MRL Gap: \${Math.abs(form.trl-form.mrl)} points
-IP Defensibility: \${form.ipDefensibility}/10 | Tech Scalability: \${form.techScalability}/10 | Integration Complexity: \${form.integrationComplexity}/10
-Tech Notes: \${form.techNotes||'None provided'}
+Asset: ${form.techName} | ${form.category}
+TRL: ${form.trl}/9 | MRL: ${form.mrl}/10 | TRL-MRL Gap: ${Math.abs(form.trl-form.mrl)} points
+IP Defensibility: ${form.ipDefensibility}/10 | Tech Scalability: ${form.techScalability}/10 | Integration Complexity: ${form.integrationComplexity}/10
+Tech Notes: ${form.techNotes||'None provided'}
 
 Do NOT summarize these scores. Write two analytical paragraphs:
 
-Paragraph 1 — TRL REALITY AND HISTORICAL DEATH VALLEY: A TRL of \${form.trl}/9 places this technology at a specific commercialisation stage. The "valley of death" between TRL 4-6 has killed the majority of deep-tech spinouts — studies of EU and GCC spinout programs show that 67% of ventures stalling at TRL 4-5 never reach commercial deployment. Draw a direct comparison to 2-3 ventures in \${form.category} that started at a similar TRL: which ones crossed the valley and how long did it take, which ones failed and what was the proximate technical cause? The TRL-MRL gap of \${Math.abs(form.trl-form.mrl)} points is \${Math.abs(form.trl-form.mrl)<=2?'healthy — technology and market readiness are aligned':'dangerous — the market is being pushed ahead of technology readiness, or vice versa'}. What does empirical data say about ventures with this gap size in \${form.category}?
+Paragraph 1 — TRL REALITY AND HISTORICAL DEATH VALLEY: A TRL of ${form.trl}/9 places this technology at a specific commercialisation stage. The "valley of death" between TRL 4-6 has killed the majority of deep-tech spinouts — studies of EU and GCC spinout programs show that 67% of ventures stalling at TRL 4-5 never reach commercial deployment. Draw a direct comparison to 2-3 ventures in ${form.category} that started at a similar TRL: which ones crossed the valley and how long did it take, which ones failed and what was the proximate technical cause? The TRL-MRL gap of ${Math.abs(form.trl-form.mrl)} points is ${Math.abs(form.trl-form.mrl)<=2?'healthy — technology and market readiness are aligned':'dangerous — the market is being pushed ahead of technology readiness, or vice versa'}. What does empirical data say about ventures with this gap size in ${form.category}?
 
-Paragraph 2 — IP MOAT STRESS TEST: An IP defensibility score of \${form.ipDefensibility}/10 in \${form.category} must be measured against how IP actually behaves in this sector. In hardware-heavy deep-tech, patent protection averages 18 months before a well-funded competitor finds a design-around. In software, trade secrets matter more than patents. In biotech, regulatory exclusivity can be stronger than IP. What IP strategy is implied by this score, and what are the 2 most common IP failure modes in \${form.category}? Name a specific venture that overestimated its IP moat in this space and what the consequence was.`)}
+Paragraph 2 — IP MOAT STRESS TEST: An IP defensibility score of ${form.ipDefensibility}/10 in ${form.category} must be measured against how IP actually behaves in this sector. In hardware-heavy deep-tech, patent protection averages 18 months before a well-funded competitor finds a design-around. In software, trade secrets matter more than patents. In biotech, regulatory exclusivity can be stronger than IP. What IP strategy is implied by this score, and what are the 2 most common IP failure modes in ${form.category}? Name a specific venture that overestimated its IP moat in this space and what the consequence was.`)}
                 loading={streamSec==='tech'} label="AI Tech Read"/>
               {(sectionAI.tech||streamSec==='tech')&&<AIBlock text={sectionAI.tech} streaming={streamSec==='tech'} label="Technology Assessment"/>}
             </div>
@@ -1511,15 +1466,15 @@ Paragraph 2 — IP MOAT STRESS TEST: An IP defensibility score of \${form.ipDefe
                 <textarea name="financialNotes" value={form.financialNotes} onChange={hi} className="field" style={{height:72,resize:'none'}} placeholder="Unit economics, funding pipeline, LOIs, anchor customers..."/>
               </div>
               <AIBtn onClick={()=>analyzeSection('financial',`STAR LABS — FINANCIAL VIABILITY ANALYSIS
-Asset: \${form.techName} | Stage: \${form.fundingStage}
-ROI Potential: \${form.roiPotential}/10 | Revenue Readiness: \${form.revenueReadiness}/10 | Capital Intensity: \${form.capitalIntensity}/10 | Burn Risk: \${form.burnRisk}/10 | Payback Period Score: \${form.paybackPeriod}/10
-Revenue Model: \${form.revenueModel||'Undefined'} | Notes: \${form.financialNotes||'None'}
+Asset: ${form.techName} | Stage: ${form.fundingStage}
+ROI Potential: ${form.roiPotential}/10 | Revenue Readiness: ${form.revenueReadiness}/10 | Capital Intensity: ${form.capitalIntensity}/10 | Burn Risk: ${form.burnRisk}/10 | Payback Period Score: ${form.paybackPeriod}/10
+Revenue Model: ${form.revenueModel||'Undefined'} | Notes: ${form.financialNotes||'None'}
 
 Do NOT repeat or summarize these scores. Write two analytical paragraphs:
 
-Paragraph 1 — CAPITAL EFFICIENCY BENCHMARK: Capital intensity of \${form.capitalIntensity}/10 at \${form.fundingStage} stage places this venture in a specific risk quartile. Empirically, deep-tech ventures with capital intensity above 7/10 at pre-Series A have a 73% higher failure rate than capital-light equivalents, according to Dealroom and PitchBook cohort data. Compare this venture's financial profile to 2-3 real ventures in \${form.category} at the same funding stage — what was their burn rate, time-to-revenue, and eventual outcome? For the \${form.revenueModel||'undefined'} revenue model, what does industry data say about average gross margins, CAC payback periods, and the typical capital requirement to reach breakeven in \${form.category||'this sector'}? Is the stated ROI potential of \${form.roiPotential}/10 realistic given these benchmarks?
+Paragraph 1 — CAPITAL EFFICIENCY BENCHMARK: Capital intensity of ${form.capitalIntensity}/10 at ${form.fundingStage} stage places this venture in a specific risk quartile. Empirically, deep-tech ventures with capital intensity above 7/10 at pre-Series A have a 73% higher failure rate than capital-light equivalents, according to Dealroom and PitchBook cohort data. Compare this venture's financial profile to 2-3 real ventures in ${form.category} at the same funding stage — what was their burn rate, time-to-revenue, and eventual outcome? For the ${form.revenueModel||'undefined'} revenue model, what does industry data say about average gross margins, CAC payback periods, and the typical capital requirement to reach breakeven in ${form.category||'this sector'}? Is the stated ROI potential of ${form.roiPotential}/10 realistic given these benchmarks?
 
-Paragraph 2 — RUNWAY RISK AND SURVIVAL PROBABILITY: A burn risk of \${form.burnRisk}/10 combined with revenue readiness of \${form.revenueReadiness}/10 creates a specific runway risk profile. The median deep-tech venture at \${form.fundingStage} stage has 14-18 months of runway before requiring the next funding event. Given this venture's capital intensity and the current GCC/global funding environment, what is the realistic probability of reaching the next funding milestone before cash-out? Name the specific financial metric — whether ARR, pilot contracts, or a technical milestone — that this venture must hit to secure follow-on capital, and what comparable ventures required at the equivalent stage.`)}
+Paragraph 2 — RUNWAY RISK AND SURVIVAL PROBABILITY: A burn risk of ${form.burnRisk}/10 combined with revenue readiness of ${form.revenueReadiness}/10 creates a specific runway risk profile. The median deep-tech venture at ${form.fundingStage} stage has 14-18 months of runway before requiring the next funding event. Given this venture's capital intensity and the current GCC/global funding environment, what is the realistic probability of reaching the next funding milestone before cash-out? Name the specific financial metric — whether ARR, pilot contracts, or a technical milestone — that this venture must hit to secure follow-on capital, and what comparable ventures required at the equivalent stage.`)}
                 loading={streamSec==='financial'} label="AI Financial Read"/>
               {(sectionAI.financial||streamSec==='financial')&&<AIBlock text={sectionAI.financial} streaming={streamSec==='financial'} label="Financial Assessment"/>}
             </div>
@@ -1571,18 +1526,25 @@ Paragraph 2 — RUNWAY RISK AND SURVIVAL PROBABILITY: A burn risk of \${form.bur
                 <label className="mono" style={{fontSize:'var(--fs-sm)',fontWeight:700,color:'#8a8680',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>Risk Notes & Mitigants</label>
                 <textarea name="riskNotes" value={form.riskNotes} onChange={hi} className="field" style={{height:72,resize:'none'}} placeholder="Identified mitigants, insurance, regulatory approvals..."/>
               </div>
-              <AIBtn onClick={()=>analyzeSection('risk',`STAR LABS — MULTI-VECTOR RISK ANALYSIS
-Asset: \${form.techName} | \${form.category} | Sector: \${form.sector||'Unspecified'} | Stage: \${form.stage}
-Regulatory Risk: \${form.regulatoryRisk}/10 | Geopolitical Risk: \${form.geopoliticalRisk}/10 | Supply Chain Risk: \${form.supplychainRisk}/10
-Cybersecurity Risk: \${form.cybersecurityRisk}/10 | Talent Risk: \${form.talentRisk}/10 | Competition Risk: \${form.competitionRisk}/10
-Highest risk vector: \${['Regulatory','Geopolitical','Supply Chain','Cybersecurity','Talent','Competition'][[\${form.regulatoryRisk},\${form.geopoliticalRisk},\${form.supplychainRisk},\${form.cybersecurityRisk},\${form.talentRisk},\${form.competitionRisk}].indexOf(Math.max(\${form.regulatoryRisk},\${form.geopoliticalRisk},\${form.supplychainRisk},\${form.cybersecurityRisk},\${form.talentRisk},\${form.competitionRisk}))}]} at \${Math.max(\${form.regulatoryRisk},\${form.geopoliticalRisk},\${form.supplychainRisk},\${form.cybersecurityRisk},\${form.talentRisk},\${form.competitionRisk})}/10
-Notes: \${form.riskNotes||'None'}
+              {(()=>{
+                const riskVals = [form.regulatoryRisk,form.geopoliticalRisk,form.supplychainRisk,form.cybersecurityRisk,form.talentRisk,form.competitionRisk];
+                const riskLabels = ['Regulatory','Geopolitical','Supply Chain','Cybersecurity','Talent','Competition'];
+                const maxRisk = Math.max(...riskVals);
+                const topRiskLabel = riskLabels[riskVals.indexOf(maxRisk)];
+                const prompt = `STAR LABS — MULTI-VECTOR RISK ANALYSIS
+Asset: ${form.techName} | ${form.category} | Sector: ${form.sector||'Unspecified'} | Stage: ${form.stage}
+Regulatory Risk: ${form.regulatoryRisk}/10 | Geopolitical Risk: ${form.geopoliticalRisk}/10 | Supply Chain Risk: ${form.supplychainRisk}/10
+Cybersecurity Risk: ${form.cybersecurityRisk}/10 | Talent Risk: ${form.talentRisk}/10 | Competition Risk: ${form.competitionRisk}/10
+Highest risk vector: ${topRiskLabel} at ${maxRisk}/10
+Notes: ${form.riskNotes||'None'}
 
 Do NOT summarize or list the scores back. Write two analytical paragraphs:
 
-Paragraph 1 — HISTORICAL RISK-ADJUSTED SUCCESS RATE: Based on the overall risk profile of this venture, provide an empirically-grounded assessment of success probability. For ventures in \${form.category} operating in the Gulf/MENA region with a similar risk configuration, what does the historical data show? Cite specific examples — name 2 ventures that faced the same dominant risk vector (\${['Regulatory','Geopolitical','Supply Chain','Cybersecurity','Talent','Competition'][[\${form.regulatoryRisk},\${form.geopoliticalRisk},\${form.supplychainRisk},\${form.cybersecurityRisk},\${form.talentRisk},\${form.competitionRisk}].indexOf(Math.max(\${form.regulatoryRisk},\${form.geopoliticalRisk},\${form.supplychainRisk},\${form.cybersecurityRisk},\${form.talentRisk},\${form.competitionRisk}))]}): one that navigated it successfully and one that did not. What was the difference between them? Given this risk profile, what percentage of comparable ventures at \${form.stage} stage reach a successful exit or sustainable revenue, and what is the typical timeline?
+Paragraph 1 — HISTORICAL RISK-ADJUSTED SUCCESS RATE: Based on the overall risk profile of this venture, provide an empirically-grounded assessment of success probability. For ventures in ${form.category} operating in the Gulf/MENA region with a similar risk configuration, what does the historical data show? Cite specific examples — name 2 ventures that faced the same dominant risk vector (${topRiskLabel}): one that navigated it successfully and one that did not. What was the difference between them? Given this risk profile, what percentage of comparable ventures at ${form.stage} stage reach a successful exit or sustainable revenue, and what is the typical timeline?
 
-Paragraph 2 — RISK INTERACTION AND COMPOUNDING: Risks rarely operate independently — the most dangerous situations arise when two or more vectors compound. Identify the most dangerous risk interaction in this specific profile (e.g. high talent risk + high competition risk = inability to execute before being outcompeted; high regulatory + high geopolitical = double sovereign exposure). What is the realistic worst-case scenario if the two highest-scoring risks materialise simultaneously in the next 18 months? Name a specific historical case where this compounding occurred in \${form.category} and what the outcome was. What is the one mitigation action that addresses the most risk per dollar spent, and what does implementation require in practical terms?`)}
+Paragraph 2 — RISK INTERACTION AND COMPOUNDING: Risks rarely operate independently — the most dangerous situations arise when two or more vectors compound. Identify the most dangerous risk interaction in this specific profile. What is the realistic worst-case scenario if the two highest-scoring risks materialise simultaneously in the next 18 months? Name a specific historical case where this compounding occurred in ${form.category} and what the outcome was. What is the one mitigation action that addresses the most risk per dollar spent, and what does implementation require in practical terms?`;
+                return <AIBtn onClick={()=>analyzeSection('risk', prompt)} loading={streamSec==='risk'} label="AI Risk Read"/>;
+              })()}
                 loading={streamSec==='risk'} label="AI Risk Read"/>
               {(sectionAI.risk||streamSec==='risk')&&<AIBlock text={sectionAI.risk} streaming={streamSec==='risk'} label="Risk Assessment"/>}
             </div>
