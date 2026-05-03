@@ -16,15 +16,25 @@
 <script src="https://unpkg.com/lucide@latest"></script>
 <style>
 :root{
-  --bg:#05060a;--card:#0f1118;--card2:#131620;
-  --gold:#c9a84c;--gold-b:#f0c84a;
-  --gold-dim:rgba(201,168,76,0.12);--gold-border:rgba(201,168,76,0.22);
-  --text:#eeeae0;--muted:#555b6a;
+  --bg:#0a0b0e;--card:#111318;--card2:#161820;
+  --gold:#c9a84c;--gold-b:#e8c76a;
+  --gold-dim:rgba(201,168,76,0.13);--gold-border:rgba(201,168,76,0.28);
+  /* Logo-matched text palette */
+  --text:#e8e4d8;        /* Silver-cream matching logo lettering */
+  --text-2:#b8b4a8;      /* Secondary text — clearly readable */
+  --text-3:#7a7878;      /* Tertiary / hints — still legible */
+  --muted:#4a4f5c;
   --red:#f87171;--green:#34d399;--blue:#60a5fa;--amber:#f59e0b;
+  /* Typography scale — min 13px for legibility */
+  --fs-xs:0.75rem;       /* 12px — absolute minimum, rare use */
+  --fs-sm:0.8125rem;     /* 13px — labels, tags */
+  --fs-base:0.875rem;    /* 14px — body, descriptions */
+  --fs-md:0.9375rem;     /* 15px — prominent labels */
+  --fs-lg:1rem;          /* 16px — section titles */
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 html{scroll-behavior:smooth;}
-body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;min-height:100vh;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;min-height:100vh;font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;}
 .mono{font-family:'Space Mono',monospace;}
 .syne{font-family:'Syne',sans-serif;}
 
@@ -44,7 +54,7 @@ body::after{content:'';position:fixed;inset:0;
 ::-webkit-scrollbar-thumb{background:rgba(201,168,76,.2);border-radius:99px;}
 
 /* Cards */
-.card{background:var(--card);border:1px solid rgba(255,255,255,.05);border-radius:1.1rem;}
+.card{background:var(--card);border:1px solid rgba(255,255,255,.07);border-radius:1.1rem;}
 .card-gold{background:var(--card);border:1px solid var(--gold-border);border-radius:1.1rem;}
 .card-info{background:rgba(96,165,250,.04);border:1px solid rgba(96,165,250,.15);border-radius:1.1rem;}
 .card-success{background:rgba(52,211,153,.04);border:1px solid rgba(52,211,153,.15);border-radius:1.1rem;}
@@ -52,13 +62,13 @@ body::after{content:'';position:fixed;inset:0;
 
 /* Nav sidebar */
 .nav-item{display:flex;align-items:center;gap:.6rem;padding:.6rem .9rem;border-radius:.55rem;
-  font-size:.65rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  font-size:.72rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
   cursor:pointer;transition:all .15s;border:1px solid transparent;
   color:var(--muted);font-family:'Syne',sans-serif;position:relative;width:100%;background:none;}
 .nav-item:hover{color:rgba(255,255,255,.7);background:rgba(255,255,255,.03);}
 .nav-item.active{background:var(--gold-dim);border-color:var(--gold-border);color:var(--gold);}
 .nav-item.done::after{content:'✓';position:absolute;right:.7rem;font-size:.55rem;color:var(--green);opacity:.8;}
-.nav-section-label{font-size:.5rem;letter-spacing:.15em;color:rgba(255,255,255,.18);
+.nav-section-label{font-size:.5rem;letter-spacing:.15em;color:rgba(232,228,216,.35);
   text-transform:uppercase;font-family:'Space Mono',monospace;padding:1.1rem .9rem .35rem;}
 
 /* Mobile bottom nav */
@@ -68,7 +78,7 @@ body::after{content:'';position:fixed;inset:0;
 .mob-btn{display:flex;flex-direction:column;align-items:center;gap:.2rem;
   padding:.4rem .5rem;border-radius:.5rem;border:none;background:none;
   color:var(--muted);cursor:pointer;transition:all .15s;flex:1;font-family:'Space Mono',monospace;}
-.mob-btn span{font-size:.45rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;}
+.mob-btn span{font-size:.58rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;}
 .mob-btn.active{color:var(--gold);}
 .mob-btn.active svg{filter:drop-shadow(0 0 4px rgba(201,168,76,.6));}
 
@@ -80,11 +90,11 @@ body::after{content:'';position:fixed;inset:0;
 }
 
 /* Fields */
-.field{background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.06);color:var(--text);
-  border-radius:.7rem;padding:.75rem 1rem;width:100%;font-family:'Inter',sans-serif;
-  font-size:.875rem;transition:border-color .2s,box-shadow .2s;outline:none;}
+.field{background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.08);color:var(--text);
+  border-radius:.7rem;padding:.8rem 1rem;width:100%;font-family:'Inter',sans-serif;
+  font-size:var(--fs-base);transition:border-color .2s,box-shadow .2s;outline:none;}
 .field:focus{border-color:var(--gold-border);box-shadow:0 0 0 3px rgba(201,168,76,.07);}
-.field::placeholder{color:#2a2f3a;}
+.field::placeholder{color:#3a4050;}
 select.field option{background:#0f1118;}
 
 /* Sliders */
@@ -106,7 +116,7 @@ input[type="range"]::-moz-range-thumb{width:15px;height:15px;border-radius:50%;
   border-radius:99px;transition:width .8s cubic-bezier(.4,0,.2,1);}
 
 /* Tags */
-.tag{font-size:.55rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+.tag{font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
   padding:.2rem .6rem;border-radius:99px;font-family:'Space Mono',monospace;
   display:inline-flex;align-items:center;gap:.25rem;}
 
@@ -142,7 +152,7 @@ input[type="range"]::-moz-range-thumb{width:15px;height:15px;border-radius:50%;
 .typing-cursor::after{content:'▋';animation:blink .9s infinite;color:var(--gold);}
 
 /* Radar svg labels */
-.rl{font-size:8.5px;fill:#555b6a;font-family:'Space Mono',monospace;text-transform:uppercase;letter-spacing:.05em;}
+.rl{font-size:10px;fill:#9a9690;font-family:'Space Mono',monospace;text-transform:uppercase;letter-spacing:.05em;}
 
 /* Step dots */
 .step-dot{height:3px;border-radius:99px;transition:all .3s;}
@@ -215,9 +225,9 @@ const ScoreRing = ({score,max=10,label="EZP"}) => {
         strokeDasharray={circ} strokeDashoffset={offset} transform="rotate(-90 90 90)"
         style={{transition:'stroke-dashoffset 1.6s cubic-bezier(.4,0,.2,1)',filter:`drop-shadow(0 0 8px ${color}80)`}}/>
       <text x="90" y="84" textAnchor="middle" dominantBaseline="middle"
-        style={{fontFamily:'Syne',fontSize:34,fontWeight:800,fill:color}}>{fmt(score)}</text>
+        style={{fontFamily:'Syne',fontSize:36,fontWeight:800,fill:color}}>{fmt(score)}</text>
       <text x="90" y="106" textAnchor="middle" dominantBaseline="middle"
-        style={{fontFamily:'Space Mono',fontSize:7,fill:'#555b6a',letterSpacing:2,textTransform:'uppercase'}}>/{max} {label}</text>
+        style={{fontFamily:'Space Mono',fontSize:10,fill:'#9a9690',letterSpacing:2,textTransform:'uppercase'}}>/{max} {label}</text>
     </svg>
   );
 };
@@ -227,12 +237,12 @@ const AIBlock = ({text,streaming,label="AI Analysis"}) => (
   <div className="ai-block" style={{marginTop:'1rem'}}>
     <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:10}}>
       <div style={{width:6,height:6,borderRadius:'50%',background:'var(--gold)',boxShadow:'0 0 6px var(--gold)',flexShrink:0}}></div>
-      <span className="mono" style={{fontSize:'.6rem',color:'#fbbf24',fontWeight:700,letterSpacing:'.1em',textTransform:'uppercase'}}>{label}</span>
-      {streaming&&<span className="mono spin" style={{fontSize:'.6rem',color:'#555b6a',marginLeft:4}}>⟳</span>}
+      <span className="mono" style={{fontSize:'var(--fs-sm)',color:'#d4aa56',fontWeight:700,letterSpacing:'.08em',textTransform:'uppercase'}}>{label}</span>
+      {streaming&&<span className="mono spin" style={{fontSize:'var(--fs-sm)',color:'#555b6a',marginLeft:4}}>⟳</span>}
     </div>
     <p className={`${streaming?'typing-cursor':''}`}
-      style={{fontSize:'.85rem',lineHeight:1.7,color:'#d1d5db',whiteSpace:'pre-wrap'}}>
-      {text||(streaming?'':<span style={{color:'#3f4451',fontStyle:'italic'}}>Analysis will appear here.</span>)}
+      style={{fontSize:'var(--fs-base)',lineHeight:1.75,color:'#ccc9bc',whiteSpace:'pre-wrap'}}>
+      {text||(streaming?'':<span style={{color:'#5a5650',fontStyle:'italic'}}>Analysis will appear here.</span>)}
     </p>
   </div>
 );
@@ -243,12 +253,12 @@ const Slider = ({label,name,value,onChange,min=1,max=10,step=1,description,accen
   return (
     <div className="mxcell">
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
-        <span className="syne" style={{fontSize:'.68rem',fontWeight:700,textTransform:'uppercase',letterSpacing:'.06em',color:'#9ca3af'}}>{label}</span>
+        <span className="syne" style={{fontSize:'var(--fs-sm)',fontWeight:700,textTransform:'uppercase',letterSpacing:'.05em',color:'#a8a49a'}}>{label}</span>
         <span className="mono" style={{fontSize:'1.2rem',fontWeight:700,color}}>{value>0?value:`${value}`}</span>
       </div>
       <input type="range" name={name} min={min} max={max} step={step} value={value} onChange={onChange}/>
       <div className="pbar" style={{marginTop:6}}><div className="pfill" style={{width:`${pct}%`,background:color}}></div></div>
-      {description&&<p style={{fontSize:'.7rem',color:'#4b5563',marginTop:6}}>{description}</p>}
+      {description&&<p style={{fontSize:'var(--fs-xs)',color:'var(--text-3)',marginTop:6}}>{description}</p>}
     </div>
   );
 };
@@ -573,10 +583,11 @@ Plain prose only. No bullet points. No markdown. Be blunt and institutionally pr
     <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',padding:'1.5rem',position:'relative',zIndex:10}}>
       <div style={{width:'100%',maxWidth:360}}>
         <div style={{textAlign:'center',marginBottom:'2.5rem'}}>
-          <div style={{display:'flex',justifyContent:'center',marginBottom:'1.5rem'}}><Logo size={90}/></div>
-          <h1 className="syne" style={{fontSize:'1.5rem',fontWeight:800,textTransform:'uppercase',letterSpacing:'-.02em',color:'#fff'}}>EZP Terminal</h1>
-          <p className="mono" style={{fontSize:'.6rem',letterSpacing:'.2em',color:'var(--gold)',marginTop:4}}>AUTHORIZATION REQUIRED</p>
-          <p style={{fontSize:'.75rem',color:'#374151',marginTop:8}}>Emerging Zone Protocol · Institutional Grade · 2026</p>
+          <div style={{display:'flex',justifyContent:'center',marginBottom:'1.75rem'}}><Logo size={112}/></div>
+          <h1 className="syne" style={{fontSize:'2.1rem',fontWeight:800,textTransform:'uppercase',letterSpacing:'.04em',color:'var(--text)',marginBottom:8}}>EZP Terminal</h1>
+          <p className="mono" style={{fontSize:'var(--fs-xs)',letterSpacing:'.28em',color:'var(--gold)',marginBottom:10,opacity:.9}}>AUTHORIZATION REQUIRED</p>
+          <div style={{width:36,height:1,background:'var(--gold-border)',margin:'0 auto 10px'}}></div>
+          <p style={{fontSize:'var(--fs-sm)',color:'var(--text-3)',letterSpacing:'.04em'}}>Emerging Zone Protocol · Institutional Grade · 2026</p>
         </div>
         <div className="card-gold" style={{padding:'2rem'}}>
           <input type="password" placeholder="ACCESS KEY"
@@ -584,19 +595,19 @@ Plain prose only. No bullet points. No markdown. Be blunt and institutionally pr
             onChange={e=>{setKeyVal(e.target.value);setKeyErr(false);}}
             onKeyDown={e=>{if(e.key==='Enter'){if(keyVal.toUpperCase()==='STAR2026')setLocked(false);else setKeyErr(true);}}}
             className="field mono"
-            style={{textAlign:'center',fontSize:'1rem',letterSpacing:'.4em',marginBottom:'1rem',
-              borderColor:keyErr?'rgba(248,113,113,.4)':undefined}}
+            style={{textAlign:'center',fontSize:'1.1rem',letterSpacing:'.5em',marginBottom:'1rem',padding:'1rem',
+              borderColor:keyErr?'rgba(248,113,113,.5)':undefined}}
           />
-          {keyErr&&<p className="mono" style={{fontSize:'.65rem',color:'#f87171',textAlign:'center',marginBottom:'.75rem'}}>ACCESS DENIED — Invalid key</p>}
+          {keyErr&&<p className="mono" style={{fontSize:'var(--fs-sm)',color:'#f87171',textAlign:'center',marginBottom:'.75rem'}}>ACCESS DENIED — Invalid key</p>}
           <button
             onClick={()=>keyVal.toUpperCase()==='STAR2026'?setLocked(false):setKeyErr(true)}
             className="shimmer-btn syne"
-            style={{width:'100%',padding:'1rem',borderRadius:'.9rem',fontWeight:900,fontSize:'.75rem',
+            style={{width:'100%',padding:'1rem',borderRadius:'.9rem',fontWeight:900,fontSize:'var(--fs-base)',
               textTransform:'uppercase',letterSpacing:'.15em',border:'none',color:'#05060a',cursor:'pointer'}}>
             Verify Access
           </button>
         </div>
-        <p className="mono" style={{textAlign:'center',fontSize:'.55rem',color:'#1f2937',marginTop:'1.5rem',letterSpacing:'.1em'}}>SL-EZP-2026 // CLASSIFIED</p>
+        <p className="mono" style={{textAlign:'center',fontSize:'var(--fs-xs)',color:'var(--text-3)',marginTop:'1.5rem',opacity:.7,letterSpacing:'.1em'}}>SL-EZP-2026 // CLASSIFIED</p>
       </div>
     </div>
   );
@@ -615,8 +626,8 @@ Plain prose only. No bullet points. No markdown. Be blunt and institutionally pr
         <div style={{display:'flex',alignItems:'center',gap:'1rem'}}>
           <Logo/>
           <div className="header-subtitle" style={{borderLeft:'1px solid rgba(255,255,255,.08)',paddingLeft:'1rem'}}>
-            <div className="syne" style={{fontSize:'.8rem',fontWeight:700,textTransform:'uppercase',letterSpacing:'.04em',color:'#fff'}}>Emerging Zone Protocol</div>
-            <div className="mono" style={{fontSize:'.55rem',color:'#374151'}}>Pro · v2.0 · 2026</div>
+            <div className="syne" style={{fontSize:'var(--fs-md)',fontWeight:700,textTransform:'uppercase',letterSpacing:'.04em',color:'var(--text)'}}>Emerging Zone Protocol</div>
+            <div className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--text-3)'}}>Pro · v2.0 · 2026</div>
           </div>
         </div>
         <div style={{display:'flex',alignItems:'center',gap:8}}>
@@ -664,21 +675,21 @@ Plain prose only. No bullet points. No markdown. Be blunt and institutionally pr
             {/* Live score widget */}
             {form.techName&&(
               <div className="card" style={{marginTop:'1.25rem',padding:'1rem'}}>
-                <p className="mono" style={{fontSize:'.55rem',color:'#374151',textTransform:'uppercase',letterSpacing:'.1em',marginBottom:6}}>Live Score</p>
+                <p className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--text-2)',textTransform:'uppercase',letterSpacing:'.1em',marginBottom:6}}>Live Score</p>
                 <div className="syne" style={{fontSize:'2rem',fontWeight:800,color:scores.verdict.color,lineHeight:1}}>{scores.composite}</div>
                 <div className="pbar" style={{margin:'6px 0'}}><div className="pfill" style={{width:`${parseFloat(scores.composite)*10}%`,background:scores.verdict.color}}></div></div>
-                <p className="mono" style={{fontSize:'.5rem',fontWeight:700,color:scores.verdict.color,marginBottom:4}}>{scores.verdict.status}</p>
-                <p className="mono" style={{fontSize:'.48rem',color:'#374151',marginBottom:8}}>Grade {scores.verdict.grade} · {scores.assumptionConfidence}% confidence</p>
+                <p className="mono" style={{fontSize:'var(--fs-xs)',fontWeight:700,color:scores.verdict.color,marginBottom:4}}>{scores.verdict.status}</p>
+                <p className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--text-3)',marginBottom:8}}>Grade {scores.verdict.grade} · {scores.assumptionConfidence}% confidence</p>
                 {scores.killSwitches.length>0&&(
                   <div style={{background:'rgba(248,113,113,.08)',border:'1px solid rgba(248,113,113,.2)',borderRadius:6,padding:'4px 7px',marginBottom:8}}>
-                    <p className="mono" style={{fontSize:'.48rem',color:'#f87171',fontWeight:700}}>{scores.killSwitches.length} KILL SWITCH{scores.killSwitches.length>1?'ES':''} ACTIVE</p>
+                    <p className="mono" style={{fontSize:'var(--fs-xs)',color:'#f87171',fontWeight:700}}>{scores.killSwitches.length} KILL SWITCH{scores.killSwitches.length>1?'ES':''} ACTIVE</p>
                   </div>
                 )}
                 {[['D',scores.desirability],['F',scores.feasibility],['V',scores.viability],['S',scores.scalability],['C',scores.confidence]].map(([l,v])=>(
                   <div key={l} style={{display:'flex',alignItems:'center',gap:5,marginBottom:4}}>
-                    <span className="mono" style={{fontSize:'.55rem',width:10,flexShrink:0,color:scoreColor(parseFloat(v))}}>{l}</span>
+                    <span className="mono" style={{fontSize:'var(--fs-xs)',width:10,flexShrink:0,color:scoreColor(parseFloat(v))}}>{l}</span>
                     <div className="pbar" style={{flex:1}}><div className="pfill" style={{width:`${parseFloat(v)*10}%`,background:scoreColor(parseFloat(v))}}></div></div>
-                    <span className="mono" style={{fontSize:'.55rem',color:'#374151',width:22,textAlign:'right'}}>{v}</span>
+                    <span className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--text-3)',width:22,textAlign:'right'}}>{v}</span>
                   </div>
                 ))}
               </div>
@@ -695,7 +706,7 @@ Plain prose only. No bullet points. No markdown. Be blunt and institutionally pr
               <Icon name={cur.icon} size={13} style={{color:'var(--gold)'}}/>
             </div>
             <div style={{flex:1}}>
-              <div className="syne" style={{fontSize:'.6rem',fontWeight:700,textTransform:'uppercase',letterSpacing:'.08em',color:'#374151'}}>
+              <div className="syne" style={{fontSize:'var(--fs-sm)',fontWeight:700,textTransform:'uppercase',letterSpacing:'.08em',color:'var(--text-3)'}}>
                 {cur.section} — Step {step+1}/{STEPS.length}
               </div>
             </div>
@@ -714,24 +725,24 @@ Plain prose only. No bullet points. No markdown. Be blunt and institutionally pr
           {step===0&&(
             <div className="fade-up" style={{display:'flex',flexDirection:'column',gap:'1.25rem'}}>
               <div>
-                <h2 className="syne" style={{fontSize:'clamp(1.5rem,4vw,2.25rem)',fontWeight:800,textTransform:'uppercase',letterSpacing:'-.02em'}}>Foundry Intake</h2>
-                <p style={{fontSize:'.8rem',color:'#4b5563',marginTop:4}}>Establish venture geometry before capital allocation.</p>
+                <h2 className="syne" style={{fontSize:'clamp(1.6rem,4vw,2.4rem)',fontWeight:800,textTransform:'uppercase',letterSpacing:'-.01em',color:'var(--text)'}}>Foundry Intake</h2>
+                <p style={{fontSize:'.8rem',color:'var(--text-3)',marginTop:4}}>Establish venture geometry before capital allocation.</p>
               </div>
               <div className="card-info" style={{padding:'.85rem',display:'flex',gap:10,alignItems:'flex-start'}}>
                 <span style={{fontSize:'.9rem',flexShrink:0}}>🔬</span>
                 <div>
-                  <p className="mono" style={{fontSize:'.6rem',color:'#60a5fa',fontWeight:700,textTransform:'uppercase',letterSpacing:'.08em',marginBottom:3}}>LeanSpark Stress-Test Active</p>
-                  <p style={{fontSize:'.72rem',color:'#6b7280',lineHeight:1.5}}>This assessment runs 8 binary Kill Switches, tracks Assumption Confidence across 5 pillars (Desirability · Feasibility · Viability · Scalability · Risk-Confidence), and auto-flags Red Flags and Strengths in real-time. Fill in all text fields to maximise your confidence score.</p>
+                  <p className="mono" style={{fontSize:'var(--fs-sm)',color:'#60a5fa',fontWeight:700,textTransform:'uppercase',letterSpacing:'.08em',marginBottom:3}}>LeanSpark Stress-Test Active</p>
+                  <p style={{fontSize:'var(--fs-base)',color:'#8a8680',lineHeight:1.5}}>This assessment runs 8 binary Kill Switches, tracks Assumption Confidence across 5 pillars (Desirability · Feasibility · Viability · Scalability · Risk-Confidence), and auto-flags Red Flags and Strengths in real-time. Fill in all text fields to maximise your confidence score.</p>
                 </div>
               </div>
               <div className="card" style={{padding:'1.25rem',display:'flex',flexDirection:'column',gap:'1rem'}}>
                 <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(200px,1fr))',gap:'1rem'}}>
                   <div style={{flex:2,minWidth:0}}>
-                    <label className="mono" style={{fontSize:'.6rem',fontWeight:700,color:'#6b7280',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>Asset Identifier *</label>
+                    <label className="mono" style={{fontSize:'var(--fs-sm)',fontWeight:700,color:'#8a8680',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>Asset Identifier *</label>
                     <input name="techName" value={form.techName} onChange={hi} className="field syne" style={{fontSize:'1.1rem',fontWeight:700}} placeholder="e.g. PROJECT HELIOS"/>
                   </div>
                   <div>
-                    <label className="mono" style={{fontSize:'.6rem',fontWeight:700,color:'#6b7280',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>Stage</label>
+                    <label className="mono" style={{fontSize:'var(--fs-sm)',fontWeight:700,color:'#8a8680',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>Stage</label>
                     <select name="stage" value={form.stage} onChange={hi} className="field">
                       {['Concept','Prototype','MVP','Pilot','Scale','Expansion'].map(s=><option key={s}>{s}</option>)}
                     </select>
@@ -739,43 +750,43 @@ Plain prose only. No bullet points. No markdown. Be blunt and institutionally pr
                 </div>
                 <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(180px,1fr))',gap:'1rem'}}>
                   <div>
-                    <label className="mono" style={{fontSize:'.6rem',fontWeight:700,color:'#6b7280',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>Category</label>
+                    <label className="mono" style={{fontSize:'var(--fs-sm)',fontWeight:700,color:'#8a8680',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>Category</label>
                     <select name="category" value={form.category} onChange={hi} className="field">
                       {['DeepTech','FinTech','HealthTech','CleanTech','AgriTech','SpaceTech','AI/ML','Robotics','Biotech','Other'].map(c=><option key={c}>{c}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label className="mono" style={{fontSize:'.6rem',fontWeight:700,color:'#6b7280',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>Target Sector</label>
+                    <label className="mono" style={{fontSize:'var(--fs-sm)',fontWeight:700,color:'#8a8680',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>Target Sector</label>
                     <input name="sector" value={form.sector} onChange={hi} className="field" placeholder="Energy, Healthcare, Defense..."/>
                   </div>
                 </div>
                 <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:'1rem'}}>
                   <div>
-                    <label className="mono" style={{fontSize:'.6rem',fontWeight:700,color:'#6b7280',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>Market Friction (Problem)</label>
+                    <label className="mono" style={{fontSize:'var(--fs-sm)',fontWeight:700,color:'#8a8680',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>Market Friction (Problem)</label>
                     <textarea name="problem" value={form.problem} onChange={hi} className="field" style={{height:110,resize:'none'}} placeholder="The critical problem — specific and quantifiable..."/>
                   </div>
                   <div>
-                    <label className="mono" style={{fontSize:'.6rem',fontWeight:700,color:'#6b7280',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>Proposed Resolution (Solution)</label>
+                    <label className="mono" style={{fontSize:'var(--fs-sm)',fontWeight:700,color:'#8a8680',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>Proposed Resolution (Solution)</label>
                     <textarea name="solution" value={form.solution} onChange={hi} className="field" style={{height:110,resize:'none'}} placeholder="Proprietary mechanism and technical approach..."/>
                   </div>
                 </div>
                 <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:'1rem'}}>
                   <div>
-                    <label className="mono" style={{fontSize:'.6rem',fontWeight:700,color:'#6b7280',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>Why Now</label>
+                    <label className="mono" style={{fontSize:'var(--fs-sm)',fontWeight:700,color:'#8a8680',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>Why Now</label>
                     <textarea name="whyNow" value={form.whyNow} onChange={hi} className="field" style={{height:80,resize:'none'}} placeholder="Catalytic conditions — regulatory shifts, tech enablers..."/>
                   </div>
                   <div>
-                    <label className="mono" style={{fontSize:'.6rem',fontWeight:700,color:'#6b7280',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>Unfair Advantage</label>
+                    <label className="mono" style={{fontSize:'var(--fs-sm)',fontWeight:700,color:'#8a8680',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>Unfair Advantage</label>
                     <textarea name="unfairAdvantage" value={form.unfairAdvantage} onChange={hi} className="field" style={{height:80,resize:'none'}} placeholder="IP, data moats, relationships, network effects..."/>
                   </div>
                 </div>
                 <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(180px,1fr))',gap:'1rem'}}>
                   <div>
-                    <label className="mono" style={{fontSize:'.6rem',fontWeight:700,color:'#6b7280',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>Lead Assessor</label>
+                    <label className="mono" style={{fontSize:'var(--fs-sm)',fontWeight:700,color:'#8a8680',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>Lead Assessor</label>
                     <input name="partnerName" value={form.partnerName} onChange={hi} className="field" placeholder="Partner / Analyst name"/>
                   </div>
                   <div>
-                    <label className="mono" style={{fontSize:'.6rem',fontWeight:700,color:'#6b7280',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>Assessment Date</label>
+                    <label className="mono" style={{fontSize:'var(--fs-sm)',fontWeight:700,color:'#8a8680',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>Assessment Date</label>
                     <input name="assessorDate" type="date" value={form.assessorDate} onChange={hi} className="field"/>
                   </div>
                 </div>
@@ -792,8 +803,8 @@ Plain prose only. No bullet points. No markdown. Be blunt and institutionally pr
           {step===1&&(
             <div className="fade-up" style={{display:'flex',flexDirection:'column',gap:'1.25rem'}}>
               <div>
-                <h2 className="syne" style={{fontSize:'clamp(1.5rem,4vw,2.25rem)',fontWeight:800,textTransform:'uppercase',letterSpacing:'-.02em'}}>Market Vector</h2>
-                <p style={{fontSize:'.8rem',color:'#4b5563',marginTop:4}}>TAM calibration — asset must demonstrate global scale potential.</p>
+                <h2 className="syne" style={{fontSize:'clamp(1.6rem,4vw,2.4rem)',fontWeight:800,textTransform:'uppercase',letterSpacing:'-.01em',color:'var(--text)'}}>Market Vector</h2>
+                <p style={{fontSize:'.8rem',color:'var(--text-3)',marginTop:4}}>TAM calibration — asset must demonstrate global scale potential.</p>
               </div>
               <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:'1rem'}}>
                 <Slider label="TAM / SAM Size" name="marketSize" value={form.marketSize} onChange={hi} description="1 = Niche / 10 = Global dominant market"/>
@@ -804,29 +815,29 @@ Plain prose only. No bullet points. No markdown. Be blunt and institutionally pr
               <div className="card" style={{padding:'1.25rem',display:'flex',flexDirection:'column',gap:'1rem'}}>
                 <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(180px,1fr))',gap:'1rem'}}>
                   <div>
-                    <label className="mono" style={{fontSize:'.6rem',fontWeight:700,color:'#6b7280',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>Revenue Model</label>
+                    <label className="mono" style={{fontSize:'var(--fs-sm)',fontWeight:700,color:'#8a8680',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>Revenue Model</label>
                     <select name="revenueModel" value={form.revenueModel} onChange={hi} className="field">
                       <option value="">Select model...</option>
                       {['SaaS','Licensing','Marketplace','B2G','B2B Enterprise','B2C','Usage-based','Hardware + Services','Joint Venture'].map(m=><option key={m}>{m}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label className="mono" style={{fontSize:'.6rem',fontWeight:700,color:'#6b7280',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>TAM Estimate (USD)</label>
+                    <label className="mono" style={{fontSize:'var(--fs-sm)',fontWeight:700,color:'#8a8680',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>TAM Estimate (USD)</label>
                     <input name="tam" value={form.tam} onChange={hi} className="field" placeholder="e.g. $4.2B by 2030"/>
                   </div>
                 </div>
                 <div>
-                  <label className="mono" style={{fontSize:'.6rem',fontWeight:700,color:'#6b7280',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>Market Insight / 2040 Tailwinds</label>
+                  <label className="mono" style={{fontSize:'var(--fs-sm)',fontWeight:700,color:'#8a8680',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>Market Insight / 2040 Tailwinds</label>
                   <textarea name="marketInsight" value={form.marketInsight} onChange={hi} className="field" style={{height:72,resize:'none'}} placeholder="Sovereign mandates, sector tailwinds, regulatory moats..."/>
                 </div>
               </div>
               <div className="mxcell" style={{border:'1px solid rgba(245,158,11,.25)'}}>
                 <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
-                  <span className="mono" style={{fontSize:'.6rem',fontWeight:700,color:'#f59e0b',textTransform:'uppercase',letterSpacing:'.08em'}}>Expert Regional Adjustment</span>
-                  <span className="mono" style={{fontWeight:700,color:'#fbbf24'}}>{form.marketExpertAdj>0?'+':''}{form.marketExpertAdj}</span>
+                  <span className="mono" style={{fontSize:'var(--fs-sm)',fontWeight:700,color:'#f59e0b',textTransform:'uppercase',letterSpacing:'.08em'}}>Expert Regional Adjustment</span>
+                  <span className="mono" style={{fontWeight:700,color:'var(--gold-b)'}}>{form.marketExpertAdj>0?'+':''}{form.marketExpertAdj}</span>
                 </div>
                 <input type="range" name="marketExpertAdj" min="-3" max="3" step=".5" value={form.marketExpertAdj} onChange={hi}/>
-                <p style={{fontSize:'.68rem',color:'#4b5563',marginTop:6}}>GCC/MENA regional knowledge correction (±3).</p>
+                <p style={{fontSize:'var(--fs-sm)',color:'var(--text-3)',marginTop:6}}>GCC/MENA regional knowledge correction (±3).</p>
               </div>
               <AIBtn onClick={()=>analyzeSection('market',`Market analysis (max 150 words, plain prose):\nTAM Score: ${form.marketSize}/10 | Urgency: ${form.customerUrgency}/10 | Timing: ${form.marketTiming}/10 | Moat: ${form.competitiveMoat}/10\nRevenue Model: ${form.revenueModel} | TAM: ${form.tam}\nInsight: ${form.marketInsight}\nIs timing credible? Is moat defensible? Biggest market risk?`)}
                 loading={streamSec==='market'} label="AI Market Read"/>
@@ -838,15 +849,15 @@ Plain prose only. No bullet points. No markdown. Be blunt and institutionally pr
           {step===2&&(
             <div className="fade-up" style={{display:'flex',flexDirection:'column',gap:'1.25rem'}}>
               <div>
-                <h2 className="syne" style={{fontSize:'clamp(1.5rem,4vw,2.25rem)',fontWeight:800,textTransform:'uppercase',letterSpacing:'-.02em'}}>Technology Dimension</h2>
-                <p style={{fontSize:'.8rem',color:'#4b5563',marginTop:4}}>Readiness, IP strength, scalability, and integration complexity.</p>
+                <h2 className="syne" style={{fontSize:'clamp(1.6rem,4vw,2.4rem)',fontWeight:800,textTransform:'uppercase',letterSpacing:'-.01em',color:'var(--text)'}}>Technology Dimension</h2>
+                <p style={{fontSize:'.8rem',color:'var(--text-3)',marginTop:4}}>Readiness, IP strength, scalability, and integration complexity.</p>
               </div>
               <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:'1rem'}}>
                 <div className="card-gold" style={{padding:'1.25rem'}}>
                   <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-end',marginBottom:12}}>
                     <div>
-                      <p className="mono" style={{fontSize:'.6rem',color:'#fbbf24',fontWeight:700,textTransform:'uppercase',letterSpacing:'.08em'}}>TRL</p>
-                      <p style={{fontSize:'.68rem',color:'#4b5563',marginTop:2}}>Technology Readiness Level</p>
+                      <p className="mono" style={{fontSize:'var(--fs-sm)',color:'var(--gold-b)',fontWeight:700,textTransform:'uppercase',letterSpacing:'.08em'}}>TRL</p>
+                      <p style={{fontSize:'var(--fs-sm)',color:'var(--text-3)',marginTop:2}}>Technology Readiness Level</p>
                     </div>
                     <span className="syne gold-text" style={{fontSize:'2.8rem',fontWeight:800,lineHeight:1}}>{form.trl}</span>
                   </div>
@@ -854,29 +865,29 @@ Plain prose only. No bullet points. No markdown. Be blunt and institutionally pr
                   <div className="pbar" style={{marginTop:6,marginBottom:10}}><div className="pfill" style={{width:`${(form.trl/9)*100}%`}}></div></div>
                   <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:4,textAlign:'center'}}>
                     {[['1–3','Research'],['4–6','Prototype'],['7–9','Deployed']].map(([r,l])=>(
-                      <div key={r}><span className="mono" style={{fontSize:'.55rem',color:'#c9a84c',display:'block'}}>{r}</span><span style={{fontSize:'.6rem',color:'#374151'}}>{l}</span></div>
+                      <div key={r}><span className="mono" style={{fontSize:'var(--fs-xs)',color:'#c9a84c',display:'block'}}>{r}</span><span style={{fontSize:'var(--fs-sm)',color:'var(--text-3)'}}>{l}</span></div>
                     ))}
                   </div>
                 </div>
                 <div className="card" style={{padding:'1.25rem'}}>
                   <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-end',marginBottom:12}}>
                     <div>
-                      <p className="mono" style={{fontSize:'.6rem',color:'#9ca3af',fontWeight:700,textTransform:'uppercase',letterSpacing:'.08em'}}>MRL</p>
-                      <p style={{fontSize:'.68rem',color:'#4b5563',marginTop:2}}>Market Readiness Level</p>
+                      <p className="mono" style={{fontSize:'var(--fs-sm)',color:'#9a9690',fontWeight:700,textTransform:'uppercase',letterSpacing:'.08em'}}>MRL</p>
+                      <p style={{fontSize:'var(--fs-sm)',color:'var(--text-3)',marginTop:2}}>Market Readiness Level</p>
                     </div>
                     <span className="syne" style={{fontSize:'2.8rem',fontWeight:800,lineHeight:1,color:'#fff'}}>{form.mrl}</span>
                   </div>
                   <input type="range" name="mrl" min="1" max="10" value={form.mrl} onChange={hi}/>
                   <div className="pbar" style={{marginTop:6}}><div className="pfill" style={{width:`${form.mrl*10}%`,background:'#9ca3af'}}></div></div>
-                  <p style={{fontSize:'.68rem',color:'#374151',marginTop:8}}>1 = No market engagement → 10 = Full GTM deployed</p>
+                  <p style={{fontSize:'var(--fs-sm)',color:'var(--text-3)',marginTop:8}}>1 = No market engagement → 10 = Full GTM deployed</p>
                 </div>
               </div>
               {/* TRL/MRL alignment indicator */}
               <div className="card" style={{padding:'1rem',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-                <span className="mono" style={{fontSize:'.6rem',color:'#6b7280',textTransform:'uppercase'}}>TRL / MRL Alignment</span>
+                <span className="mono" style={{fontSize:'var(--fs-sm)',color:'#8a8680',textTransform:'uppercase'}}>TRL / MRL Alignment</span>
                 <div style={{display:'flex',alignItems:'center',gap:10}}>
                   <div className="pbar" style={{width:100}}><div className="pfill" style={{width:`${(1-Math.abs(form.trl-form.mrl)/9)*100}%`,background:Math.abs(form.trl-form.mrl)>3?'#f87171':'#c9a84c'}}></div></div>
-                  <span className="mono" style={{fontSize:'.6rem',fontWeight:700,color:Math.abs(form.trl-form.mrl)>3?'#f87171':'#c9a84c'}}>
+                  <span className="mono" style={{fontSize:'var(--fs-sm)',fontWeight:700,color:Math.abs(form.trl-form.mrl)>3?'#f87171':'#c9a84c'}}>
                     {Math.abs(form.trl-form.mrl)>3?'MISALIGNED':Math.abs(form.trl-form.mrl)>1?'GAP':'ALIGNED'}
                   </span>
                 </div>
@@ -887,14 +898,14 @@ Plain prose only. No bullet points. No markdown. Be blunt and institutionally pr
                 <Slider label="Integration Complexity" name="integrationComplexity" value={form.integrationComplexity} onChange={hi} description="Lower = faster adoption (high = more complex)" accent="#f59e0b"/>
                 <div className="mxcell" style={{border:'1px solid rgba(245,158,11,.25)'}}>
                   <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
-                    <span className="mono" style={{fontSize:'.6rem',fontWeight:700,color:'#f59e0b',textTransform:'uppercase'}}>Tech Expert Adj</span>
-                    <span className="mono" style={{fontWeight:700,color:'#fbbf24'}}>{form.techExpertAdj>0?'+':''}{form.techExpertAdj}</span>
+                    <span className="mono" style={{fontSize:'var(--fs-sm)',fontWeight:700,color:'#f59e0b',textTransform:'uppercase'}}>Tech Expert Adj</span>
+                    <span className="mono" style={{fontWeight:700,color:'var(--gold-b)'}}>{form.techExpertAdj>0?'+':''}{form.techExpertAdj}</span>
                   </div>
                   <input type="range" name="techExpertAdj" min="-3" max="3" step=".5" value={form.techExpertAdj} onChange={hi}/>
                 </div>
               </div>
               <div>
-                <label className="mono" style={{fontSize:'.6rem',fontWeight:700,color:'#6b7280',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>Technology Notes</label>
+                <label className="mono" style={{fontSize:'var(--fs-sm)',fontWeight:700,color:'#8a8680',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>Technology Notes</label>
                 <textarea name="techNotes" value={form.techNotes} onChange={hi} className="field" style={{height:72,resize:'none'}} placeholder="Key technical risks, dependencies, breakthroughs..."/>
               </div>
               <AIBtn onClick={()=>analyzeSection('tech',`Technology assessment (max 150 words, plain prose):\nTRL: ${form.trl}/9 | MRL: ${form.mrl}/10\nIP: ${form.ipDefensibility}/10 | Scalability: ${form.techScalability}/10 | Complexity: ${form.integrationComplexity}/10\nNotes: ${form.techNotes}\nSpinout readiness and critical technical risk?`)}
@@ -907,8 +918,8 @@ Plain prose only. No bullet points. No markdown. Be blunt and institutionally pr
           {step===3&&(
             <div className="fade-up" style={{display:'flex',flexDirection:'column',gap:'1.25rem'}}>
               <div>
-                <h2 className="syne" style={{fontSize:'clamp(1.5rem,4vw,2.25rem)',fontWeight:800,textTransform:'uppercase',letterSpacing:'-.02em'}}>Financial Dimension</h2>
-                <p style={{fontSize:'.8rem',color:'#4b5563',marginTop:4}}>Capital efficiency, ROI potential, and revenue readiness.</p>
+                <h2 className="syne" style={{fontSize:'clamp(1.6rem,4vw,2.4rem)',fontWeight:800,textTransform:'uppercase',letterSpacing:'-.01em',color:'var(--text)'}}>Financial Dimension</h2>
+                <p style={{fontSize:'.8rem',color:'var(--text-3)',marginTop:4}}>Capital efficiency, ROI potential, and revenue readiness.</p>
               </div>
               <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:'1rem'}}>
                 <Slider label="ROI Potential" name="roiPotential" value={form.roiPotential} onChange={hi} description="Risk-adjusted return multiple expectation" accent="#34d399"/>
@@ -918,7 +929,7 @@ Plain prose only. No bullet points. No markdown. Be blunt and institutionally pr
               </div>
               <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(180px,1fr))',gap:'1rem'}}>
                 <div>
-                  <label className="mono" style={{fontSize:'.6rem',fontWeight:700,color:'#6b7280',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>Funding Stage</label>
+                  <label className="mono" style={{fontSize:'var(--fs-sm)',fontWeight:700,color:'#8a8680',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>Funding Stage</label>
                   <select name="fundingStage" value={form.fundingStage} onChange={hi} className="field">
                     {['Pre-Seed','Seed','Series A','Series B','Series C+','Revenue-Generating','Strategic JV'].map(s=><option key={s}>{s}</option>)}
                   </select>
@@ -927,19 +938,19 @@ Plain prose only. No bullet points. No markdown. Be blunt and institutionally pr
               </div>
               {/* Financial snapshot */}
               <div className="card" style={{padding:'1.1rem'}}>
-                <p className="mono" style={{fontSize:'.6rem',color:'#4b5563',textTransform:'uppercase',letterSpacing:'.08em',marginBottom:10}}>Financial Health Snapshot</p>
+                <p className="mono" style={{fontSize:'var(--fs-sm)',color:'var(--text-3)',textTransform:'uppercase',letterSpacing:'.08em',marginBottom:10}}>Financial Health Snapshot</p>
                 <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:8}}>
                   {[{label:'ROI',value:scores.financial,icon:'trending-up'},{label:'Cap Eff',value:fmt(10-form.capitalIntensity),icon:'zap'},{label:'Rev Ready',value:fmt(form.revenueReadiness),icon:'dollar-sign'},{label:'Payback',value:fmt(form.paybackPeriod),icon:'clock'}].map(({label,value,icon})=>(
                     <div key={label} className="mxcell" style={{textAlign:'center',padding:'.6rem'}}>
                       <div style={{display:'flex',justifyContent:'center',marginBottom:4}}><Icon name={icon} size={12} style={{color:scoreColor(parseFloat(value))}}/></div>
-                      <div className="mono" style={{fontSize:'.55rem',color:'#6b7280',textTransform:'uppercase'}}>{label}</div>
+                      <div className="mono" style={{fontSize:'var(--fs-xs)',color:'#8a8680',textTransform:'uppercase'}}>{label}</div>
                       <div className="syne" style={{fontSize:'1.25rem',fontWeight:800,color:scoreColor(parseFloat(value))}}>{value}</div>
                     </div>
                   ))}
                 </div>
               </div>
               <div>
-                <label className="mono" style={{fontSize:'.6rem',fontWeight:700,color:'#6b7280',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>Financial Notes</label>
+                <label className="mono" style={{fontSize:'var(--fs-sm)',fontWeight:700,color:'#8a8680',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>Financial Notes</label>
                 <textarea name="financialNotes" value={form.financialNotes} onChange={hi} className="field" style={{height:72,resize:'none'}} placeholder="Unit economics, funding pipeline, LOIs, anchor customers..."/>
               </div>
               <AIBtn onClick={()=>analyzeSection('financial',`Financial viability (max 150 words, plain prose):\nROI: ${form.roiPotential}/10 | Revenue Readiness: ${form.revenueReadiness}/10 | Capital Intensity: ${form.capitalIntensity}/10 | Burn Risk: ${form.burnRisk}/10 | Payback: ${form.paybackPeriod}/10 | Stage: ${form.fundingStage}\nNotes: ${form.financialNotes}\nSpinout financial viability and critical capital risk?`)}
@@ -952,12 +963,12 @@ Plain prose only. No bullet points. No markdown. Be blunt and institutionally pr
           {step===4&&(
             <div className="fade-up" style={{display:'flex',flexDirection:'column',gap:'1.25rem'}}>
               <div>
-                <h2 className="syne" style={{fontSize:'clamp(1.5rem,4vw,2.25rem)',fontWeight:800,textTransform:'uppercase',letterSpacing:'-.02em'}}>Risk Matrix</h2>
-                <p style={{fontSize:'.8rem',color:'#4b5563',marginTop:4}}>Multi-vector risk calibration — lower scores preferred.</p>
+                <h2 className="syne" style={{fontSize:'clamp(1.6rem,4vw,2.4rem)',fontWeight:800,textTransform:'uppercase',letterSpacing:'-.01em',color:'var(--text)'}}>Risk Matrix</h2>
+                <p style={{fontSize:'.8rem',color:'var(--text-3)',marginTop:4}}>Multi-vector risk calibration — lower scores preferred.</p>
               </div>
               <div className="card-warn" style={{padding:'.85rem',display:'flex',alignItems:'center',gap:8}}>
                 <Icon name="alert-triangle" size={13} style={{color:'#f59e0b',flexShrink:0}}/>
-                <p style={{fontSize:'.72rem',color:'#9ca3af'}}>Score severity 1–10. Higher = more severe. Translates inversely to venture health.</p>
+                <p style={{fontSize:'var(--fs-base)',color:'#9a9690'}}>Score severity 1–10. Higher = more severe. Translates inversely to venture health.</p>
               </div>
               <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:'1rem'}}>
                 {[
@@ -973,16 +984,16 @@ Plain prose only. No bullet points. No markdown. Be blunt and institutionally pr
               </div>
               {/* Heatmap */}
               <div className="card" style={{padding:'1.1rem'}}>
-                <p className="mono" style={{fontSize:'.6rem',color:'#4b5563',textTransform:'uppercase',letterSpacing:'.08em',marginBottom:10}}>Risk Heatmap</p>
+                <p className="mono" style={{fontSize:'var(--fs-sm)',color:'var(--text-3)',textTransform:'uppercase',letterSpacing:'.08em',marginBottom:10}}>Risk Heatmap</p>
                 <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8}}>
                   {[{label:'Regulatory',v:form.regulatoryRisk},{label:'Geopolitical',v:form.geopoliticalRisk},{label:'Supply Chain',v:form.supplychainRisk},{label:'Cybersec',v:form.cybersecurityRisk},{label:'Talent',v:form.talentRisk},{label:'Competition',v:form.competitionRisk}].map(({label,v})=>{
                     const tier=v>=8?0:v>=6?1:v>=3?2:3;
                     const col=v>=8?'#f87171':v>=6?'#f59e0b':v>=3?'#c9a84c':'#34d399';
                     return(
                       <div key={label} className={`hmap${tier}`} style={{borderRadius:8,padding:'.6rem',textAlign:'center'}}>
-                        <div className="mono" style={{fontSize:'.55rem',color:'#6b7280',marginBottom:3}}>{label}</div>
+                        <div className="mono" style={{fontSize:'var(--fs-xs)',color:'#8a8680',marginBottom:3}}>{label}</div>
                         <div className="syne" style={{fontSize:'1.35rem',fontWeight:800,color:col}}>{v}</div>
-                        <div className="tag" style={{background:'transparent',color:col,border:`1px solid ${col}40`,fontSize:'.45rem',margin:'3px auto 0',display:'inline-flex'}}>
+                        <div className="tag" style={{background:'transparent',color:col,border:`1px solid ${col}40`,fontSize:'var(--fs-xs)',margin:'3px auto 0',display:'inline-flex'}}>
                           {v>=8?'CRITICAL':v>=6?'HIGH':v>=3?'MEDIUM':'LOW'}
                         </div>
                       </div>
@@ -991,7 +1002,7 @@ Plain prose only. No bullet points. No markdown. Be blunt and institutionally pr
                 </div>
               </div>
               <div>
-                <label className="mono" style={{fontSize:'.6rem',fontWeight:700,color:'#6b7280',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>Risk Notes & Mitigants</label>
+                <label className="mono" style={{fontSize:'var(--fs-sm)',fontWeight:700,color:'#8a8680',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>Risk Notes & Mitigants</label>
                 <textarea name="riskNotes" value={form.riskNotes} onChange={hi} className="field" style={{height:72,resize:'none'}} placeholder="Identified mitigants, insurance, regulatory approvals..."/>
               </div>
               <AIBtn onClick={()=>analyzeSection('risk',`Risk profile assessment (max 150 words, plain prose):\nRegulatory: ${form.regulatoryRisk} | Geopolitical: ${form.geopoliticalRisk} | Supply Chain: ${form.supplychainRisk} | Cybersec: ${form.cybersecurityRisk} | Talent: ${form.talentRisk} | Competition: ${form.competitionRisk}\nNotes: ${form.riskNotes}\nMost critical risk vector and mitigation priority?`)}
@@ -1004,12 +1015,12 @@ Plain prose only. No bullet points. No markdown. Be blunt and institutionally pr
           {step===5&&(
             <div className="fade-up" style={{display:'flex',flexDirection:'column',gap:'1.25rem'}}>
               <div>
-                <h2 className="syne" style={{fontSize:'clamp(1.5rem,4vw,2.25rem)',fontWeight:800,textTransform:'uppercase',letterSpacing:'-.02em'}}>ESG & Regulatory</h2>
-                <p style={{fontSize:'.8rem',color:'#4b5563',marginTop:4}}>Environmental, social, governance — mandatory for Gulf sovereign capital.</p>
+                <h2 className="syne" style={{fontSize:'clamp(1.6rem,4vw,2.4rem)',fontWeight:800,textTransform:'uppercase',letterSpacing:'-.01em',color:'var(--text)'}}>ESG & Regulatory</h2>
+                <p style={{fontSize:'.8rem',color:'var(--text-3)',marginTop:4}}>Environmental, social, governance — mandatory for Gulf sovereign capital.</p>
               </div>
               <div className="card-success" style={{padding:'.85rem',display:'flex',alignItems:'center',gap:8}}>
                 <Icon name="leaf" size={13} style={{color:'#34d399',flexShrink:0}}/>
-                <p style={{fontSize:'.72rem',color:'#9ca3af'}}>ESG alignment is a gate condition for sovereign capital in GCC and global institutional mandates.</p>
+                <p style={{fontSize:'var(--fs-base)',color:'#9a9690'}}>ESG alignment is a gate condition for sovereign capital in GCC and global institutional mandates.</p>
               </div>
               <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:'1rem'}}>
                 <Slider label="Environmental Impact" name="environmentalImpact" value={form.environmentalImpact} onChange={hi} description="Positive environmental contribution — net zero alignment" accent="#34d399"/>
@@ -1019,7 +1030,7 @@ Plain prose only. No bullet points. No markdown. Be blunt and institutionally pr
               </div>
               <div className="card" style={{padding:'1.1rem'}}>
                 <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
-                  <p className="mono" style={{fontSize:'.6rem',color:'#4b5563',textTransform:'uppercase',letterSpacing:'.08em'}}>UN SDG Alignment</p>
+                  <p className="mono" style={{fontSize:'var(--fs-sm)',color:'var(--text-3)',textTransform:'uppercase',letterSpacing:'.08em'}}>UN SDG Alignment</p>
                   <span className="syne gold-text" style={{fontSize:'1.5rem',fontWeight:800}}>{form.sdgAlignment}/10</span>
                 </div>
                 <input type="range" name="sdgAlignment" min="1" max="10" value={form.sdgAlignment} onChange={hi}/>
@@ -1027,14 +1038,14 @@ Plain prose only. No bullet points. No markdown. Be blunt and institutionally pr
                 <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:6}}>
                   {[['SDG 9','Innovation'],['SDG 13','Climate'],['SDG 8','Growth'],['SDG 17','Partners']].map(([g,l])=>(
                     <div key={g} className="mxcell" style={{textAlign:'center',padding:'.5rem'}}>
-                      <div className="mono" style={{fontSize:'.55rem',color:'#c9a84c'}}>{g}</div>
-                      <div style={{fontSize:'.6rem',color:'#4b5563',marginTop:2}}>{l}</div>
+                      <div className="mono" style={{fontSize:'var(--fs-xs)',color:'#c9a84c'}}>{g}</div>
+                      <div style={{fontSize:'var(--fs-sm)',color:'var(--text-3)',marginTop:2}}>{l}</div>
                     </div>
                   ))}
                 </div>
               </div>
               <div>
-                <label className="mono" style={{fontSize:'.6rem',fontWeight:700,color:'#6b7280',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>ESG Notes & Certifications</label>
+                <label className="mono" style={{fontSize:'var(--fs-sm)',fontWeight:700,color:'#8a8680',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>ESG Notes & Certifications</label>
                 <textarea name="esgNotes" value={form.esgNotes} onChange={hi} className="field" style={{height:72,resize:'none'}} placeholder="ISO certifications, ESG frameworks, impact reporting..."/>
               </div>
               <AIBtn onClick={()=>analyzeSection('esg',`ESG assessment (max 150 words, plain prose):\nEnvironmental: ${form.environmentalImpact}/10 | Social: ${form.socialImpact}/10 | Governance: ${form.governanceReadiness}/10 | Compliance: ${form.regulatoryCompliance}/10 | SDG: ${form.sdgAlignment}/10\nNotes: ${form.esgNotes}\nESG posture strength and gaps for GCC sovereign mandate compliance?`)}
@@ -1047,8 +1058,8 @@ Plain prose only. No bullet points. No markdown. Be blunt and institutionally pr
           {step===6&&(
             <div className="fade-up" style={{display:'flex',flexDirection:'column',gap:'1.25rem'}}>
               <div>
-                <h2 className="syne" style={{fontSize:'clamp(1.5rem,4vw,2.25rem)',fontWeight:800,textTransform:'uppercase',letterSpacing:'-.02em'}}>Execution DNA</h2>
-                <p style={{fontSize:'.8rem',color:'#4b5563',marginTop:4}}>Team depth, validation speed, resilience, and network capital.</p>
+                <h2 className="syne" style={{fontSize:'clamp(1.6rem,4vw,2.4rem)',fontWeight:800,textTransform:'uppercase',letterSpacing:'-.01em',color:'var(--text)'}}>Execution DNA</h2>
+                <p style={{fontSize:'.8rem',color:'var(--text-3)',marginTop:4}}>Team depth, validation speed, resilience, and network capital.</p>
               </div>
               <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:'1rem'}}>
                 <Slider label="Founder Domain Depth" name="teamExpertise" value={form.teamExpertise} onChange={hi} description="Technical and domain expertise of leadership" accent="#f0c84a"/>
@@ -1058,11 +1069,11 @@ Plain prose only. No bullet points. No markdown. Be blunt and institutionally pr
                 <Slider label="Partnership Network" name="partnershipNetwork" value={form.partnershipNetwork} onChange={hi} description="Strategic partner depth and commercial pipeline"/>
                 <div className="mxcell" style={{border:'1px solid rgba(245,158,11,.25)'}}>
                   <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
-                    <span className="mono" style={{fontSize:'.6rem',fontWeight:700,color:'#f59e0b',textTransform:'uppercase'}}>Execution Expert Adj</span>
-                    <span className="mono" style={{fontWeight:700,color:'#fbbf24'}}>{form.executionExpertAdj>0?'+':''}{form.executionExpertAdj}</span>
+                    <span className="mono" style={{fontSize:'var(--fs-sm)',fontWeight:700,color:'#f59e0b',textTransform:'uppercase'}}>Execution Expert Adj</span>
+                    <span className="mono" style={{fontWeight:700,color:'var(--gold-b)'}}>{form.executionExpertAdj>0?'+':''}{form.executionExpertAdj}</span>
                   </div>
                   <input type="range" name="executionExpertAdj" min="-3" max="3" step=".5" value={form.executionExpertAdj} onChange={hi}/>
-                  <p style={{fontSize:'.68rem',color:'#4b5563',marginTop:6}}>Expert correction for qualitative team assessment</p>
+                  <p style={{fontSize:'var(--fs-sm)',color:'var(--text-3)',marginTop:6}}>Expert correction for qualitative team assessment</p>
                 </div>
               </div>
               <AIBtn onClick={()=>analyzeSection('team',`Team/execution assessment (max 150 words, plain prose):\nFounder Depth: ${form.teamExpertise}/10 | Advisory: ${form.advisoryStrength}/10 | Velocity: ${form.validationVelocity}/10 | Resilience: ${form.scenarioResilience}/10 | Network: ${form.partnershipNetwork}/10\nExecution profile implications and highest priority capability gap?`)}
@@ -1075,28 +1086,28 @@ Plain prose only. No bullet points. No markdown. Be blunt and institutionally pr
           {step===7&&(
             <div className="fade-up" style={{display:'flex',flexDirection:'column',gap:'1.25rem'}}>
               <div>
-                <h2 className="syne" style={{fontSize:'clamp(1.5rem,4vw,2.25rem)',fontWeight:800,textTransform:'uppercase',letterSpacing:'-.02em'}}>AI Diligence Engine</h2>
-                <p style={{fontSize:'.8rem',color:'#4b5563',marginTop:4}}>Full 6-dimension institutional analysis — powered by Gemini.</p>
+                <h2 className="syne" style={{fontSize:'clamp(1.6rem,4vw,2.4rem)',fontWeight:800,textTransform:'uppercase',letterSpacing:'-.01em',color:'var(--text)'}}>AI Diligence Engine</h2>
+                <p style={{fontSize:'.8rem',color:'var(--text-3)',marginTop:4}}>Full 6-dimension institutional analysis — powered by Gemini.</p>
               </div>
               {/* Score grid — LeanSpark pillars */}
               <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8}}>
                 {[{label:'Desirability',value:scores.desirability,icon:'trending-up'},{label:'Feasibility',value:scores.feasibility,icon:'cpu'},{label:'Viability',value:scores.viability,icon:'bar-chart-2'},{label:'Scalability',value:scores.scalability,icon:'users'},{label:'Confidence',value:scores.confidence,icon:'shield-check'},{label:'ESG Gate',value:scores.esg,icon:'leaf'}].map(({label,value,icon})=>(
                   <div key={label} className="card" style={{padding:'.75rem',textAlign:'center'}}>
                     <div style={{display:'flex',justifyContent:'center',marginBottom:4}}><Icon name={icon} size={11} style={{color:scoreColor(parseFloat(value))}}/></div>
-                    <p className="mono" style={{fontSize:'.5rem',color:'#6b7280',textTransform:'uppercase'}}>{label}</p>
+                    <p className="mono" style={{fontSize:'var(--fs-xs)',color:'#8a8680',textTransform:'uppercase'}}>{label}</p>
                     <p className="syne" style={{fontSize:'1.35rem',fontWeight:800,color:scoreColor(parseFloat(value))}}>{value}</p>
                   </div>
                 ))}
               </div>
               {/* Radar */}
               <div className="card" style={{padding:'1.25rem'}}>
-                <p className="mono" style={{fontSize:'.6rem',color:'#4b5563',textTransform:'uppercase',letterSpacing:'.08em',marginBottom:12}}>6-Dimension Venture Radar</p>
+                <p className="mono" style={{fontSize:'var(--fs-sm)',color:'var(--text-3)',textTransform:'uppercase',letterSpacing:'.08em',marginBottom:12}}>6-Dimension Venture Radar</p>
                 <RadarChart data={radarData}/>
               </div>
               {/* Run button */}
               <button onClick={runFull} disabled={streaming} className="pulse-gold"
                 style={{width:'100%',padding:'1.1rem',borderRadius:'1rem',fontFamily:'Syne',fontWeight:900,
-                  fontSize:'.75rem',textTransform:'uppercase',letterSpacing:'.15em',border:'1px solid var(--gold-border)',
+                  fontSize:'var(--fs-base)',textTransform:'uppercase',letterSpacing:'.15em',border:'1px solid var(--gold-border)',
                   background:streaming?'var(--gold-dim)':'var(--gold)',
                   color:streaming?'var(--gold)':'#05060a',cursor:streaming?'not-allowed':'pointer',
                   display:'flex',alignItems:'center',justifyContent:'center',gap:8,transition:'all .2s'}}>
@@ -1111,8 +1122,8 @@ Plain prose only. No bullet points. No markdown. Be blunt and institutionally pr
           {step===8&&(
             <div className="fade-up" style={{display:'flex',flexDirection:'column',gap:'1.25rem'}}>
               <div>
-                <h2 className="syne" style={{fontSize:'clamp(1.5rem,4vw,2.25rem)',fontWeight:800,textTransform:'uppercase',letterSpacing:'-.02em'}}>Gate Verdict</h2>
-                <p style={{fontSize:'.8rem',color:'#4b5563',marginTop:4}}>EZP gate decision — {form.techName||'Unnamed Asset'}</p>
+                <h2 className="syne" style={{fontSize:'clamp(1.6rem,4vw,2.4rem)',fontWeight:800,textTransform:'uppercase',letterSpacing:'-.01em',color:'var(--text)'}}>Gate Verdict</h2>
+                <p style={{fontSize:'.8rem',color:'var(--text-3)',marginTop:4}}>EZP gate decision — {form.techName||'Unnamed Asset'}</p>
               </div>
               {/* Main verdict */}
               <div className="card-gold" style={{padding:'1.5rem'}}>
@@ -1120,25 +1131,25 @@ Plain prose only. No bullet points. No markdown. Be blunt and institutionally pr
                   <ScoreRing score={parseFloat(scores.composite)}/>
                   <div style={{flex:1,minWidth:200}}>
                     <div className="syne" style={{fontSize:'clamp(1.6rem,5vw,2.5rem)',fontWeight:800,color:scores.verdict.color,lineHeight:1}}>{scores.verdict.status}</div>
-                    <p style={{fontSize:'.8rem',color:'#9ca3af',fontStyle:'italic',marginTop:6,lineHeight:1.5}}>{scores.verdict.label}</p>
+                    <p style={{fontSize:'.8rem',color:'#9a9690',fontStyle:'italic',marginTop:6,lineHeight:1.5}}>{scores.verdict.label}</p>
                     {scores.fatalFlaw&&(
                       <div style={{display:'flex',alignItems:'center',gap:6,marginTop:10}}>
                         <span className="tag" style={{background:'rgba(248,113,113,.1)',color:'#f87171',border:'1px solid rgba(248,113,113,.3)'}}>
                           ⚠ FATAL FLAW
                         </span>
-                        <span style={{fontSize:'.72rem',color:'#f87171'}}>{scores.fatalFlaw}</span>
+                        <span style={{fontSize:'var(--fs-base)',color:'#f87171'}}>{scores.fatalFlaw}</span>
                       </div>
                     )}
                     <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'4px 12px',marginTop:12}}>
                       {[['Asset',form.techName||'—'],['Stage',form.stage],['Category',form.category],['Date',form.assessorDate||new Date().toLocaleDateString('en-US',{month:'short',year:'numeric'})]].map(([l,v])=>(
-                        <div key={l}><span className="mono" style={{fontSize:'.58rem',color:'#4b5563'}}>{l}: </span><span className="mono" style={{fontSize:'.58rem',color:'#d1d5db'}}>{v}</span></div>
+                        <div key={l}><span className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--text-3)'}}>{l}: </span><span className="mono" style={{fontSize:'var(--fs-xs)',color:'#ccc9bc'}}>{v}</span></div>
                       ))}
                     </div>
                   </div>
                 </div>
                 {/* Stress-Test Pillar Bars */}
                 <div style={{marginTop:'1.25rem',paddingTop:'1.25rem',borderTop:'1px solid rgba(255,255,255,.05)'}}>
-                  <p className="mono" style={{fontSize:'.55rem',color:'#374151',textTransform:'uppercase',letterSpacing:'.12em',marginBottom:10}}>LeanSpark Stress-Test Pillars</p>
+                  <p className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--text-3)',textTransform:'uppercase',letterSpacing:'.12em',marginBottom:10}}>LeanSpark Stress-Test Pillars</p>
                   <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(150px,1fr))',gap:'1rem'}}>
                     {[
                       {label:'Desirability',value:scores.desirability,w:'28%',desc:'Market pull'},
@@ -1150,13 +1161,13 @@ Plain prose only. No bullet points. No markdown. Be blunt and institutionally pr
                       <div key={label}>
                         <div style={{display:'flex',justifyContent:'space-between',marginBottom:4}}>
                           <div>
-                            <span className="mono" style={{fontSize:'.56rem',color:'#6b7280',textTransform:'uppercase',display:'block'}}>{label}</span>
-                            <span style={{fontSize:'.58rem',color:'#374151'}}>{desc}</span>
+                            <span className="mono" style={{fontSize:'var(--fs-xs)',color:'#8a8680',textTransform:'uppercase',display:'block'}}>{label}</span>
+                            <span style={{fontSize:'var(--fs-xs)',color:'var(--text-3)'}}>{desc}</span>
                           </div>
-                          <span className="mono" style={{fontSize:'.75rem',fontWeight:700,color:scoreColor(parseFloat(value))}}>{value}</span>
+                          <span className="mono" style={{fontSize:'var(--fs-base)',fontWeight:700,color:scoreColor(parseFloat(value))}}>{value}</span>
                         </div>
                         <div className="pbar"><div className="pfill" style={{width:`${parseFloat(value)*10}%`,background:scoreColor(parseFloat(value))}}></div></div>
-                        <div className="mono" style={{fontSize:'.48rem',color:'#1f2937',marginTop:3}}>Weight {w}</div>
+                        <div className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--text-3)',marginTop:3}}>Weight {w}</div>
                       </div>
                     ))}
                   </div>
@@ -1168,15 +1179,15 @@ Plain prose only. No bullet points. No markdown. Be blunt and institutionally pr
               <div className="card" style={{padding:'1.1rem'}}>
                 <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
                   <div>
-                    <p className="mono" style={{fontSize:'.6rem',color:'#4b5563',textTransform:'uppercase',letterSpacing:'.08em'}}>Assumption Confidence</p>
-                    <p style={{fontSize:'.68rem',color:'#374151',marginTop:2}}>Documented assumptions vs total critical dimensions</p>
+                    <p className="mono" style={{fontSize:'var(--fs-sm)',color:'var(--text-3)',textTransform:'uppercase',letterSpacing:'.08em'}}>Assumption Confidence</p>
+                    <p style={{fontSize:'var(--fs-sm)',color:'var(--text-3)',marginTop:2}}>Documented assumptions vs total critical dimensions</p>
                   </div>
                   <div style={{textAlign:'right'}}>
                     <span className="syne" style={{fontSize:'1.75rem',fontWeight:800,
                       color:scores.assumptionConfidence>=70?'#34d399':scores.assumptionConfidence>=40?'#f59e0b':'#f87171'}}>
                       {scores.assumptionConfidence}%
                     </span>
-                    <p className="mono" style={{fontSize:'.5rem',color:'#374151',marginTop:1}}>
+                    <p className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--text-3)',marginTop:1}}>
                       {scores.assumptionConfidence>=70?'HIGH CONFIDENCE':scores.assumptionConfidence>=40?'MODERATE':'LOW — HIGH UNCERTAINTY'}
                     </p>
                   </div>
@@ -1187,7 +1198,7 @@ Plain prose only. No bullet points. No markdown. Be blunt and institutionally pr
                     background:scores.assumptionConfidence>=70?'#34d399':scores.assumptionConfidence>=40?'#f59e0b':'#f87171'
                   }}></div>
                 </div>
-                <p style={{fontSize:'.65rem',color:'#374151',marginTop:6}}>
+                <p style={{fontSize:'var(--fs-sm)',color:'var(--text-3)',marginTop:6}}>
                   Fill in problem, solution, why-now, advantage, revenue model, TAM, notes in each section to increase confidence.
                 </p>
               </div>
@@ -1197,7 +1208,7 @@ Plain prose only. No bullet points. No markdown. Be blunt and institutionally pr
                 <div style={{background:'rgba(248,113,113,.05)',border:'1px solid rgba(248,113,113,.25)',borderRadius:'1.1rem',padding:'1.1rem'}}>
                   <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:10}}>
                     <div style={{width:6,height:6,borderRadius:'50%',background:'#f87171',boxShadow:'0 0 6px #f87171',flexShrink:0}}></div>
-                    <p className="mono" style={{fontSize:'.6rem',color:'#f87171',fontWeight:700,textTransform:'uppercase',letterSpacing:'.1em'}}>
+                    <p className="mono" style={{fontSize:'var(--fs-sm)',color:'#f87171',fontWeight:700,textTransform:'uppercase',letterSpacing:'.1em'}}>
                       Kill Switches Triggered ({scores.killSwitches.length})
                     </p>
                   </div>
@@ -1205,11 +1216,11 @@ Plain prose only. No bullet points. No markdown. Be blunt and institutionally pr
                     {scores.killSwitches.map(k=>(
                       <div key={k.code} style={{display:'flex',gap:10,alignItems:'flex-start',
                         background:'rgba(248,113,113,.06)',borderRadius:8,padding:'.6rem .8rem'}}>
-                        <span className="mono" style={{fontSize:'.55rem',fontWeight:700,color:'#f87171',
+                        <span className="mono" style={{fontSize:'var(--fs-xs)',fontWeight:700,color:'#f87171',
                           background:'rgba(248,113,113,.15)',padding:'2px 6px',borderRadius:4,flexShrink:0}}>{k.code}</span>
                         <div>
-                          <p className="mono" style={{fontSize:'.6rem',color:'#f87171',fontWeight:700}}>{k.label}</p>
-                          <p style={{fontSize:'.7rem',color:'#9ca3af',marginTop:2,lineHeight:1.4}}>{k.reason}</p>
+                          <p className="mono" style={{fontSize:'var(--fs-sm)',color:'#f87171',fontWeight:700}}>{k.label}</p>
+                          <p style={{fontSize:'var(--fs-base)',color:'#9a9690',marginTop:2,lineHeight:1.4}}>{k.reason}</p>
                         </div>
                       </div>
                     ))}
@@ -1222,14 +1233,14 @@ Plain prose only. No bullet points. No markdown. Be blunt and institutionally pr
                 {/* Red Flags */}
                 {scores.redFlags.length>0&&(
                   <div style={{background:'rgba(245,158,11,.04)',border:'1px solid rgba(245,158,11,.2)',borderRadius:'1.1rem',padding:'1rem'}}>
-                    <p className="mono" style={{fontSize:'.58rem',color:'#f59e0b',fontWeight:700,textTransform:'uppercase',letterSpacing:'.1em',marginBottom:8}}>
+                    <p className="mono" style={{fontSize:'var(--fs-xs)',color:'#f59e0b',fontWeight:700,textTransform:'uppercase',letterSpacing:'.1em',marginBottom:8}}>
                       ⚠ Red Flags ({scores.redFlags.length})
                     </p>
                     <div style={{display:'flex',flexDirection:'column',gap:6}}>
                       {scores.redFlags.map((f,i)=>(
                         <div key={i} style={{display:'flex',gap:7,alignItems:'flex-start'}}>
-                          <span style={{color:'#f59e0b',flexShrink:0,marginTop:1,fontSize:'.65rem'}}>›</span>
-                          <p style={{fontSize:'.7rem',color:'#9ca3af',lineHeight:1.4}}>{f}</p>
+                          <span style={{color:'#f59e0b',flexShrink:0,marginTop:1,fontSize:'var(--fs-sm)'}}>›</span>
+                          <p style={{fontSize:'var(--fs-base)',color:'#9a9690',lineHeight:1.4}}>{f}</p>
                         </div>
                       ))}
                     </div>
@@ -1238,14 +1249,14 @@ Plain prose only. No bullet points. No markdown. Be blunt and institutionally pr
                 {/* Strengths */}
                 {scores.strengths.length>0&&(
                   <div style={{background:'rgba(52,211,153,.04)',border:'1px solid rgba(52,211,153,.15)',borderRadius:'1.1rem',padding:'1rem'}}>
-                    <p className="mono" style={{fontSize:'.58rem',color:'#34d399',fontWeight:700,textTransform:'uppercase',letterSpacing:'.1em',marginBottom:8}}>
+                    <p className="mono" style={{fontSize:'var(--fs-xs)',color:'#34d399',fontWeight:700,textTransform:'uppercase',letterSpacing:'.1em',marginBottom:8}}>
                       ✓ Confirmed Strengths ({scores.strengths.length})
                     </p>
                     <div style={{display:'flex',flexDirection:'column',gap:6}}>
                       {scores.strengths.map((s,i)=>(
                         <div key={i} style={{display:'flex',gap:7,alignItems:'flex-start'}}>
-                          <span style={{color:'#34d399',flexShrink:0,marginTop:1,fontSize:'.65rem'}}>✓</span>
-                          <p style={{fontSize:'.7rem',color:'#9ca3af',lineHeight:1.4}}>{s}</p>
+                          <span style={{color:'#34d399',flexShrink:0,marginTop:1,fontSize:'var(--fs-sm)'}}>✓</span>
+                          <p style={{fontSize:'var(--fs-base)',color:'#9a9690',lineHeight:1.4}}>{s}</p>
                         </div>
                       ))}
                     </div>
@@ -1255,18 +1266,18 @@ Plain prose only. No bullet points. No markdown. Be blunt and institutionally pr
 
               {/* Radar */}
               <div className="card" style={{padding:'1.25rem'}}>
-                <p className="mono" style={{fontSize:'.6rem',color:'#4b5563',textTransform:'uppercase',letterSpacing:'.08em',marginBottom:12}}>LeanSpark 5-Pillar Radar</p>
+                <p className="mono" style={{fontSize:'var(--fs-sm)',color:'var(--text-3)',textTransform:'uppercase',letterSpacing:'.08em',marginBottom:12}}>LeanSpark 5-Pillar Radar</p>
                 <RadarChart data={radarData}/>
               </div>
               {/* Section insights */}
               {Object.keys(sectionAI).length>0&&(
                 <div className="card" style={{padding:'1.1rem'}}>
-                  <p className="mono" style={{fontSize:'.6rem',color:'#4b5563',textTransform:'uppercase',letterSpacing:'.08em',marginBottom:10}}>Section Insights Summary</p>
+                  <p className="mono" style={{fontSize:'var(--fs-sm)',color:'var(--text-3)',textTransform:'uppercase',letterSpacing:'.08em',marginBottom:10}}>Section Insights Summary</p>
                   <div style={{display:'flex',flexDirection:'column',gap:10}}>
                     {Object.entries(sectionAI).filter(([_,v])=>v).map(([k,v])=>(
                       <div key={k}>
-                        <p className="mono" style={{fontSize:'.58rem',color:'#fbbf24',textTransform:'uppercase',fontWeight:700,marginBottom:3}}>{k} dimension</p>
-                        <p style={{fontSize:'.72rem',color:'#6b7280',lineHeight:1.5}}>{v.substring(0,180)}{v.length>180?'…':''}</p>
+                        <p className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--gold-b)',textTransform:'uppercase',fontWeight:700,marginBottom:3}}>{k} dimension</p>
+                        <p style={{fontSize:'var(--fs-base)',color:'#8a8680',lineHeight:1.5}}>{v.substring(0,180)}{v.length>180?'…':''}</p>
                       </div>
                     ))}
                   </div>
@@ -1277,10 +1288,10 @@ Plain prose only. No bullet points. No markdown. Be blunt and institutionally pr
                 <AIBlock text={aiText} streaming={false} label="Full AI Diligence Verdict"/>
               ):(
                 <div className="ai-block" style={{textAlign:'center',padding:'2rem'}}>
-                  <div style={{display:'flex',justifyContent:'center',marginBottom:8}}><Icon name="sparkles" size={22} style={{color:'#374151'}}/></div>
-                  <p style={{fontSize:'.8rem',color:'#4b5563',marginBottom:12}}>Run the AI Diligence Engine (Step 8) for the full institutional verdict.</p>
+                  <div style={{display:'flex',justifyContent:'center',marginBottom:8}}><Icon name="sparkles" size={22} style={{color:'var(--text-3)'}}/></div>
+                  <p style={{fontSize:'.8rem',color:'var(--text-3)',marginBottom:12}}>Run the AI Diligence Engine (Step 8) for the full institutional verdict.</p>
                   <button onClick={()=>goStep(7)} className="syne"
-                    style={{padding:'.5rem 1.1rem',borderRadius:'.7rem',fontSize:'.65rem',fontWeight:700,
+                    style={{padding:'.5rem 1.1rem',borderRadius:'.7rem',fontSize:'var(--fs-sm)',fontWeight:700,
                       textTransform:'uppercase',letterSpacing:'.08em',background:'var(--gold-dim)',
                       color:'var(--gold)',border:'1px solid var(--gold-border)',cursor:'pointer'}}>
                     Go to AI Engine →
@@ -1289,14 +1300,14 @@ Plain prose only. No bullet points. No markdown. Be blunt and institutionally pr
               )}
               {/* Expert sign-off */}
               <div>
-                <label className="mono" style={{fontSize:'.6rem',fontWeight:700,color:'#6b7280',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>Expert Sign-off & Gate Conditions</label>
+                <label className="mono" style={{fontSize:'var(--fs-sm)',fontWeight:700,color:'#8a8680',textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:6}}>Expert Sign-off & Gate Conditions</label>
                 <textarea name="expertNote" value={form.expertNote} onChange={hi} className="field" style={{height:96,resize:'none'}}
                   placeholder="Analyst recommendation, conditions precedent, next milestones, escalation path..."/>
               </div>
               {/* Footer */}
               <div style={{display:'flex',flexWrap:'wrap',justifyContent:'space-between',alignItems:'center',gap:8,paddingTop:'1rem',borderTop:'1px solid rgba(255,255,255,.05)'}}>
-                <div><p className="mono" style={{fontSize:'.58rem',color:'#1f2937'}}>SL-EZP-2026 // CONFIDENTIAL</p><p className="mono" style={{fontSize:'.58rem',color:'#1f2937'}}>6-Dimension Institutional Assessment Framework</p></div>
-                <div style={{textAlign:'right'}}>{form.partnerName&&<p className="mono" style={{fontSize:'.58rem',color:'#374151'}}>{form.partnerName}</p>}<p className="mono" style={{fontSize:'.58rem',color:'#1f2937'}}>Star Labs Global Intelligence</p></div>
+                <div><p className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--text-3)'}}>SL-EZP-2026 // CONFIDENTIAL</p><p className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--text-3)'}}>6-Dimension Institutional Assessment Framework</p></div>
+                <div style={{textAlign:'right'}}>{form.partnerName&&<p className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--text-3)'}}>{form.partnerName}</p>}<p className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--text-3)'}}>Star Labs Global Intelligence</p></div>
               </div>
             </div>
           )}
@@ -1304,8 +1315,8 @@ Plain prose only. No bullet points. No markdown. Be blunt and institutionally pr
           {/* Navigation */}
           <div className="no-print" style={{marginTop:'2rem',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
             <button onClick={prev} disabled={step===0}
-              style={{display:'flex',alignItems:'center',gap:6,fontSize:'.68rem',fontWeight:700,
-                color:'#374151',textTransform:'uppercase',letterSpacing:'.08em',background:'none',
+              style={{display:'flex',alignItems:'center',gap:6,fontSize:'var(--fs-sm)',fontWeight:700,
+                color:'var(--text-3)',textTransform:'uppercase',letterSpacing:'.08em',background:'none',
                 border:'none',cursor:'pointer',fontFamily:'Syne',opacity:step===0?0:1,transition:'color .2s'}}
               onMouseOver={e=>e.currentTarget.style.color='#fff'}
               onMouseOut={e=>e.currentTarget.style.color='#374151'}>
@@ -1314,7 +1325,7 @@ Plain prose only. No bullet points. No markdown. Be blunt and institutionally pr
             {step<STEPS.length-1&&(
               <button onClick={next}
                 style={{display:'flex',alignItems:'center',gap:6,padding:'.6rem 1.4rem',borderRadius:'.8rem',
-                  fontSize:'.68rem',fontWeight:700,textTransform:'uppercase',letterSpacing:'.1em',
+                  fontSize:'var(--fs-sm)',fontWeight:700,textTransform:'uppercase',letterSpacing:'.1em',
                   background:'var(--gold-dim)',color:'var(--gold)',border:'1px solid var(--gold-border)',
                   cursor:'pointer',fontFamily:'Syne',transition:'all .2s'}}>
                 Next <Icon name="arrow-right" size={11}/>
@@ -1327,12 +1338,12 @@ Plain prose only. No bullet points. No markdown. Be blunt and institutionally pr
       {/* ── Footer ── */}
       <footer className="no-print" style={{borderTop:'1px solid rgba(255,255,255,.04)',padding:'1rem 1.5rem',
         display:'flex',flexWrap:'wrap',justifyContent:'space-between',alignItems:'center',gap:8}}>
-        <p className="mono" style={{fontSize:'.55rem',color:'#1f2937',textTransform:'uppercase',letterSpacing:'.1em'}}>Star Labs Global Intelligence // EZP Pro 2.0</p>
+        <p className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--text-3)',textTransform:'uppercase',letterSpacing:'.1em'}}>Star Labs Global Intelligence // EZP Pro 2.0</p>
         <div style={{display:'flex',alignItems:'center',gap:12}}>
-          <span className="mono" style={{fontSize:'.55rem',color:'#1f2937'}}>6 Dimensions · AI-Powered · Institutional Grade</span>
+          <span className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--text-3)'}}>6 Dimensions · AI-Powered · Institutional Grade</span>
           <div style={{display:'flex',alignItems:'center',gap:5}}>
             <div style={{width:5,height:5,borderRadius:'50%',background:'#34d399',boxShadow:'0 0 4px #34d399'}}></div>
-            <span className="mono" style={{fontSize:'.55rem',color:'#1f2937'}}>Engine Online</span>
+            <span className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--text-3)'}}>Engine Online</span>
           </div>
         </div>
       </footer>
