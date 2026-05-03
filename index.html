@@ -476,78 +476,271 @@ Plain prose for paras 1,2,4. Score format for para 3. Short lines for para 5.`;
   // ── Export ──────────────────────────────────────────────────────────────────
   const exportReport = useCallback(()=>{
     const date = form.assessorDate||new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
-    const col = scores.verdict.color;
-    const bar = (v,max=10)=>{ const p=Math.round((parseFloat(v)/max)*100),c=sc(parseFloat(v)); return '<div style="height:6px;background:#1e2028;border-radius:99px;overflow:hidden;margin-top:6px;"><div style="width:'+p+'%;height:100%;background:'+c+';border-radius:99px;"></div></div>'; };
-    const sec = (t,body)=>body?'<div style="margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid #1e2028;"><h3 style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#c9a84c;margin:0 0 8px;font-family:Space Mono,monospace;">'+t+'</h3><p style="font-size:14px;line-height:1.75;color:#b8b4a8;">'+body.replace(/\n/g,'<br/>')+'</p></div>':'';
-    const killH = scores.kills.length===0?'<span style="color:#34d399;font-size:13px;">No kill switches</span>':scores.kills.map(k=>'<div style="background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.25);border-radius:6px;padding:8px 12px;margin-bottom:5px;"><span style="color:#f87171;font-size:11px;font-weight:700;font-family:Space Mono,monospace;">'+k.code+' — '+k.label+'</span><p style="color:#9a9690;font-size:12px;margin:2px 0 0;">'+k.reason+'</p></div>').join('');
-    const flagH = scores.flags.length===0?'<span style="color:#34d399;font-size:13px;">None</span>':scores.flags.map(f=>'<p style="color:#f59e0b;font-size:13px;margin-bottom:3px;">› '+f+'</p>').join('');
-    const strH = scores.strengths.length===0?'<span style="color:#555b6a;font-size:13px;">None</span>':scores.strengths.map(s=>'<p style="color:#34d399;font-size:13px;margin-bottom:3px;">✓ '+s+'</p>').join('');
-    const docH = Object.keys(docs).length===0?'<p style="color:#555b6a;font-size:13px;">None uploaded</p>':Object.entries(docs).filter(([_,d])=>d).map(([id,d])=>{ const dt=DOC_TYPES.find(t=>t.id===id); return '<p style="font-size:13px;color:#b8b4a8;margin-bottom:4px;">📄 <strong style="color:#e8e4d8;">'+(dt?dt.label:id)+'</strong>: '+d.name+' <span style="color:#555b6a;">('+d.size+')</span></p>'; }).join('');
-    const pillars = [['Desirability',scores.desirability,'28%'],['Feasibility',scores.feasibility,'22%'],['Viability',scores.viability,'18%'],['Scalability',scores.scalability,'17%'],['Confidence',scores.confidence,'15%'],['ESG Gate',scores.esg,'—']];
-    const profile = [['Problem',form.problem],['Solution',form.solution],['Why Now',form.whyNow],['Advantage',form.unfairAdvantage],['Revenue Model',form.revenueModel],['TAM',form.tam],['Sector',form.sector],['Stage',form.fundingStage]].filter(([_,v])=>v);
-    const html = '<!DOCTYPE html><html><head><meta charset="UTF-8"/><title>EZP Report — '+(form.techName||'Asset')+'</title>'
-      +'<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Space+Mono&family=Inter:wght@400;500&display=swap" rel="stylesheet"/>'
-      +'<style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:Inter,sans-serif;background:#0a0b0e;color:#e8e4d8;max-width:900px;margin:0 auto;padding:40px 32px;-webkit-print-color-adjust:exact;print-color-adjust:exact;}'
-      +'@media print{.noprint{display:none!important;}body{background:#fff!important;color:#111!important;}}</style></head><body>'
-      // Cover
-      +'<div style="text-align:center;padding:40px 0;border-bottom:1px solid #1e2028;margin-bottom:36px;">'
-      +'<p style="font-family:Space Mono,monospace;font-size:10px;letter-spacing:.25em;color:#555b6a;text-transform:uppercase;margin-bottom:14px;">STAR LABS GLOBAL INTELLIGENCE</p>'
-      +'<h1 style="font-family:Syne,sans-serif;font-size:30px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:#e8e4d8;margin-bottom:8px;">'+(form.techName||'Asset Assessment')+'</h1>'
-      +'<p style="font-family:Space Mono,monospace;font-size:11px;letter-spacing:.15em;color:#c9a84c;margin-bottom:20px;">EMERGING ZONE PROTOCOL — INSTITUTIONAL DILIGENCE REPORT</p>'
-      +'<div style="display:flex;gap:20px;justify-content:center;flex-wrap:wrap;font-family:Space Mono,monospace;font-size:11px;color:#7a7878;">'
-      +'<span>Category: <strong style="color:#b8b4a8;">'+form.category+'</strong></span>'
-      +'<span>Stage: <strong style="color:#b8b4a8;">'+form.stage+'</strong></span>'
-      +'<span>Date: <strong style="color:#b8b4a8;">'+date+'</strong></span>'
-      +(form.partnerName?'<span>Assessor: <strong style="color:#b8b4a8;">'+form.partnerName+'</strong></span>':'')
-      +'</div></div>'
-      // Verdict banner
-      +'<div style="background:'+col+'14;border:2px solid '+col+'50;border-radius:12px;padding:24px;margin-bottom:32px;display:flex;align-items:center;gap:24px;flex-wrap:wrap;">'
-      +'<div><p style="font-family:Space Mono,monospace;font-size:10px;color:'+col+';opacity:.7;text-transform:uppercase;letter-spacing:.15em;margin-bottom:4px;">Gate Decision</p>'
-      +'<h2 style="font-family:Syne,sans-serif;font-size:26px;font-weight:800;color:'+col+';">'+scores.verdict.status+'</h2>'
-      +'<p style="font-size:13px;color:#9a9690;margin-top:4px;font-style:italic;">'+scores.verdict.label+'</p></div>'
-      +'<div style="margin-left:auto;text-align:center;"><p style="font-family:Syne,sans-serif;font-size:48px;font-weight:800;color:'+col+';line-height:1;">'+scores.composite+'</p>'
-      +'<p style="font-family:Space Mono,monospace;font-size:10px;color:#555b6a;">/10 EZP</p>'
-      +'<p style="font-family:Syne,sans-serif;font-size:20px;font-weight:800;color:'+col+';margin-top:4px;">GRADE '+scores.verdict.grade+'</p></div></div>'
-      // Pillars
-      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:32px;">'
-      +pillars.map(([l,v,w])=>'<div style="background:#111318;border:1px solid #1e2028;border-radius:10px;padding:14px;"><div style="display:flex;justify-content:space-between;"><span style="font-family:Space Mono,monospace;font-size:10px;color:#7a7878;text-transform:uppercase;">'+l+'</span><span style="font-family:Space Mono,monospace;font-size:10px;color:#555b6a;">'+w+'</span></div><p style="font-family:Syne,sans-serif;font-size:20px;font-weight:800;color:'+sc(parseFloat(v))+';margin-top:4px;">'+v+'</p>'+bar(v)+'</div>').join('')
+    const col  = scores.verdict.color;
+
+    // ── Colour helpers — professional light palette ────────────────────────
+    // Score colours adjusted for white background (darker versions)
+    const scPrint = v => parseFloat(v)>=8?'#16a34a':parseFloat(v)>=6.5?'#92400e':parseFloat(v)>=4.5?'#b45309':'#b91c1c';
+
+    const bar = (v,max=10)=>{
+      const p=Math.round((parseFloat(v)/max)*100), c=scPrint(v);
+      return '<div style="height:5px;background:#e5e7eb;border-radius:99px;overflow:hidden;margin-top:5px;">'
+           + '<div style="width:'+p+'%;height:100%;background:'+c+';border-radius:99px;"></div></div>';
+    };
+
+    // Section heading + body — no box, just clean typography
+    const sec = (t,body)=>body
+      ? '<div style="margin-bottom:20px;padding-bottom:18px;border-bottom:1px solid #e5e7eb;">'
+        + '<p style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#92400e;margin:0 0 7px;font-family:Space Mono,monospace;">'+t+'</p>'
+        + '<p style="font-size:13.5px;line-height:1.8;color:#1f2937;margin:0;">'+body.replace(/\n/g,'<br/>')+'</p>'
+        + '</div>'
+      : '';
+
+    // Kill / flag / strength items
+    const killH = scores.kills.length===0
+      ? '<p style="color:#16a34a;font-size:12px;margin:0;">No kill switches triggered</p>'
+      : scores.kills.map(k=>
+          '<div style="border-left:3px solid #ef4444;padding:6px 10px;margin-bottom:6px;background:#fef2f2;border-radius:0 4px 4px 0;">'
+          +'<p style="font-size:10px;font-weight:700;color:#b91c1c;font-family:Space Mono,monospace;margin:0 0 2px;">'+k.code+' — '+k.label+'</p>'
+          +'<p style="font-size:11.5px;color:#7f1d1d;margin:0;">'+k.reason+'</p></div>'
+        ).join('');
+
+    const flagH = scores.flags.length===0
+      ? '<p style="color:#16a34a;font-size:12px;margin:0;">None detected</p>'
+      : scores.flags.map(f=>
+          '<p style="font-size:12px;color:#92400e;margin-bottom:4px;padding-left:10px;border-left:2px solid #f59e0b;">'+f+'</p>'
+        ).join('');
+
+    const strH = scores.strengths.length===0
+      ? '<p style="color:#6b7280;font-size:12px;margin:0;">None at current levels</p>'
+      : scores.strengths.map(s=>
+          '<p style="font-size:12px;color:#166534;margin-bottom:4px;padding-left:10px;border-left:2px solid #16a34a;">'+s+'</p>'
+        ).join('');
+
+    const docH = Object.keys(docs).length===0
+      ? '<p style="color:#9ca3af;font-size:12px;">No evidence documents uploaded</p>'
+      : Object.entries(docs).filter(([_,d])=>d).map(([id,d])=>{
+          const dt=DOC_TYPES.find(t=>t.id===id);
+          return '<p style="font-size:12px;color:#374151;margin-bottom:4px;"><strong>'+(dt?dt.label:id)+':</strong> '+d.name+' <span style="color:#9ca3af;">('+d.size+')</span></p>';
+        }).join('');
+
+    const pillars=[['Desirability',scores.desirability,'28%'],['Feasibility',scores.feasibility,'22%'],['Viability',scores.viability,'18%'],['Scalability',scores.scalability,'17%'],['Confidence',scores.confidence,'15%'],['ESG Gate',scores.esg,'—']];
+    const profile=[['Problem',form.problem],['Solution',form.solution],['Why Now',form.whyNow],['Advantage',form.unfairAdvantage],['Revenue Model',form.revenueModel],['TAM Estimate',form.tam],['Target Sector',form.sector],['Funding Stage',form.fundingStage]].filter(([_,v])=>v);
+
+    // Verdict colour — print-safe (dark enough on white)
+    const vCol = col==='#34d399'?'#166534':col==='#c9a84c'?'#78350f':col==='#f59e0b'?'#92400e':col==='#f97316'?'#9a3412':'#991b1b';
+    const vBg  = col==='#34d399'?'#f0fdf4':col==='#c9a84c'?'#fffbeb':col==='#f59e0b'?'#fffbeb':col==='#f97316'?'#fff7ed':'#fef2f2';
+    const vBdr = col==='#34d399'?'#86efac':col==='#c9a84c'?'#fcd34d':col==='#f59e0b'?'#fcd34d':col==='#f97316'?'#fdba74':'#fca5a5';
+
+    const html =
+      '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/>'
+      +'<meta name="viewport" content="width=device-width,initial-scale=1"/>'
+      +'<title>EZP Report — '+(form.techName||'Asset')+'</title>'
+      +'<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>'
+      +'<style>'
+      // ── Base ──
+      +'*{box-sizing:border-box;margin:0;padding:0;}'
+      +'body{font-family:Inter,sans-serif;background:#ffffff;color:#111827;'
+      +'  max-width:210mm;margin:0 auto;padding:16mm 18mm;font-size:13px;line-height:1.6;'
+      +'  -webkit-print-color-adjust:exact;print-color-adjust:exact;}'
+      // ── Print settings ──
+      +'@page{size:A4;margin:14mm 16mm;}'
+      +'@media print{'
+      +'  .noprint{display:none!important;}'
+      +'  body{padding:0;}'
+      // Prevent boxes from splitting across pages
+      +'  .no-break{break-inside:avoid;page-break-inside:avoid;}'
+      // Force page break before major sections
+      +'  .page-break{break-before:page;page-break-before:always;}'
+      // Keep headings with their content
+      +'  h2{break-after:avoid;page-break-after:avoid;}'
+      +'  h3{break-after:avoid;page-break-after:avoid;}'
+      // Diagnostic cards — keep together
+      +'  .diag-card{break-inside:avoid;page-break-inside:avoid;}'
+      +'}'
+      // ── Typography ──
+      +'h1{font-family:Syne,sans-serif;font-size:24px;font-weight:800;color:#111827;letter-spacing:-.01em;}'
+      +'h2{font-family:Syne,sans-serif;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#374151;'
+      +'   margin-bottom:12px;padding-bottom:7px;border-bottom:2px solid #f3f4f6;}'
+      +'h3{font-family:Space Mono,monospace;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#92400e;margin:0 0 7px;}'
+      +'.mono{font-family:Space Mono,monospace;}'
+      +'.syne{font-family:Syne,sans-serif;}'
+      // ── Layout ──
+      +'.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px;}'
+      +'.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:24px;}'
+      +'.section{margin-bottom:28px;}'
+      // ── Cards — white with subtle border (ink-friendly) ──
+      +'.card{background:#fafafa;border:1px solid #e5e7eb;border-radius:8px;padding:13px 15px;}'
+      +'.card-gold{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:13px 15px;}'
+      +'.card-verdict{background:'+vBg+';border:2px solid '+vBdr+';border-radius:10px;padding:20px 24px;margin-bottom:24px;}'
+      // ── Progress bar track ──
+      +'.pbar-track{height:5px;background:#e5e7eb;border-radius:99px;overflow:hidden;margin-top:5px;}'
+      // ── Watermark ──
+      +'.watermark{position:fixed;bottom:12mm;right:16mm;font-family:Space Mono,monospace;'
+      +'  font-size:8px;color:#d1d5db;letter-spacing:.1em;text-transform:uppercase;}'
+      +'</style></head>'
+      +'<body>'
+
+      // ── HEADER BAR ────────────────────────────────────────────────────────
+      +'<div style="display:flex;justify-content:space-between;align-items:center;'
+      +'  padding-bottom:14px;border-bottom:3px solid #111827;margin-bottom:24px;">'
+      +'  <div>'
+      +'    <p class="mono" style="font-size:8px;letter-spacing:.2em;color:#9ca3af;text-transform:uppercase;margin-bottom:4px;">STAR LABS GLOBAL INTELLIGENCE</p>'
+      +'    <h1>'+( form.techName||'Asset Assessment' )+'</h1>'
+      +'    <p class="mono" style="font-size:9px;letter-spacing:.12em;color:#92400e;margin-top:3px;text-transform:uppercase;">EMERGING ZONE PROTOCOL — INSTITUTIONAL DILIGENCE REPORT</p>'
+      +'  </div>'
+      +'  <div style="text-align:right;">'
+      +'    <p class="mono" style="font-size:10px;color:#374151;margin-bottom:2px;">'+form.category+' · '+form.stage+'</p>'
+      +'    <p class="mono" style="font-size:10px;color:#374151;margin-bottom:2px;">'+date+'</p>'
+      +(form.partnerName?'    <p class="mono" style="font-size:10px;color:#374151;">'+form.partnerName+'</p>':'')
+      +'  </div>'
       +'</div>'
-      // Diagnostics
-      +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:32px;">'
-      +'<div style="background:#111318;border:1px solid #1e2028;border-radius:10px;padding:14px;"><p style="font-family:Space Mono,monospace;font-size:10px;color:#f87171;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;">Kill Switches ('+scores.kills.length+')</p>'+killH+'</div>'
-      +'<div style="background:#111318;border:1px solid #1e2028;border-radius:10px;padding:14px;"><p style="font-family:Space Mono,monospace;font-size:10px;color:#f59e0b;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;">Red Flags ('+scores.flags.length+')</p>'+flagH+'</div>'
-      +'<div style="background:#111318;border:1px solid #1e2028;border-radius:10px;padding:14px;"><p style="font-family:Space Mono,monospace;font-size:10px;color:#34d399;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;">Strengths ('+scores.strengths.length+')</p>'+strH+'</div>'
+
+      // ── VERDICT BANNER ────────────────────────────────────────────────────
+      +'<div class="card-verdict no-break">'
+      +'  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;">'
+      +'    <div style="flex:1;min-width:200px;">'
+      +'      <p class="mono" style="font-size:8px;color:'+vCol+';letter-spacing:.2em;text-transform:uppercase;margin-bottom:5px;opacity:.7;">Gate Decision</p>'
+      +'      <p class="syne" style="font-size:26px;font-weight:800;color:'+vCol+';line-height:1;margin-bottom:5px;">'+scores.verdict.status+'</p>'
+      +'      <p style="font-size:12px;color:#4b5563;font-style:italic;line-height:1.5;">'+scores.verdict.label+'</p>'
+      +'    </div>'
+      +'    <div style="text-align:right;">'
+      +'      <p class="syne" style="font-size:44px;font-weight:800;color:'+vCol+';line-height:1;">'+scores.composite+'</p>'
+      +'      <p class="mono" style="font-size:9px;color:#9ca3af;">/10 EZP SCORE</p>'
+      +'      <p class="syne" style="font-size:20px;font-weight:800;color:'+vCol+';margin-top:3px;">GRADE '+scores.verdict.grade+'</p>'
+      +'    </div>'
+      +'  </div>'
       +'</div>'
-      // Confidence + Docs
-      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:32px;">'
-      +'<div style="background:#111318;border:1px solid #1e2028;border-radius:10px;padding:14px;"><p style="font-family:Space Mono,monospace;font-size:10px;color:#7a7878;text-transform:uppercase;margin-bottom:8px;">Assumption Confidence</p><p style="font-family:Syne,sans-serif;font-size:32px;font-weight:800;color:'+(scores.assumptionConf>=70?'#34d399':scores.assumptionConf>=40?'#c9a84c':'#f87171')+';">'+scores.assumptionConf+'%</p></div>'
-      +'<div style="background:#111318;border:1px solid #1e2028;border-radius:10px;padding:14px;"><p style="font-family:Space Mono,monospace;font-size:10px;color:#7a7878;text-transform:uppercase;margin-bottom:8px;">Evidence ('+Object.keys(docs).length+'/'+DOC_TYPES.length+')</p>'+docH+'</div>'
+
+      // ── PILLAR SCORES ─────────────────────────────────────────────────────
+      +'<div class="section">'
+      +'  <h2>LeanSpark Stress-Test Pillars</h2>'
+      +'  <div class="grid2">'
+      +pillars.map(([l,v,w])=>
+        '<div class="card no-break">'
+        +'<div style="display:flex;justify-content:space-between;align-items:center;">'
+        +'<p class="mono" style="font-size:9px;color:#6b7280;text-transform:uppercase;">'+l+'</p>'
+        +'<p class="mono" style="font-size:9px;color:#9ca3af;">'+w+'</p></div>'
+        +'<p class="syne" style="font-size:22px;font-weight:800;color:'+scPrint(v)+';margin:3px 0 0;">'+v+'</p>'
+        +bar(v)+'</div>'
+      ).join('')
+      +'  </div>'
       +'</div>'
-      // Profile
-      +'<div style="margin-bottom:32px;"><h2 style="font-family:Syne,sans-serif;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#e8e4d8;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid #1e2028;">Venture Profile</h2>'
-      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">'
-      +profile.map(([l,v])=>'<div style="background:#111318;border:1px solid #1e2028;border-radius:8px;padding:12px;"><p style="font-family:Space Mono,monospace;font-size:10px;color:#555b6a;text-transform:uppercase;margin-bottom:4px;">'+l+'</p><p style="font-size:13px;color:#b8b4a8;line-height:1.5;">'+v+'</p></div>').join('')
-      +'</div></div>'
-      // AI Sections
-      +(Object.keys(sAI).length>0?'<div style="margin-bottom:32px;"><h2 style="font-family:Syne,sans-serif;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#e8e4d8;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid #1e2028;">Dimensional Analyses</h2>'+Object.entries(sAI).filter(([_,v])=>v&&v.length>20).map(([k,v])=>sec(k.toUpperCase()+' DIMENSION',v)).join('')+'</div>':'')
-      // Doc audit
-      +(docAI?'<div style="margin-bottom:32px;"><h2 style="font-family:Syne,sans-serif;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#e8e4d8;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid #1e2028;">Evidence Score Audit</h2>'+sec('AI SCORE AUDIT',docAI)+'</div>':'')
-      // Full verdict
-      +(fullAI?'<div style="margin-bottom:32px;"><h2 style="font-family:Syne,sans-serif;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#e8e4d8;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid #1e2028;">Full AI Diligence Verdict</h2><div style="background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.25);border-radius:10px;padding:20px;"><p style="font-size:14px;line-height:1.85;color:#ccc9bc;">'+fullAI.replace(/\n/g,'<br/>')+'</p></div></div>':'')
-      // Expert sign-off
-      +'<div style="margin-bottom:36px;"><h2 style="font-family:Syne,sans-serif;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#e8e4d8;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid #1e2028;">Expert Sign-off</h2>'
-      +'<div style="background:#111318;border:1px solid rgba(201,168,76,.2);border-radius:10px;padding:18px;min-height:72px;">'
-      +'<p style="font-size:14px;line-height:1.75;color:'+(form.expertNote?'#b8b4a8':'#4a4f5c')+';font-style:'+(form.expertNote?'normal':'italic')+';"> '+(form.expertNote||'No expert sign-off recorded.')+'</p></div>'
-      +(form.partnerName?'<p style="text-align:right;margin-top:8px;font-family:Space Mono,monospace;font-size:11px;color:#555b6a;">Signed: '+form.partnerName+' · '+date+'</p>':'')
+
+      // ── DIAGNOSTICS ───────────────────────────────────────────────────────
+      +'<div class="section">'
+      +'  <h2>Stress-Test Diagnostics</h2>'
+      +'  <div class="grid3">'
+      // Kill switches
+      +'    <div class="card diag-card" style="border-top:3px solid #ef4444;">'
+      +'      <p class="mono" style="font-size:9px;color:#b91c1c;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;">Kill Switches ('+scores.kills.length+')</p>'
+      +killH+'</div>'
+      // Red flags
+      +'    <div class="card diag-card" style="border-top:3px solid #f59e0b;">'
+      +'      <p class="mono" style="font-size:9px;color:#92400e;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;">Red Flags ('+scores.flags.length+')</p>'
+      +flagH+'</div>'
+      // Strengths
+      +'    <div class="card diag-card" style="border-top:3px solid #16a34a;">'
+      +'      <p class="mono" style="font-size:9px;color:#166534;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;">Strengths ('+scores.strengths.length+')</p>'
+      +strH+'</div>'
+      +'  </div>'
       +'</div>'
-      // Footer
-      +'<div style="border-top:1px solid #1e2028;padding-top:16px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;">'
-      +'<div><p style="font-family:Space Mono,monospace;font-size:10px;color:#374151;">SL-EZP-2026 // CONFIDENTIAL</p><p style="font-family:Space Mono,monospace;font-size:10px;color:#374151;">5-Pillar LeanSpark Stress-Test · Star Labs Global Intelligence</p></div>'
-      +'<div style="text-align:right;"><p style="font-family:Space Mono,monospace;font-size:10px;color:#374151;">'+(form.techName||'—')+' · '+form.category+'</p><p style="font-family:Space Mono,monospace;font-size:10px;color:#374151;">Generated '+new Date().toLocaleString()+'</p></div></div>'
-      // Print button
-      +'<div class="noprint" style="position:fixed;bottom:24px;right:24px;"><button onclick="window.print()" style="padding:12px 20px;background:linear-gradient(90deg,#c9a84c,#e8c76a);color:#05060a;border:none;border-radius:10px;font-family:Syne,sans-serif;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;cursor:pointer;box-shadow:0 4px 20px rgba(201,168,76,.4);">⬇ Save as PDF</button></div>'
+
+      // ── CONFIDENCE + EVIDENCE ─────────────────────────────────────────────
+      +'<div class="section no-break">'
+      +'  <h2>Assessment Integrity</h2>'
+      +'  <div class="grid2">'
+      +'    <div class="card">'
+      +'      <p class="mono" style="font-size:9px;color:#6b7280;text-transform:uppercase;margin-bottom:6px;">Assumption Confidence</p>'
+      +'      <p class="syne" style="font-size:32px;font-weight:800;color:'+(scores.assumptionConf>=70?'#166534':scores.assumptionConf>=40?'#78350f':'#991b1b')+';line-height:1;">'+scores.assumptionConf+'%</p>'
+      +'      <p class="mono" style="font-size:9px;color:#9ca3af;margin-top:4px;">'+(scores.assumptionConf>=70?'HIGH CONFIDENCE':scores.assumptionConf>=40?'MODERATE':'LOW — HIGH UNCERTAINTY')+'</p>'
+      +'    </div>'
+      +'    <div class="card">'
+      +'      <p class="mono" style="font-size:9px;color:#6b7280;text-transform:uppercase;margin-bottom:6px;">Evidence Documents ('+Object.keys(docs).length+'/'+DOC_TYPES.length+')</p>'
+      +docH
+      +'    </div>'
+      +'  </div>'
+      +'</div>'
+
+      // ── VENTURE PROFILE ───────────────────────────────────────────────────
+      +(profile.length>0
+        ? '<div class="section page-break">'
+          +'<h2>Venture Profile</h2>'
+          +'<div class="grid2">'
+          +profile.map(([l,v])=>
+            '<div class="card no-break">'
+            +'<p class="mono" style="font-size:9px;color:#9ca3af;text-transform:uppercase;margin-bottom:4px;">'+l+'</p>'
+            +'<p style="font-size:12.5px;color:#1f2937;line-height:1.6;">'+v+'</p>'
+            +'</div>'
+          ).join('')
+          +'</div></div>'
+        : ''
+      )
+
+      // ── DIMENSIONAL ANALYSES ──────────────────────────────────────────────
+      +(Object.keys(sAI).length>0
+        ? '<div class="section page-break">'
+          +'<h2>Dimensional AI Analyses</h2>'
+          +Object.entries(sAI).filter(([_,v])=>v&&v.length>20).map(([k,v])=>
+            '<div class="no-break" style="margin-bottom:20px;padding-bottom:18px;border-bottom:1px solid #f3f4f6;">'
+            +'<p class="mono" style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#92400e;margin:0 0 7px;">'+k.toUpperCase()+' DIMENSION</p>'
+            +'<p style="font-size:13px;line-height:1.8;color:#1f2937;">'+v.replace(/\n/g,'<br/>')+'</p>'
+            +'</div>'
+          ).join('')
+          +'</div>'
+        : ''
+      )
+
+      // ── EVIDENCE AUDIT ────────────────────────────────────────────────────
+      +(docAI
+        ? '<div class="section page-break">'
+          +'<h2>Evidence Score Audit</h2>'
+          +'<div class="no-break" style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:16px;">'
+          +'<p style="font-size:13px;line-height:1.8;color:#1f2937;">'+docAI.replace(/\n/g,'<br/>')+'</p>'
+          +'</div></div>'
+        : ''
+      )
+
+      // ── FULL AI VERDICT ───────────────────────────────────────────────────
+      +(fullAI
+        ? '<div class="section page-break">'
+          +'<h2>Full AI Diligence Verdict</h2>'
+          +'<div style="background:#f9fafb;border-left:4px solid '+vBdr+';padding:18px 20px;border-radius:0 8px 8px 0;">'
+          +'<p style="font-size:13.5px;line-height:1.85;color:#111827;">'+fullAI.replace(/\n\n/g,'</p><p style="font-size:13.5px;line-height:1.85;color:#111827;margin-top:14px;">').replace(/\n/g,' ')+'</p>'
+          +'</div></div>'
+        : ''
+      )
+
+      // ── EXPERT SIGN-OFF ───────────────────────────────────────────────────
+      +'<div class="section no-break">'
+      +'<h2>Expert Sign-off &amp; Gate Conditions</h2>'
+      +'<div style="border:1px solid #e5e7eb;border-top:3px solid #111827;border-radius:0 0 8px 8px;padding:16px 18px;min-height:72px;background:#fafafa;">'
+      +'<p style="font-size:13px;line-height:1.75;color:'+(form.expertNote?'#111827':'#9ca3af')+';font-style:'+(form.expertNote?'normal':'italic')+';"> '+(form.expertNote||'No expert sign-off recorded.')+'</p>'
+      +'</div>'
+      +(form.partnerName?'<p class="mono" style="text-align:right;margin-top:8px;font-size:9px;color:#9ca3af;">Signed: '+form.partnerName+' · '+date+'</p>':'')
+      +'</div>'
+
+      // ── FOOTER ────────────────────────────────────────────────────────────
+      +'<div style="border-top:1px solid #e5e7eb;padding-top:14px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:8px;">'
+      +'  <div><p class="mono" style="font-size:8.5px;color:#9ca3af;">SL-EZP-2026 // CONFIDENTIAL</p><p class="mono" style="font-size:8.5px;color:#9ca3af;">5-Pillar LeanSpark Stress-Test Framework · Star Labs Global Intelligence</p></div>'
+      +'  <div style="text-align:right;"><p class="mono" style="font-size:8.5px;color:#9ca3af;">'+(form.techName||'—')+' · '+form.category+'</p><p class="mono" style="font-size:8.5px;color:#9ca3af;">Generated '+new Date().toLocaleString()+'</p></div>'
+      +'</div>'
+
+      // ── WATERMARK ─────────────────────────────────────────────────────────
+      +'<div class="watermark noprint">SL-EZP-2026 // CONFIDENTIAL</div>'
+
+      // ── PRINT BUTTON ──────────────────────────────────────────────────────
+      +'<div class="noprint" style="position:fixed;bottom:24px;right:24px;">'
+      +'  <button onclick="window.print()" style="padding:12px 22px;background:#111827;color:#fff;border:none;border-radius:8px;'
+      +'    font-family:Syne,sans-serif;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;cursor:pointer;'
+      +'    box-shadow:0 4px 16px rgba(0,0,0,.25);">⬇ Save as PDF</button>'
+      +'</div>'
+
       +'</body></html>';
-    const w=window.open('','_blank'); w.document.write(html); w.document.close();
+
+    const w=window.open('','_blank');
+    w.document.write(html);
+    w.document.close();
   },[form,scores,sAI,fullAI,docAI,docs]);
 
   // ── Section prompt builders ───────────────────────────────────────────────
