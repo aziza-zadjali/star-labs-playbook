@@ -1059,6 +1059,37 @@ Plain prose only for all paragraphs. No bullet points. No markdown. No score rep
   },[form,scores,sectionAI,aiText,docAnalysis,docs]);
 
   const markDone = ()=>setDone(p=>new Set([...p,step]));
+
+  // ── Reset / New Case ────────────────────────────────────────────────────────
+  const resetApp = useCallback(()=>{
+    if(!window.confirm('Start a new case? All current assessment data will be cleared.')) return;
+    setStep(0);
+    setAiText('');
+    setStreaming(false);
+    setSectionAI({});
+    setStreamSec(null);
+    setDone(new Set());
+    setDocs({});
+    setDocAnalysis('');
+    setDocStreaming(false);
+    setForm({
+      techName:'',category:'DeepTech',sector:'',problem:'',solution:'',whyNow:'',
+      unfairAdvantage:'',stage:'Concept',partnerName:'',assessorDate:'',
+      marketSize:6,customerUrgency:6,marketTiming:6,competitiveMoat:5,
+      revenueModel:'',tam:'',marketInsight:'',marketExpertAdj:0,
+      trl:5,mrl:4,ipDefensibility:5,techScalability:6,integrationComplexity:5,
+      techExpertAdj:0,techNotes:'',
+      capitalIntensity:5,roiPotential:6,paybackPeriod:5,fundingStage:'Pre-Seed',
+      burnRisk:4,revenueReadiness:5,financialNotes:'',
+      regulatoryRisk:4,geopoliticalRisk:3,supplychainRisk:4,cybersecurityRisk:3,
+      talentRisk:4,competitionRisk:5,riskNotes:'',
+      environmentalImpact:5,socialImpact:5,governanceReadiness:6,regulatoryCompliance:6,
+      sdgAlignment:4,esgNotes:'',
+      teamExpertise:6,advisoryStrength:5,validationVelocity:5,scenarioResilience:5,
+      partnershipNetwork:5,executionExpertAdj:0,expertNote:''
+    });
+    if(mainRef.current) mainRef.current.scrollTo({top:0,behavior:'smooth'});
+  },[]);
   const goStep = i=>{markDone();setStep(i);setMobileMenu(false);if(mainRef.current)mainRef.current.scrollTo({top:0,behavior:'smooth'});};
   const next = ()=>{markDone();setStep(s=>Math.min(STEPS.length-1,s+1));if(mainRef.current)mainRef.current.scrollTo({top:0,behavior:'smooth'});};
   const prev = ()=>{setStep(s=>Math.max(0,s-1));if(mainRef.current)mainRef.current.scrollTo({top:0,behavior:'smooth'});};
@@ -1134,6 +1165,10 @@ Plain prose only for all paragraphs. No bullet points. No markdown. No score rep
           <button onClick={exportReport} className="tag no-print"
             style={{background:'var(--gold-dim)',color:'var(--gold)',border:'1px solid var(--gold-border)',cursor:'pointer'}}>
             <Icon name="download" size={10}/> Export
+          </button>
+          <button onClick={resetApp} className="tag no-print"
+            style={{background:'rgba(255,255,255,0.04)',color:'var(--text-3)',border:'1px solid rgba(255,255,255,0.08)',cursor:'pointer'}}>
+            <Icon name="plus" size={10}/> New Case
           </button>
         </div>
       </header>
@@ -1943,7 +1978,7 @@ Paragraph 2 — VALIDATION VELOCITY AS LEADING INDICATOR: A validation velocity 
                 <textarea name="expertNote" value={form.expertNote} onChange={hi} className="field" style={{height:96,resize:'none'}}
                   placeholder="Analyst recommendation, conditions precedent, next milestones, escalation path..."/>
               </div>
-              {/* Export Button */}
+              {/* Export + New Case Buttons */}
               <div className="no-print" style={{display:'flex',flexDirection:'column',gap:10}}>
                 <button onClick={exportReport}
                   style={{width:'100%',padding:'1.1rem',borderRadius:'1rem',
@@ -1959,6 +1994,30 @@ Paragraph 2 — VALIDATION VELOCITY AS LEADING INDICATOR: A validation velocity 
                 <p style={{fontSize:'var(--fs-xs)',color:'var(--text-3)',textAlign:'center'}}>
                   Opens a formatted report in a new tab — use browser Print → Save as PDF
                 </p>
+                <div style={{display:'flex',gap:10}}>
+                  <button onClick={()=>goStep(0)}
+                    style={{flex:1,padding:'.9rem',borderRadius:'1rem',
+                      fontFamily:"'Syne',sans-serif",fontWeight:700,fontSize:'var(--fs-sm)',
+                      textTransform:'uppercase',letterSpacing:'.1em',cursor:'pointer',
+                      display:'flex',alignItems:'center',justifyContent:'center',gap:8,
+                      background:'rgba(255,255,255,0.03)',
+                      color:'var(--text-3)',border:'1px solid rgba(255,255,255,0.08)',transition:'all .2s'}}
+                    onMouseOver={e=>{e.currentTarget.style.background='rgba(255,255,255,0.06)';e.currentTarget.style.color='var(--text)';}}
+                    onMouseOut={e=>{e.currentTarget.style.background='rgba(255,255,255,0.03)';e.currentTarget.style.color='var(--text-3)';}}>
+                    <Icon name="arrow-left" size={13}/> Back to Step 1
+                  </button>
+                  <button onClick={resetApp}
+                    style={{flex:1,padding:'.9rem',borderRadius:'1rem',
+                      fontFamily:"'Syne',sans-serif",fontWeight:700,fontSize:'var(--fs-sm)',
+                      textTransform:'uppercase',letterSpacing:'.1em',cursor:'pointer',
+                      display:'flex',alignItems:'center',justifyContent:'center',gap:8,
+                      background:'rgba(52,211,153,0.07)',
+                      color:'#34d399',border:'1px solid rgba(52,211,153,0.2)',transition:'all .2s'}}
+                    onMouseOver={e=>{e.currentTarget.style.background='rgba(52,211,153,0.13)';}}
+                    onMouseOut={e=>{e.currentTarget.style.background='rgba(52,211,153,0.07)';}}>
+                    <Icon name="plus-circle" size={13}/> New Case
+                  </button>
+                </div>
               </div>
 
               {/* Footer */}
@@ -2022,6 +2081,10 @@ Paragraph 2 — VALIDATION VELOCITY AS LEADING INDICATOR: A validation velocity 
             <span style={{color:step===i?'var(--gold)':done.has(i)?'rgba(201,168,76,.4)':'#555b6a'}}>{title}</span>
           </button>
         ))}
+        <button className="mob-btn" onClick={resetApp} style={{borderLeft:'1px solid rgba(255,255,255,0.06)'}}>
+          <Icon name="rotate-ccw" size={16} style={{color:'#555b6a'}}/>
+          <span style={{color:'#555b6a'}}>Reset</span>
+        </button>
       </nav>
 
     </div>
