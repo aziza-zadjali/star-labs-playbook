@@ -420,27 +420,9 @@ const STEPS = [
     { id: 'verdict',     title: 'Verdict',       icon: 'shield-check',  section: 'Verdict' },
 ];
 
-const GEMINI_KEY = "AIzaSyDEDCbJtpnwY5i-RTPOOYa5OXaFFk3hLf8";
-const GEMINI_BASE = "https://generativelanguage.googleapis.com/v1beta";
-
-let _cachedModel = null;
-const getGeminiModel = async () => {
-    if (_cachedModel) return _cachedModel;
-    const res = await fetch(`${GEMINI_BASE}/models?key=${GEMINI_KEY}`);
-    const data = await res.json();
-    if (data.error) throw new Error(`API key error (${data.error.code}): ${data.error.message}`);
-    const available = (data.models || [])
-        .filter(m => (m.supportedGenerationMethods || []).includes("generateContent"))
-        .map(m => m.name);
-    console.log("Available Gemini models:", available);
-    const preferred = ["2.5-flash","2.0-flash","1.5-flash","2.5-pro","1.5-pro","flash","pro"];
-    for (const p of preferred) {
-        const match = available.find(a => a.includes(p));
-        if (match) { _cachedModel = match; console.log("Selected:", match); return match; }
-    }
-    if (available.length > 0) { _cachedModel = available[0]; return available[0]; }
-    throw new Error("No generateContent models available. Response: " + JSON.stringify(data).substring(0,300));
-};
+// ── Proxy config — set this to your Cloudflare Worker URL after deploying ──
+// e.g. https://starlabs-vrp-proxy.YOUR-SUBDOMAIN.workers.dev/api/analyze
+const PROXY_URL = "https://starlabs-api-proxy.aziza-11a.workers.dev/api/analyze";
 
 // ── App ───────────────────────────────────────────────────────────────────────
 const App = () => {
@@ -547,28 +529,21 @@ const App = () => {
         { label: 'Team', value: parseFloat(scores.team) },
     ];
 
-    // ── Gemini API ────────────────────────────────────────────────────────────
+    // ── Gemini API — calls secure backend proxy, no key in browser ─────────
     const callGemini = async (sys, prompt, onChunk) => {
-        const model = await getGeminiModel();
-        const url = `${GEMINI_BASE}/${model}:generateContent?key=${GEMINI_KEY}`;
-        const res = await fetch(url, {
+        const res = await fetch(PROXY_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                systemInstruction: { parts: [{ text: sys }] },
-                contents: [{ role: "user", parts: [{ text: prompt }] }],
-                generationConfig: { maxOutputTokens: 900, temperature: 0.72 }
-            })
+            body: JSON.stringify({ systemPrompt: sys, userPrompt: prompt, maxTokens: 900 })
         });
         if (!res.ok) {
             const errBody = await res.text();
-            throw new Error(`HTTP ${res.status} from ${model}: ${errBody.substring(0, 300)}`);
+            throw new Error(`Proxy error ${res.status}: ${errBody.substring(0, 300)}`);
         }
         const data = await res.json();
-        if (data?.error) throw new Error(`API error: ${data.error.message}`);
-        const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (!text) throw new Error(`No text in response. Raw: ${JSON.stringify(data).substring(0,300)}`);
-        const words = text.split(" ");
+        if (data.error) throw new Error(`AI error: ${data.error}`);
+        if (!data.text) throw new Error("Empty response from proxy.");
+        const words = data.text.split(" ");
         for (let i = 0; i < words.length; i++) {
             onChunk((i === 0 ? "" : " ") + words[i]);
             await new Promise(r => setTimeout(r, 16));
