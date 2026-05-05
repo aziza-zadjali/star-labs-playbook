@@ -1100,7 +1100,7 @@ Paragraph 3 — PREMIUM RISK AND MARKET TIMING: The evidence tier is "${premTier
             <div className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--text3)'}}>Welcome, {userName}</div>
           </div>
         </div>
-        <button onClick={()=>{setScreen('assess');setCurrentId(null);setForm(INIT_FORM);setSAI({});setFullAI('');setDocAI('');setDocs({});setDone(new Set());setStep(0);}}
+        <button onClick={()=>{setForm(INIT_FORM);setSAI({});setFullAI('');setDocAI('');setDocs({});setDone(new Set());setStep(0);setCurrentId(null);setSaveMsg('');setScreen('assess');}}
           className="syne" style={{display:'flex',alignItems:'center',gap:6,padding:'.55rem 1.1rem',borderRadius:'.75rem',fontSize:'var(--fs-sm)',fontWeight:700,textTransform:'uppercase',letterSpacing:'.08em',background:'var(--gold)',color:'#05060a',border:'none',cursor:'pointer'}}>
           <Icon name="plus" size={13}/> New Assessment
         </button>
