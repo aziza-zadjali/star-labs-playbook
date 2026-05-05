@@ -342,6 +342,7 @@ const App = () => {
   const [docLoad,setDocL]    = useState(false);
   // ── Session / save-load state ─────────────────────────────────────────────
   const [screen,setScreen]       = useState('lock');  // lock | name | dashboard | assess
+  const [mktTab,setMktTab]       = useState('ppp');   // market step tab
   const [userName,setUserName]   = useState('');
   const [nameInput,setNameInput] = useState('');
   const [nameErr,setNameErr]     = useState('');
@@ -572,19 +573,24 @@ Plain prose for paras 1,2,4. Score format for para 3. Short lines for para 5.`;
   // ── Navigation ──────────────────────────────────────────────────────────────
   // ── Save/Load helpers ────────────────────────────────────────────────────────
   const buildPayload = () => ({
-    user_name:   userName,
-    tech_name:   form.techName || 'Untitled',
-    stage:       form.stage,
-    category:    form.category,
-    composite:   parseFloat(scores.composite),
-    verdict:     scores.verdict.status,
-    grade:       scores.verdict.grade,
-    form_data:   JSON.stringify(form),
-    ai_sections: JSON.stringify(sAI),
-    full_ai:     fullAI,
-    doc_ai:      docAI,
-    doc_names:   JSON.stringify(Object.entries(docs).reduce((a,[k,v])=>{if(v)a[k]=v.name;return a;},{})),
-    updated_at:  new Date().toISOString(),
+    user_name:      userName,
+    tech_name:      form.techName || 'Untitled',
+    stage:          form.stage,
+    category:       form.category,
+    composite:      parseFloat(scores.composite),
+    verdict:        scores.verdict.status,
+    grade:          scores.verdict.grade,
+    ppp_composite:  parseFloat(scores.pppScores?.composite)||0,
+    ppp_p1:         parseFloat(scores.pppScores?.p1)||0,
+    ppp_p2:         parseFloat(scores.pppScores?.p2)||0,
+    ppp_p3:         parseFloat(scores.pppScores?.p3)||0,
+    interview_count: form.interviewCount,
+    form_data:      JSON.stringify(form),
+    ai_sections:    JSON.stringify(sAI),
+    full_ai:        fullAI,
+    doc_ai:         docAI,
+    doc_names:      JSON.stringify(Object.entries(docs).reduce((a,[k,v])=>{if(v)a[k]=v.name;return a;},{})),
+    updated_at:     new Date().toISOString(),
   });
 
   const saveAssessment = useCallback(async()=>{
@@ -731,6 +737,20 @@ Plain prose for paras 1,2,4. Score format for para 3. Short lines for para 5.`;
         }).join('');
 
     const pillars=[['Desirability',scores.desirability,'28%'],['Feasibility',scores.feasibility,'22%'],['Viability',scores.viability,'18%'],['Scalability',scores.scalability,'17%'],['Confidence',scores.confidence,'15%'],['ESG Gate',scores.esg,'—']];
+    const pppExp = scores.pppScores||{p1:'—',p2:'—',p3:'—',composite:'—',lc:'—'};
+    const pppSection = '<div style="margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid #e5e7eb;">'
+      +'<h2 style="font-family:Syne,sans-serif;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#374151;margin-bottom:12px;padding-bottom:7px;border-bottom:2px solid #f3f4f6;">Market Fit — PPP Validation (Ash Maurya)</h2>'
+      +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;">'
+      +[['P1 Problem',pppExp.p1,'Interviews: '+form.interviewCount+' · Recog: '+form.recognitionPct+'%'],
+        ['P2 Pain',pppExp.p2,'F:'+form.painFrequency+' × I:'+form.painIntensity+' × C:'+form.painCostAlt],
+        ['P3 Premium',pppExp.p3,'Tier: '+(form.premiumTier||'none')+' · LOIs: '+form.loiCount],
+        ['PPP Composite',pppExp.composite,'min(P1,P2,P3) · LC: '+pppExp.lc+'/10']
+       ].map(([l,v,d])=>'<div style="background:#fafafa;border:1px solid #e5e7eb;border-radius:8px;padding:12px;text-align:center;">'
+        +'<p style="font-family:Space Mono,monospace;font-size:9px;color:#6b7280;text-transform:uppercase;margin-bottom:4px;">'+l+'</p>'
+        +'<p style="font-family:Syne,sans-serif;font-size:22px;font-weight:800;color:#111827;margin-bottom:2px;">'+v+'</p>'
+        +'<p style="font-size:10px;color:#9ca3af;">'+d+'</p>'
+        +'</div>').join('')
+      +'</div></div>';
     const profile=[['Problem',form.problem],['Solution',form.solution],['Why Now',form.whyNow],['Advantage',form.unfairAdvantage],['Revenue Model',form.revenueModel],['TAM Estimate',form.tam],['Target Sector',form.sector],['Funding Stage',form.fundingStage]].filter(([_,v])=>v);
 
     // Verdict colour — print-safe (dark enough on white)
@@ -833,6 +853,7 @@ Plain prose for paras 1,2,4. Score format for para 3. Short lines for para 5.`;
       +'  </div>'
       +'</div>'
 
+      + pppSection
       // ── DIAGNOSTICS ───────────────────────────────────────────────────────
       +'<div class="section">'
       +'  <h2>Stress-Test Diagnostics</h2>'
@@ -1194,20 +1215,25 @@ Paragraph 3 — PREMIUM RISK AND MARKET TIMING: The evidence tier is "${premTier
               To enable save/load, create a free account at <strong>supabase.com</strong>, create a project, then run this SQL in the SQL Editor:
             </p>
             <pre style={{background:'rgba(0,0,0,.4)',border:'1px solid rgba(255,255,255,.08)',borderRadius:8,padding:'1rem',fontSize:'.72rem',color:'#a8a49a',overflowX:'auto',lineHeight:1.6}}{`create table assessments (
-  id          uuid default gen_random_uuid() primary key,
-  user_name   text not null,
-  tech_name   text,
-  stage       text,
-  category    text,
-  composite   numeric,
-  verdict     text,
-  grade       text,
-  form_data   text,
-  ai_sections text,
-  full_ai     text,
-  doc_ai      text,
-  doc_names   text,
-  updated_at  timestamptz default now()
+  id              uuid default gen_random_uuid() primary key,
+  user_name       text not null,
+  tech_name       text,
+  stage           text,
+  category        text,
+  composite       numeric,
+  verdict         text,
+  grade           text,
+  ppp_composite   numeric,
+  ppp_p1          numeric,
+  ppp_p2          numeric,
+  ppp_p3          numeric,
+  interview_count integer,
+  form_data       text,
+  ai_sections     text,
+  full_ai         text,
+  doc_ai          text,
+  doc_names       text,
+  updated_at      timestamptz default now()
 );
 
 -- Allow anyone with the anon key to read/write their own rows
@@ -1280,7 +1306,6 @@ create policy "users manage own" on assessments
 
     // ── MARKET — PPP + Lean Canvas ───────────────────────────────────────────
     if(step===1) {
-      const [mktTab,setMktTab] = React.useState('ppp');
       const ppp = scores.pppScores||{p1:'—',p2:'—',p3:'—',composite:'—',lc:'—'};
       const pppNum = parseFloat(ppp.composite)||0;
       const pppStage = pppNum>=8?{l:'STRONGLY VALIDATED',c:'#34d399'}:pppNum>=6.5?{l:'VALIDATED',c:'#c9a84c'}:pppNum>=5?{l:'PARTIALLY VALIDATED',c:'#f59e0b'}:pppNum>=3?{l:'NOT YET VALIDATED',c:'#f97316'}:{l:'LIKELY INVALIDATED',c:'#f87171'};
@@ -1903,7 +1928,27 @@ or unknown']].map(([s,d])=>(
               </div>
             </div>
           </div>
-          {/* Pillar bars */}
+          {/* PPP sub-scores in verdict */}
+          {scores.pppScores&&(
+            <div style={{marginTop:'1.25rem',paddingTop:'1.25rem',borderTop:'1px solid rgba(255,255,255,.05)'}}>
+              <p className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--text3)',textTransform:'uppercase',letterSpacing:'.12em',marginBottom:10}}>PPP Market Validation (Ash Maurya)</p>
+              <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8,marginBottom:'1rem'}}>
+                {[['P1 Problem',scores.pppScores.p1,'Interview evidence'],['P2 Pain',scores.pppScores.p2,'F×I×C score'],['P3 Premium',scores.pppScores.p3,'WTP evidence']].map(([l,v,d])=>(
+                  <div key={l} style={{background:'rgba(255,255,255,.02)',border:'1px solid rgba(255,255,255,.07)',borderRadius:8,padding:'8px 10px',textAlign:'center'}}>
+                    <p className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--text3)',marginBottom:2}}>{l}</p>
+                    <p className="syne" style={{fontSize:'1.3rem',fontWeight:800,color:sc(parseFloat(v)||0)}}>{v}</p>
+                    <p style={{fontSize:'var(--fs-xs)',color:'var(--text3)',marginTop:1}}>{d}</p>
+                  </div>
+                ))}
+              </div>
+              <div style={{display:'flex',alignItems:'center',gap:8,padding:'8px 10px',background:'rgba(201,168,76,.05)',border:'1px solid var(--gold-border)',borderRadius:8,marginBottom:'1rem'}}>
+                <span className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--text3)'}}>PPP Composite (min rule):</span>
+                <span className="syne" style={{fontSize:'1.1rem',fontWeight:800,color:sc(parseFloat(scores.pppScores.composite)||0)}}>{scores.pppScores.composite}</span>
+                <span className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--text3)',marginLeft:'auto'}}>LC Canvas: {scores.pppScores.lc}/10</span>
+              </div>
+            </div>
+          )}
+        {/* Pillar bars */}
           <div style={{marginTop:'1.25rem',paddingTop:'1.25rem',borderTop:'1px solid rgba(255,255,255,.05)'}}>
             <p className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--text3)',textTransform:'uppercase',letterSpacing:'.12em',marginBottom:10}}>LeanSpark Stress-Test Pillars</p>
             <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(150px,1fr))',gap:'1rem'}}>
