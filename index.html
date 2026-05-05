@@ -11,7 +11,7 @@
 <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{
@@ -124,7 +124,20 @@ input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;hei
 <div class="orb orb1"></div>
 <div class="orb orb2"></div>
 <div id="root"></div>
-<script type="text/babel">
+<script>
+(function(){
+  const show = (msg, err) => {
+    const el = document.getElementById('root');
+    if(!el) return;
+    el.innerHTML = '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:#0a0b0e;color:#e8e4d8;font-family:Inter,sans-serif;"><div style="max-width:760px;width:100%;background:#111318;border:1px solid rgba(248,113,113,.25);border-radius:16px;padding:20px;"><div style="font-family:Syne,sans-serif;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#f87171;margin-bottom:8px;">App failed to boot</div><div style="font-family:Space Mono,monospace;font-size:12px;color:#b8b4a8;white-space:pre-wrap;">'+ String(msg).replace(/</g,'&lt;') +'</div></div></div>' ;
+    if(err) console.error(err); else console.error(msg);
+  };
+  window.addEventListener('error', e => show((e.error && e.error.stack) ? e.error.stack : (e.message || 'Unknown error'), e.error));
+  window.addEventListener('unhandledrejection', e => show((e.reason && e.reason.stack) ? e.reason.stack : String(e.reason || 'Unhandled rejection'), e.reason));
+})();
+</script>
+
+<script type="text/babel" data-presets="env,react">
 const {useState,useMemo,useEffect,useRef,useCallback} = React;
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -135,7 +148,7 @@ const sc = v => v>=8?'#34d399':v>=6.5?'#c9a84c':v>=4.5?'#f59e0b':'#f87171';
 // ── Icon ──────────────────────────────────────────────────────────────────────
 const Icon = ({name,size=16,color,className=''}) => {
   const r = useRef(null);
-  useEffect(()=>{ if(window.lucide&&r.current) window.lucide.createIcons({rootNode:r.current}); },[name]);
+  useEffect(()=>{ if(window.lucide&&r.current){ try{ window.lucide.createIcons({ root: r.current }); }catch(e){} } },[name]);
   return <span ref={r}><i data-lucide={name} style={{width:size,height:size,display:'inline-flex',verticalAlign:'middle',color:color||'currentColor'}} className={className}></i></span>;
 };
 
@@ -284,10 +297,11 @@ const SB_ANON = "YOUR_SUPABASE_ANON_KEY"; // public anon key — safe to expose
 
 let _sb = null;
 const getSB = () => {
-  if(_sb) return _sb;
-  if(SB_URL === "YOUR_SUPABASE_URL") return null; // not configured yet
-  _sb = supabase.createClient(SB_URL, SB_ANON);
-  return _sb;
+ if(_sb) return _sb;
+ if(SB_URL === "YOUR_SUPABASE_URL") return null; // not configured yet
+ if(!window.supabase || !window.supabase.createClient) return null; // CDN blocked/not loaded
+ _sb = window.window.supabase.createClient(SB_URL, SB_ANON);
+ return _sb;
 };
 
 const INIT_FORM = {
@@ -1214,7 +1228,7 @@ Paragraph 3 — PREMIUM RISK AND MARKET TIMING: The evidence tier is "${premTier
             <p style={{fontSize:'var(--fs-sm)',color:'var(--text2)',lineHeight:1.7,marginBottom:12}}>
               To enable save/load, create a free account at <strong>supabase.com</strong>, create a project, then run this SQL in the SQL Editor:
             </p>
-            <pre style={{background:'rgba(0,0,0,.4)',border:'1px solid rgba(255,255,255,.08)',borderRadius:8,padding:'1rem',fontSize:'.72rem',color:'#a8a49a',overflowX:'auto',lineHeight:1.6}}{`create table assessments (
+            <pre style={{background:'rgba(0,0,0,.4)',border:'1px solid rgba(255,255,255,.08)',borderRadius:8,padding:'1rem',fontSize:'.72rem',color:'#a8a49a',overflowX:'auto',lineHeight:1.6}}>{`create table assessments (
   id              uuid default gen_random_uuid() primary key,
   user_name       text not null,
   tech_name       text,
