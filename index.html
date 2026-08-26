@@ -12,6 +12,7 @@
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{
   --bg:#0a0b0e; --card:#111318; --gold:#c9a84c; --gold-b:#e8c76a;
@@ -261,6 +262,36 @@ const DOC_TYPES = [
   {id:'legalDocs',    label:'Corporate Legal Docs',   icon:'scale',        accept:'.pdf',          required:false, scoreLink:'Governance Readiness', hint:'Articles of incorporation, cap table, shareholder agreements'},
 ];
 
+// ── Gate architecture (Foundry Operating Model Ed. 3.0) ──────────────────────
+const GATES = [
+  {id:'G0',name:'Signal',   stage:'Sourcing \u2192 Discovery',      trl:[1,2],mrl:[1,1], cap:0,  dur:'\u2264 2 weeks', forum:'Review Board',
+   q:'Is this worth two weeks of our attention?'},
+  {id:'G1',name:'Evidence', stage:'Discovery \u2192 Feasibility',   trl:[2,3],mrl:[1,2], cap:2,  dur:'6\u20138 weeks', forum:'Review Board',
+   q:'Is the problem real, already being paid for, and can this buyer actually transact?'},
+  {id:'G2',name:'Proof',    stage:'Feasibility \u2192 Engineering', trl:[4,4],mrl:[3,3], cap:8,  dur:'3\u20135 months',forum:'Board + Independent Assessor',
+   q:'Does the core mechanism work outside a presentation?'},
+  {id:'G3',name:'Prototype',stage:'Engineering \u2192 Validation',  trl:[5,6],mrl:[4,5], cap:25, dur:'5\u20138 months',forum:'Investment Committee',
+   q:'Does the integrated system survive contact with a real environment?'},
+  {id:'G4',name:'Field',    stage:'Validation \u2192 Commercial',   trl:[7,7],mrl:[6,7], cap:55, dur:'6\u20139 months',forum:'IC + Investor Observer',
+   q:'Does it work where the customer operates, at a price that clears?'},
+  {id:'G5',name:'Spinout',  stage:'Commercial \u2192 NewCo',        trl:[8,9],mrl:[8,10],cap:100,dur:'\u2014',          forum:'IC + Board',
+   q:'Is this now a company rather than a programme?'},
+];
+const GATE = id => GATES.find(g=>g.id===id) || GATES[0];
+const TRACKS = {
+  standard:    {label:'Standard',     hint:'Incremental upgrade. The market already has language for the problem, so operator consensus is a valid instrument.', g1:'\u2265 15 structured operator interviews \u00b7 \u2265 70% unprompted recognition'},
+  breakthrough:{label:'Breakthrough', hint:'Displaces the incumbent method. Operators cannot articulate demand for something never seen, so consensus is replaced by a verified cost model.', g1:'Independently verified first-principles cost model showing a step change'}
+};
+const DOMAINS = {
+  hardware:{label:'Hardware / Deep-tech', hint:'G2\u2013G4 read on physics, bill of materials, safety case and type approval.'},
+  software:{label:'Software / Platform',  hint:'G2\u2013G4 read on build performance, retention, contribution margin and compliance posture.'}
+};
+const corridorOf = (trl,mrl) => {
+  const norm = mrl*9/10, div = Math.abs(trl-norm);
+  return {div, inside:div<=2, lagging: norm<trl?'Market':'Technology',
+    zone: div<=2 ? 'Investable corridor' : (norm<trl ? 'Orphaned technology' : 'Promise debt')};
+};
+
 const STEPS = [
   {id:'intake',   title:'Intake',    icon:'file-scan',    sec:'Foundation'},
   {id:'market',   title:'Market',    icon:'trending-up',  sec:'Foundation'},
@@ -276,11 +307,44 @@ const STEPS = [
 
 const PROXY = "https://starlabs-api-proxy.aziza-11a.workers.dev/api/analyze";
 
+// ── Supabase config ───────────────────────────────────────────────────────────
+// Replace these two values with your own from supabase.com → Project → Settings → API
+const SB_URL  = "YOUR_SUPABASE_URL";   // e.g. https://xxxx.supabase.co
+const SB_ANON = "YOUR_SUPABASE_ANON_KEY"; // public anon key — safe to expose
+
+let _sb = null;
+const getSB = () => {
+  if(_sb) return _sb;
+  if(SB_URL === "YOUR_SUPABASE_URL") return null; // not configured yet
+  _sb = supabase.createClient(SB_URL, SB_ANON);
+  return _sb;
+};
+
 const INIT_FORM = {
+  gate:'G0', track:'standard', domain:'hardware',
+  lifetimeBudget:'', priorSpend:'', legacyEntry:false,
   techName:'',category:'DeepTech',sector:'',problem:'',solution:'',whyNow:'',
   unfairAdvantage:'',stage:'Concept',partnerName:'',assessorDate:'',
-  marketSize:6,customerUrgency:6,marketTiming:6,competitiveMoat:5,
+  // Legacy (kept for scoring compat)
+  marketSize:6,marketTiming:6,competitiveMoat:5,
   revenueModel:'',tam:'',marketInsight:'',marketExpertAdj:0,
+  // Lean Canvas blocks
+  lcSegment:'',lcProblem:'',lcUVP:'',lcSolution:'',
+  lcChannels:'',lcRevenue:'',lcCost:'',lcMetrics:'',lcAdvantage:'',
+  lcMode:'consumer', // consumer | b2b | deeptech | b2g
+  // Problem interviews (PPP - Problem)
+  interviewCount:0,recognitionPct:0,topOnePct:0,workaroundPct:0,
+  existingAlts:'',interviewNotes:'',
+  // Pain scoring inputs
+  painFrequency:3,painIntensity:3,painCostAlt:3,
+  // Premium scoring inputs
+  premiumTier:'none', // none|stated|anchored|vanwestendorp|smoketest|loi
+  wtpAmount:'',designPartners:0,loiCount:0,pricingNotes:'',
+  // Solution interviews
+  solInterviewCount:0,uvpUnderstandPct:0,referralPct:0,prepayPct:0,
+  mvpType:'none',solNotes:'',
+  // PPP expert override
+  pppOverrideEnabled:false,pppP1Override:0,pppP2Override:0,pppP3Override:0,
   trl:5,mrl:4,ipDefensibility:5,techScalability:6,integrationComplexity:5,
   techExpertAdj:0,techNotes:'',
   capitalIntensity:5,roiPotential:6,paybackPeriod:5,fundingStage:'Pre-Seed',
@@ -308,13 +372,87 @@ const App = () => {
   const [docs,setDocs]       = useState({});
   const [docAI,setDocAI]     = useState('');
   const [docLoad,setDocL]    = useState(false);
+  // ── Session / save-load state ─────────────────────────────────────────────
+  const [screen,setScreen]       = useState('lock');  // lock | name | dashboard | assess
+  const [mktTab,setMktTab]       = useState('ppp');   // market step tab
+  const [userName,setUserName]   = useState('');
+  const [nameInput,setNameInput] = useState('');
+  const [nameErr,setNameErr]     = useState('');
+  const [savedList,setSavedList] = useState([]);
+  const [listLoading,setListL]   = useState(false);
+  const [saveLoading,setSaveL]   = useState(false);
+  const [saveMsg,setSaveMsg]     = useState('');
+  const [currentId,setCurrentId] = useState(null); // Supabase row id of current assessment
   const mainRef = useRef(null);
 
   const hi = e => { const {name,value,type}=e.target; setForm(p=>({...p,[name]:type==='range'?parseFloat(value):value})); };
 
   // ── Scoring Engine ──────────────────────────────────────────────────────────
   const scores = useMemo(()=>{
-    const desirability = clamp((form.marketSize*.25)+(form.customerUrgency*.40)+(form.marketTiming*.20)+(form.competitiveMoat*.15),0,10);
+    // ── PPP SCORING ENGINE (Ash Maurya / Running Lean) ─────────────────────
+    // P1 — Problem validation (interview evidence)
+    const ic = form.interviewCount;
+    const rp = form.recognitionPct;   // 0-100
+    const t1 = form.topOnePct;        // 0-100
+    const wp = form.workaroundPct;    // 0-100
+    const p1Raw =
+      ic>=20&&rp>=85&&t1>=40 ? 9.5 :
+      ic>=20&&rp>=70&&t1>=25 ? 8.0 :
+      ic>=15&&rp>=70&&t1>=25 ? 7.5 :
+      ic>=15&&rp>=60&&t1>=15 ? 6.5 :
+      ic>=10&&rp>=50&&t1>=10 ? 5.5 :
+      ic>=10&&rp>=30         ? 4.0 :
+      ic>=5                  ? 3.0 :
+      ic>=1                  ? 2.0 : 1.0;
+    // Workaround boost: must-have signal
+    const wBoost = wp>=60?0.5:wp>=30?0.2:0;
+    const p1Score = clamp(p1Raw + wBoost, 0, 10);
+
+    // P2 — Pain quantification (Frequency × Intensity × Cost)
+    const painRaw = form.painFrequency * form.painIntensity * form.painCostAlt; // 1-125
+    const p2Score =
+      painRaw>=80 ? clamp(9+(painRaw-80)/45,9,10) :
+      painRaw>=50 ? 7 + (painRaw-50)/30 :
+      painRaw>=27 ? 5 + (painRaw-27)/23 :
+      painRaw>=10 ? 3 + (painRaw-10)/17 : 1;
+
+    // P3 — Premium (willingness-to-pay evidence tier)
+    const premTierMap = {none:1,stated:3.5,anchored:6,vanwestendorp:7,smoketest:8,loi:9.5};
+    const p3Base = premTierMap[form.premiumTier]||1;
+    // LOI/design-partner boost
+    const loiBoost = form.loiCount>=3?0.5:form.loiCount>=1?0.2:0;
+    const dpBoost  = form.designPartners>=3?0.3:form.designPartners>=1?0.1:0;
+    const p3Score  = clamp(p3Base+loiBoost+dpBoost, 0, 10);
+
+    // PPP composite = min (bottleneck logic per Maurya)
+    const pppRaw = Math.min(p1Score, p2Score, p3Score);
+
+    // Apply expert override if enabled
+    const p1Final = form.pppOverrideEnabled&&form.pppP1Override>0 ? form.pppP1Override : p1Score;
+    const p2Final = form.pppOverrideEnabled&&form.pppP2Override>0 ? form.pppP2Override : p2Score;
+    const p3Final = form.pppOverrideEnabled&&form.pppP3Override>0 ? form.pppP3Override : p3Score;
+    const pppComposite = clamp(Math.min(p1Final,p2Final,p3Final), 0, 10);
+
+    // Solution validation boost (post-PPP)
+    const solBoost =
+      form.uvpUnderstandPct>=80&&form.referralPct>=60&&form.prepayPct>=30 ? 0.8 :
+      form.uvpUnderstandPct>=60&&form.referralPct>=40 ? 0.4 : 0;
+
+    // Lean Canvas completeness score (9 blocks, each filled = 1 pt)
+    const lcBlocks = [form.lcSegment,form.lcProblem,form.lcUVP,form.lcSolution,
+      form.lcChannels,form.lcRevenue,form.lcCost,form.lcMetrics,form.lcAdvantage];
+    const lcFilled = lcBlocks.filter(b=>b&&b.trim().length>15).length;
+    const lcScore  = clamp((lcFilled/9)*10, 0, 10);
+
+    // Final desirability = weighted blend
+    // PPP 60% (evidence-based) + Market timing/moat 25% (contextual) + LC 15% (canvas quality)
+    const contextual = clamp((form.marketSize*.4)+(form.marketTiming*.35)+(form.competitiveMoat*.25)+form.marketExpertAdj, 0, 10);
+    const desirability = clamp(
+      pppComposite*0.60 + contextual*0.25 + lcScore*0.15 + solBoost,
+      0, 10
+    );
+    // Expose sub-scores for UI
+    const pppScores = {p1:clamp(p1Final,0,10),p2:clamp(p2Score,0,10),p3:clamp(p3Score,0,10),composite:clamp(pppComposite,0,10),lc:clamp(lcScore,0,10)};
     const trlNorm = form.trl/9*10, gapPenalty = clamp(Math.abs(form.trl-form.mrl)*.4,0,2);
     const feasibility = clamp((trlNorm*.30)+(form.ipDefensibility*.25)+(form.techScalability*.20)+((10-form.integrationComplexity)*.15)+(form.mrl*.10)-gapPenalty+form.techExpertAdj,0,10);
     const hasRM = form.revenueModel?0:-0.5;
@@ -326,11 +464,11 @@ const App = () => {
     const esgPen = esgScore<4?-0.8:0;
     const confidence = clamp((riskScore*.65)+(esgScore*.35)+esgPen,0,10);
     const raw = clamp(desirability*.28+feasibility*.22+viability*.18+scalability*.17+confidence*.15,0,10);
-    const filledDims = [form.problem,form.solution,form.whyNow,form.unfairAdvantage,form.revenueModel,form.tam,form.techNotes,form.financialNotes,form.riskNotes,form.esgNotes].filter(v=>v&&v.trim().length>10).length;
+    const filledDims = [form.problem,form.solution,form.whyNow,form.unfairAdvantage,form.revenueModel,form.tam,form.techNotes,form.financialNotes,form.riskNotes,form.esgNotes,form.lcSegment,form.lcProblem,form.interviewNotes,form.pricingNotes].filter(v=>v&&v.trim().length>10).length;
     const assumptionConf = Math.round((filledDims/10)*100);
     const kills=[];
     if(form.marketSize<=2) kills.push({code:'K1',label:'TAM KILL',reason:'Market too small — no path to venture-scale returns.'});
-    if(form.customerUrgency<=2) kills.push({code:'K2',label:'URGENCY KILL',reason:'No evidence of customer urgency — solution looking for a problem.'});
+    if(pppComposite<=2&&ic>=5) kills.push({code:'K2',label:'PPP KILL',reason:'PPP composite ≤2 with '+ic+' interviews — problem/pain/premium all critically weak.'});
     if(form.teamExpertise<=2) kills.push({code:'K3',label:'TEAM KILL',reason:'Leadership gap — execution risk is terminal.'});
     if(form.capitalIntensity>=9) kills.push({code:'K4',label:'CAPITAL KILL',reason:'Capital intensity unsustainable.'});
     if(form.regulatoryRisk>=9) kills.push({code:'K5',label:'REGULATORY KILL',reason:'Regulatory blocker — prohibitive compliance risk.'});
@@ -338,15 +476,35 @@ const App = () => {
     if(esgScore<3) kills.push({code:'K7',label:'ESG KILL',reason:'ESG posture below sovereign capital threshold.'});
     if(form.burnRisk>=9) kills.push({code:'K8',label:'BURN KILL',reason:'Burn rate unsustainable before first revenue.'});
     const flags=[];
+    // PPP-specific kills and flags
+    if(pppComposite>=1&&ic>=10&&parseFloat(fmt(pppComposite))<4) kills.push({code:'K9',label:'PPP INVALIDATED',reason:'PPP composite '+fmt(pppComposite)+'/10 with '+ic+' interviews — problem/pain/premium critically weak per Ash Maurya thresholds.'});
     if(form.marketTiming<=3) flags.push('Timing risk: market may not be ready yet.');
+    { const _g=GATE(form.gate), _c=corridorOf(form.trl,form.mrl);
+      if(!_c.inside) flags.push('Outside the dual-readiness corridor — '+_c.lagging.toLowerCase()+' readiness lags by '+_c.div.toFixed(1)+' levels ('+_c.zone+').');
+      if(form.trl<_g.trl[0]) flags.push('TRL '+form.trl+' is below the '+_g.id+' entry band of '+_g.trl[0]+'–'+_g.trl[1]+'.');
+      if(form.mrl<_g.mrl[0]) flags.push('MRL '+form.mrl+' is below the '+_g.id+' entry band of '+_g.mrl[0]+'–'+_g.mrl[1]+'.');
+      if(!form.lifetimeBudget) flags.push('No venture lifetime budget set — tranche ceilings cannot be enforced as amounts.');
+      const _b=parseFloat(String(form.lifetimeBudget).replace(/[^0-9.]/g,''))||0;
+      const _s=parseFloat(String(form.priorSpend).replace(/[^0-9.]/g,''))||0;
+      if(_b>0 && _s>_b*_g.cap/100 && !form.legacyEntry) flags.push('Committed spend exceeds the '+_g.id+' ceiling of '+_g.cap+'% — a ceiling breach is itself a gate event.');
+      if(form.domain==='software' && ['G2','G3','G4'].includes(form.gate)) flags.push('Software domain at '+form.gate+' — apply the '+form.gate+'s replacement criteria, not the hardware set.');
+    }
     if(form.competitiveMoat<=3) flags.push('Weak moat: differentiation insufficient.');
     if(Math.abs(form.trl-form.mrl)>=4) flags.push('TRL/MRL gap of '+Math.abs(form.trl-form.mrl)+' — commercialisation lag risk.');
     if(form.advisoryStrength<=3) flags.push('Thin advisory bench — domain credibility gap.');
     if(form.sdgAlignment<=3) flags.push('Low SDG alignment — sovereign mandate risk.');
     if(form.validationVelocity<=3) flags.push('Slow validation velocity — pivot capacity inadequate.');
     if(!form.revenueModel) flags.push('Revenue model undefined — unit economics unvalidated.');
+    if(form.interviewCount<10) flags.push('Fewer than 10 problem interviews — PPP scores below minimum validation threshold.');
+    if(form.interviewCount>=10&&form.recognitionPct<50) flags.push('Problem recognition below 50% — market may not exist as hypothesized.');
+    if(form.premiumTier==='none'&&form.interviewCount>=10) flags.push('No pricing evidence — premium (P3) entirely unvalidated.');
+    if(form.interviewCount>=15&&form.workaroundPct<30) flags.push('Low workaround rate — may be a "nice-to-have" problem, not must-have.');
     const strengths=[];
-    if(form.customerUrgency>=8) strengths.push('Strong customer urgency — high pull signal.');
+    if(pppComposite>=8) strengths.push('PPP composite '+fmt(pppComposite)+'/10 — strong problem/pain/premium validation.');
+    if(form.interviewCount>=20&&form.recognitionPct>=80) strengths.push('Strong problem interviews: '+form.interviewCount+' interviews, '+form.recognitionPct+'% recognition — validated per Running Lean thresholds.');
+    if(form.loiCount>=3) strengths.push(form.loiCount+' signed LOIs — premium validation confirmed, investor-grade evidence.');
+    if(form.designPartners>=3) strengths.push(form.designPartners+' committed design partners — strong early adoption signal.');
+    if(form.workaroundPct>=60) strengths.push('Workaround rate '+form.workaroundPct+'% — must-have problem confirmed (Maurya threshold: ≥60%).');
     if(form.ipDefensibility>=8) strengths.push('Strong IP moat — defensible technology position.');
     if(form.teamExpertise>=8) strengths.push('Exceptional founder depth — execution confidence high.');
     if(form.competitiveMoat>=8) strengths.push('Deep competitive moat — market position well defended.');
@@ -354,13 +512,42 @@ const App = () => {
     if(form.roiPotential>=8) strengths.push('High ROI potential — return profile attractive.');
     if(form.validationVelocity>=8) strengths.push('Fast validation velocity — lean execution confirmed.');
     const composite = kills.length>0?Math.min(raw,4.5):raw;
-    const verdict =
-      composite>=8?{status:'SPINOUT READY', color:'#34d399',grade:'A',label:'High Investment Grade — Proceed to Spinout Gate'}:
-      composite>=6.5?{status:'ACCELERATE',  color:'#c9a84c',grade:'B',label:'Strong Pipeline — Fast-Track Incubation Recommended'}:
-      composite>=4.5?{status:'INCUBATE',    color:'#f59e0b',grade:'C',label:'Foundry Candidate — De-risk Before Capital Commitment'}:
-      composite>=3?{status:'PIVOT REQUIRED',color:'#f97316',grade:'D',label:'Core assumptions failing — Mandatory pivot or redesign'}:
-                   {status:'TERMINATE',    color:'#f87171',grade:'F',label:'Kill switches triggered — Do not deploy capital'};
-    return {desirability:fmt(desirability),feasibility:fmt(feasibility),viability:fmt(viability),scalability:fmt(scalability),confidence:fmt(confidence),risk:fmt(riskScore),esg:fmt(esgScore),composite:fmt(composite),assumptionConf,kills,flags,strengths,verdict,fatalFlaw:kills.length>0?kills[0].reason:null};
+    // ── Gate, corridor and tranche ─────────────────────────────────────────
+    const g   = GATE(form.gate);
+    const cor = corridorOf(form.trl, form.mrl);
+    const trlInBand = form.trl>=g.trl[0] && form.trl<=g.trl[1];
+    const mrlInBand = form.mrl>=g.mrl[0] && form.mrl<=g.mrl[1];
+    const bandOK = trlInBand && mrlInBand;
+
+    const budget    = parseFloat(String(form.lifetimeBudget).replace(/[^0-9.]/g,'')) || 0;
+    const ceilingPc = g.cap;
+    const ceilingV  = budget*ceilingPc/100;
+    const spent     = parseFloat(String(form.priorSpend).replace(/[^0-9.]/g,'')) || 0;
+    const headroom  = ceilingV - spent;
+    const overCeiling = budget>0 && spent>ceilingV && !form.legacyEntry;
+
+    // ── Five permitted outcomes. Kill fires only on a pre-committed trigger.
+    let verdict;
+    if (kills.length>0) {
+      verdict = {status:'KILL', color:'#f87171', grade:'F',
+        label:'A pre-committed trigger has been met \u2014 structured wind-down, learning captured'};
+    } else if (!cor.inside) {
+      verdict = {status:'CONDITIONAL GO', color:'#f97316', grade:'C',
+        label:'Outside the corridor \u2014 '+cor.lagging.toLowerCase()+' readiness lags by '+cor.div.toFixed(1)+' levels and becomes the sole call on the next budget'};
+    } else if (composite>=7 && bandOK) {
+      verdict = {status:'GO', color:'#34d399', grade:'A',
+        label:'Criteria met on both readiness axes \u2014 next tranche released in full'};
+    } else if (composite>=5.5) {
+      verdict = {status:'CONDITIONAL GO', color:'#c9a84c', grade:'B',
+        label:'Substantially met, defined gaps remain \u2014 partial tranche, gaps closed within 30 days'};
+    } else if (composite>=4) {
+      verdict = {status:'RECYCLE', color:'#f59e0b', grade:'C',
+        label:'Thesis sound, evidence insufficient \u2014 returns to the same stage with a revised plan and budget'};
+    } else {
+      verdict = {status:'HOLD', color:'#8a8a85', grade:'D',
+        label:'Insufficient evidence to proceed \u2014 paused, capital returned to pool, reviewed quarterly'};
+    }
+    return {desirability:fmt(desirability),feasibility:fmt(feasibility),viability:fmt(viability),scalability:fmt(scalability),confidence:fmt(confidence),risk:fmt(riskScore),esg:fmt(esgScore),composite:fmt(composite),assumptionConf,kills,flags,strengths,verdict,fatalFlaw:kills.length>0?kills[0].reason:null,pppScores:{p1:fmt(pppScores.p1),p2:fmt(pppScores.p2),p3:fmt(pppScores.p3),composite:fmt(pppScores.composite),lc:fmt(pppScores.lc)},gate:g,cor,bandOK,trlInBand,mrlInBand,budget,ceilingPc,ceilingV,spent,headroom,overCeiling};
   },[form]);
 
   const radarData=[{label:'Desirability',value:parseFloat(scores.desirability)},{label:'Feasibility',value:parseFloat(scores.feasibility)},{label:'Viability',value:parseFloat(scores.viability)},{label:'Scalability',value:parseFloat(scores.scalability)},{label:'Confidence',value:parseFloat(scores.confidence)},{label:'ESG',value:parseFloat(scores.esg)}];
@@ -393,6 +580,15 @@ const App = () => {
     const prompt = `STAR LABS — EMERGING ZONE PROTOCOL
 Full Institutional Diligence Report
 
+GATE BEING SAT: ${scores.gate.id} · ${scores.gate.name} — "${scores.gate.q}"
+Stage: ${scores.gate.stage} | TRL band ${scores.gate.trl[0]}–${scores.gate.trl[1]} | MRL band ${scores.gate.mrl[0]}–${scores.gate.mrl[1]} | Forum: ${scores.gate.forum}
+Track: ${TRACKS[form.track].label} — ${TRACKS[form.track].g1}
+Domain: ${DOMAINS[form.domain].label} — ${DOMAINS[form.domain].hint}
+Actual readiness: TRL ${form.trl} (${scores.trlInBand?'in band':'OUT OF BAND'}) | MRL ${form.mrl} (${scores.mrlInBand?'in band':'OUT OF BAND'})
+Corridor: ${scores.cor.zone} — divergence ${scores.cor.div.toFixed(1)} of a permitted 2.0${scores.cor.inside?'':', '+scores.cor.lagging.toLowerCase()+' readiness lagging'}
+Capital: ceiling ${scores.gate.cap}%${scores.budget>0?' = '+scores.ceilingV.toFixed(0)+' OMR of a '+scores.budget.toFixed(0)+' OMR lifetime budget; committed '+scores.spent.toFixed(0)+' OMR':' (no lifetime budget set)'}
+Permitted outcomes are Go, Conditional Go, Recycle, Hold and Kill. A Kill requires a pre-committed trigger to have fired — absent evidence is not failed evidence.
+
 ASSET: ${form.techName} | ${form.category} | ${form.sector||'N/A'} | Stage: ${form.stage}
 Problem: ${form.problem||'N/A'}
 Solution: ${form.solution||'N/A'}
@@ -415,7 +611,7 @@ Para 2 — FEASIBILITY: Benchmark the TRL and IP position. What is the realistic
 Para 3 — FINANCIAL VIABILITY: Compare financial profile to 2 real ventures. What specific metric is the leading indicator of failure for this model?
 Para 4 — TEAM AND SCALABILITY: Reference the empirical relationship between founder-market fit at this level and exit outcomes.
 Para 5 — RISK AND ESG: Identify the single most dangerous risk interaction. Cite a historical case. What ESG gap most threatens sovereign capital access?
-Para 6 — GATE VERDICT: State the decision (${scores.verdict.status}, Grade ${scores.verdict.grade}) with precise justification. List exactly 3 specific 90-day conditions that must be met.
+Para 6 — GATE VERDICT: State the decision as one of the five permitted outcomes (${scores.verdict.status}) with precise justification against ${scores.gate.id} criteria. If the venture sits outside the corridor, name the lagging axis. List exactly 3 conditions that must close before the next sitting, each with an owner.
 Plain prose only. No bullets. No markdown. Be ruthlessly precise.`;
     try{ await callProxy(prompt,c=>setFullAI(p=>p+c),6000); }
     catch(e){ setFullAI(`Error: ${e.message}`); }
@@ -438,7 +634,7 @@ NOT UPLOADED:
 ${missing||'None — full package'}
 
 SELF-ASSESSED SCORES:
-Market Size:${form.marketSize} | Customer Urgency:${form.customerUrgency} | IP Defensibility:${form.ipDefensibility} | TRL:${form.trl}/9 | MRL:${form.mrl}
+PPP Composite:${scores.pppScores?.composite||'?'} (P1:${scores.pppScores?.p1||'?'} P2:${scores.pppScores?.p2||'?'} P3:${scores.pppScores?.p3||'?'}) | Interviews:${form.interviewCount} | LOIs:${form.loiCount} | IP Defensibility:${form.ipDefensibility} | TRL:${form.trl}/9 | MRL:${form.mrl}
 ROI:${form.roiPotential} | Revenue Readiness:${form.revenueReadiness} | Capital Intensity:${form.capitalIntensity} | Burn Risk:${form.burnRisk}
 Team Expertise:${form.teamExpertise} | Advisory:${form.advisoryStrength} | Governance:${form.governanceReadiness} | ESG:${scores.esg}
 Composite EZP: ${scores.composite}/10
@@ -455,15 +651,116 @@ Plain prose for paras 1,2,4. Score format for para 3. Short lines for para 5.`;
   },[docs,form,scores,callProxy]);
 
   // ── Navigation ──────────────────────────────────────────────────────────────
+  // ── Save/Load helpers ────────────────────────────────────────────────────────
+  const buildPayload = () => ({
+    user_name:      userName,
+    tech_name:      form.techName || 'Untitled',
+    stage:          form.stage,
+    category:       form.category,
+    composite:      parseFloat(scores.composite),
+    verdict:        scores.verdict.status,
+    grade:          scores.verdict.grade,
+    gate_id:        form.gate,
+    track:          form.track,
+    domain:         form.domain,
+    corridor_div:   parseFloat(scores.cor?.div?.toFixed(2))||0,
+    lifetime_budget:scores.budget||0,
+    ppp_composite:  parseFloat(scores.pppScores?.composite)||0,
+    ppp_p1:         parseFloat(scores.pppScores?.p1)||0,
+    ppp_p2:         parseFloat(scores.pppScores?.p2)||0,
+    ppp_p3:         parseFloat(scores.pppScores?.p3)||0,
+    interview_count: form.interviewCount,
+    form_data:      JSON.stringify(form),
+    ai_sections:    JSON.stringify(sAI),
+    full_ai:        fullAI,
+    doc_ai:         docAI,
+    doc_names:      JSON.stringify(Object.entries(docs).reduce((a,[k,v])=>{if(v)a[k]=v.name;return a;},{})),
+    updated_at:     new Date().toISOString(),
+  });
+
+  const saveAssessment = useCallback(async()=>{
+    const sb = getSB();
+    if(!sb){ setSaveMsg('⚠ Supabase not configured — see setup guide.'); setTimeout(()=>setSaveMsg(''),4000); return; }
+    if(!form.techName){ setSaveMsg('⚠ Enter an Asset Identifier first.'); setTimeout(()=>setSaveMsg(''),3000); return; }
+    setSaveL(true); setSaveMsg('');
+    try {
+      const payload = buildPayload();
+      let res;
+      if(currentId) {
+        // Update existing
+        res = await sb.from('assessments').update(payload).eq('id', currentId).select().single();
+      } else {
+        // Insert new
+        res = await sb.from('assessments').insert(payload).select().single();
+      }
+      if(res.error) throw new Error(res.error.message);
+      setCurrentId(res.data.id);
+      setSaveMsg('✓ Saved — ' + new Date().toLocaleTimeString());
+    } catch(e) {
+      setSaveMsg('✗ Save failed: ' + e.message);
+    } finally {
+      setSaveL(false);
+      setTimeout(()=>setSaveMsg(''),4000);
+    }
+  },[form,sAI,fullAI,docAI,docs,userName,currentId,scores]);
+
+  const loadAssessment = useCallback((row)=>{
+    try {
+      const f = JSON.parse(row.form_data);
+      const ai = JSON.parse(row.ai_sections || '{}');
+      setForm({...INIT_FORM,...f});
+      setSAI(ai);
+      setFullAI(row.full_ai || '');
+      setDocAI(row.doc_ai || '');
+      setCurrentId(row.id);
+      setStep(0);
+      setDone(new Set());
+      setScreen('assess');
+      mainRef.current&&mainRef.current.scrollTo({top:0,behavior:'smooth'});
+    } catch(e) {
+      alert('Failed to load assessment: ' + e.message);
+    }
+  },[]);
+
+  const loadList = useCallback(async(name)=>{
+    const sb = getSB();
+    if(!sb){ setSavedList([]); return; }
+    setListL(true);
+    try {
+      const {data,error} = await sb.from('assessments')
+        .select('id,tech_name,stage,category,composite,verdict,grade,updated_at')
+        .eq('user_name', name)
+        .order('updated_at', {ascending:false})
+        .limit(50);
+      if(error) throw new Error(error.message);
+      setSavedList(data||[]);
+    } catch(e) {
+      setSavedList([]);
+    } finally {
+      setListL(false);
+    }
+  },[]);
+
+  const deleteAssessment = useCallback(async(id)=>{
+    if(!window.confirm('Delete this assessment? This cannot be undone.')) return;
+    const sb = getSB();
+    if(!sb) return;
+    await sb.from('assessments').delete().eq('id',id).eq('user_name',userName);
+    setSavedList(p=>p.filter(r=>r.id!==id));
+    if(currentId===id){ setCurrentId(null); }
+  },[userName,currentId]);
+
   const markDone = ()=>setDone(p=>new Set([...p,step]));
   const goTo = useCallback(i=>{markDone();setStep(i);mainRef.current&&mainRef.current.scrollTo({top:0,behavior:'smooth'});},[step]);
   const next = ()=>{markDone();setStep(s=>Math.min(STEPS.length-1,s+1));mainRef.current&&mainRef.current.scrollTo({top:0,behavior:'smooth'});};
   const prev = ()=>{setStep(s=>Math.max(0,s-1));mainRef.current&&mainRef.current.scrollTo({top:0,behavior:'smooth'});};
   const reset = ()=>{
-    if(!window.confirm('Start a new case? All data will be cleared.')) return;
+    if(!window.confirm('Start a new case? All current data will be cleared.')) return;
     setStep(0);setForm(INIT_FORM);setDone(new Set());setSAI({});setSecL(null);
     setFullAI('');setFullL(false);setDocs({});setDocAI('');setDocL(false);
-    mainRef.current&&mainRef.current.scrollTo({top:0,behavior:'smooth'});
+    setCurrentId(null);setSaveMsg('');
+    setScreen('dashboard');
+    loadList(userName);
   };
 
   // ── Doc upload helpers ──────────────────────────────────────────────────────
@@ -525,6 +822,20 @@ Plain prose for paras 1,2,4. Score format for para 3. Short lines for para 5.`;
         }).join('');
 
     const pillars=[['Desirability',scores.desirability,'28%'],['Feasibility',scores.feasibility,'22%'],['Viability',scores.viability,'18%'],['Scalability',scores.scalability,'17%'],['Confidence',scores.confidence,'15%'],['ESG Gate',scores.esg,'—']];
+    const pppExp = scores.pppScores||{p1:'—',p2:'—',p3:'—',composite:'—',lc:'—'};
+    const pppSection = '<div style="margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid #e5e7eb;">'
+      +'<h2 style="font-family:Syne,sans-serif;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#374151;margin-bottom:12px;padding-bottom:7px;border-bottom:2px solid #f3f4f6;">Market Fit — PPP Validation (Ash Maurya)</h2>'
+      +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;">'
+      +[['P1 Problem',pppExp.p1,'Interviews: '+form.interviewCount+' · Recog: '+form.recognitionPct+'%'],
+        ['P2 Pain',pppExp.p2,'F:'+form.painFrequency+' × I:'+form.painIntensity+' × C:'+form.painCostAlt],
+        ['P3 Premium',pppExp.p3,'Tier: '+(form.premiumTier||'none')+' · LOIs: '+form.loiCount],
+        ['PPP Composite',pppExp.composite,'min(P1,P2,P3) · LC: '+pppExp.lc+'/10']
+       ].map(([l,v,d])=>'<div style="background:#fafafa;border:1px solid #e5e7eb;border-radius:8px;padding:12px;text-align:center;">'
+        +'<p style="font-family:Space Mono,monospace;font-size:9px;color:#6b7280;text-transform:uppercase;margin-bottom:4px;">'+l+'</p>'
+        +'<p style="font-family:Syne,sans-serif;font-size:22px;font-weight:800;color:#111827;margin-bottom:2px;">'+v+'</p>'
+        +'<p style="font-size:10px;color:#9ca3af;">'+d+'</p>'
+        +'</div>').join('')
+      +'</div></div>';
     const profile=[['Problem',form.problem],['Solution',form.solution],['Why Now',form.whyNow],['Advantage',form.unfairAdvantage],['Revenue Model',form.revenueModel],['TAM Estimate',form.tam],['Target Sector',form.sector],['Funding Stage',form.fundingStage]].filter(([_,v])=>v);
 
     // Verdict colour — print-safe (dark enough on white)
@@ -627,6 +938,7 @@ Plain prose for paras 1,2,4. Score format for para 3. Short lines for para 5.`;
       +'  </div>'
       +'</div>'
 
+      + pppSection
       // ── DIAGNOSTICS ───────────────────────────────────────────────────────
       +'<div class="section">'
       +'  <h2>Stress-Test Diagnostics</h2>'
@@ -747,8 +1059,53 @@ Plain prose for paras 1,2,4. Score format for para 3. Short lines for para 5.`;
   const buildIntakePrompt = () =>
     `STAR LABS — CONCEPT STRESS TEST\nAsset: ${form.techName} | ${form.category} | Sector: ${form.sector||'Unspecified'} | Stage: ${form.stage}\nProblem: ${form.problem||'Not stated'}\nSolution: ${form.solution||'Not stated'}\nWhy Now: ${form.whyNow||'Not stated'}\nUnfair Advantage: ${form.unfairAdvantage||'Not stated'}\n\nDo NOT summarize the above. Write two analytical paragraphs:\n\nParagraph 1 — CONCEPT REALITY CHECK: Is this problem genuinely urgent and underserved? Name 2-3 comparable ventures that attacked similar problems and what happened to them. What does the why-now claim require to be true — and is there empirical evidence those conditions exist today?\n\nParagraph 2 — UNFAIR ADVANTAGE AUDIT: Assess the stated advantage against three failure modes: (1) real but temporary, (2) exists but wrong dimension for scale, (3) claimed but not yet earned. What is the realistic probability this advantage holds for 36 months? What is the single most important question to answer in the next 90 days?`;
 
-  const buildMarketPrompt = () =>
-    `STAR LABS — MARKET VECTOR ANALYSIS\nAsset: ${form.techName} | ${form.category} | Sector: ${form.sector||'N/A'}\nTAM: ${form.marketSize}/10 | Urgency: ${form.customerUrgency}/10 | Timing: ${form.marketTiming}/10 | Moat: ${form.competitiveMoat}/10\nRevenue Model: ${form.revenueModel||'Undefined'} | TAM Estimate: ${form.tam||'Not provided'}\n\nDo NOT repeat scores. Write two analytical paragraphs:\n\nParagraph 1 — MARKET TIMING VERDICT: CB Insights data shows no market need accounts for 42% of startup failures. Assess whether timing is right or premature. Name ventures in ${form.category} that entered at the wrong time and those that timed it correctly. What does the historical base rate for ventures at urgency level ${form.customerUrgency}/10 look like in comparable sectors?\n\nParagraph 2 — MOAT DURABILITY: In ${form.category}, what is the average time before a well-funded competitor replicates a first-mover? Reference 2 historical examples of moat erosion. For the ${form.revenueModel||'undefined'} model, what does the typical CAC trajectory imply for moat viability at scale?`;
+  const buildMarketPrompt = () => {
+    const ppp = scores.pppScores||{};
+    const painRaw = form.painFrequency*form.painIntensity*form.painCostAlt;
+    const premTierLabels = {none:'No evidence',stated:'Stated WTP only',anchored:'Price-anchoring 3-of-5',vanwestendorp:'Van Westendorp test',smoketest:'Smoke test conversion',loi:'Signed LOI/pre-order'};
+    return `STAR LABS — MARKET FIT ASSESSMENT (Ash Maurya PPP Framework)
+Asset: ${form.techName} | ${form.category} | Sector: ${form.sector||'N/A'} | Stage: ${form.stage}
+Lean Canvas Mode: ${form.lcMode} | Canvas Completeness: ${ppp.lc||'?'}/10
+
+=== PROBLEM–PAIN–PREMIUM SCORES ===
+P1 Problem: ${ppp.p1||'?'}/10
+  - Interviews: ${form.interviewCount} | Recognition: ${form.recognitionPct}% | Top-1 Ranking: ${form.topOnePct}% | Workaround Rate: ${form.workaroundPct}%
+  - Existing alternatives: ${form.existingAlts||'None listed'}
+  - Interview notes: ${form.interviewNotes||'None provided'}
+
+P2 Pain: ${ppp.p2||'?'}/10
+  - Frequency: ${form.painFrequency}/5 | Intensity: ${form.painIntensity}/5 | Cost of Alternative: ${form.painCostAlt}/5
+  - Raw pain score: ${painRaw}/125
+
+P3 Premium: ${ppp.p3||'?'}/10
+  - Evidence tier: ${premTierLabels[form.premiumTier]||'None'}
+  - Design partners: ${form.designPartners} | LOIs signed: ${form.loiCount} | WTP stated: ${form.wtpAmount||'Not provided'}
+  - Pricing notes: ${form.pricingNotes||'None'}
+
+PPP COMPOSITE (min rule): ${ppp.composite||'?'}/10
+
+=== SOLUTION VALIDATION ===
+Solution interviews: ${form.solInterviewCount} | UVP understood: ${form.uvpUnderstandPct}% | Would refer: ${form.referralPct}% | Would pre-pay: ${form.prepayPct}%
+MVP type: ${form.mvpType}
+
+=== LEAN CANVAS BLOCKS ===
+Customer Segment: ${form.lcSegment||'Not filled'}
+Problem: ${form.lcProblem||'Not filled'}
+UVP: ${form.lcUVP||'Not filled'}
+Channels: ${form.lcChannels||'Not filled'}
+Unfair Advantage: ${form.lcAdvantage||'Not filled'}
+
+=== CONTEXT ===
+TAM: ${form.marketSize}/10 | Timing: ${form.marketTiming}/10 | Moat: ${form.competitiveMoat}/10 | Revenue Model: ${form.revenueModel||'Undefined'}
+
+Do NOT repeat or summarize these scores. Write three analytical paragraphs:
+
+Paragraph 1 — PPP VERDICT: Apply Ash Maurya's bottleneck logic — the weakest P determines the composite. Which P is the rate-limiter here and why? For the interview count of ${form.interviewCount} and recognition rate of ${form.recognitionPct}%, how does this compare to the 10/20/30 rule validation thresholds? Name 2 ventures in ${form.category} that validated or failed at the same stage of evidence maturity. What is the Mom Test compliance assessment based on the interview notes provided?
+
+Paragraph 2 — LEAN CANVAS STRESS TEST: Evaluate the filled Lean Canvas blocks for internal consistency. Does the Customer Segment match the Problem? Does the UVP solve the #1 problem? Are the Channels realistic for the stated segment in ${form.sector||'this sector'}? Name the single weakest canvas block that represents the highest assumption risk, and what experiment would validate it in ≤2 weeks.
+
+Paragraph 3 — PREMIUM RISK AND MARKET TIMING: The evidence tier is "${premTierLabels[form.premiumTier]||'none'}" — what does this imply about WTP confidence? In ${form.category} with a ${form.lcMode} model, what is the historical failure rate due to premium gaps (pricing too low, wrong buyer, no budget)? Given market timing ${form.marketTiming}/10 and the TAM of ${form.tam||'unspecified'}, what is the realistic time-to-first-paying-customer based on comparable ventures in ${form.sector||'this sector'}?`;
+  };
 
   const buildTechPrompt = () =>
     `STAR LABS — TECHNOLOGY FEASIBILITY\nAsset: ${form.techName} | ${form.category}\nTRL: ${form.trl}/9 | MRL: ${form.mrl}/10 | Gap: ${Math.abs(form.trl-form.mrl)} pts | IP: ${form.ipDefensibility}/10 | Scalability: ${form.techScalability}/10\nNotes: ${form.techNotes||'None'}\n\nDo NOT repeat scores. Write two analytical paragraphs:\n\nParagraph 1 — TRL DEATH VALLEY: Studies show 67% of deep-tech spinouts stalling at TRL 4-5 never reach commercial deployment. Compare to 2-3 ventures in ${form.category} that started at TRL ${form.trl}: which crossed the valley and how long did it take? The TRL-MRL gap of ${Math.abs(form.trl-form.mrl)} is ${Math.abs(form.trl-form.mrl)<=2?'healthy':'dangerous — what does empirical data say about ventures with this gap in '+form.category}?\n\nParagraph 2 — IP MOAT STRESS TEST: In ${form.category}, patent protection averages 18 months before a competitor finds a design-around. What IP strategy is implied by a score of ${form.ipDefensibility}/10? Name a specific venture that overestimated its IP moat in this space and the consequence.`;
@@ -769,31 +1126,213 @@ Plain prose for paras 1,2,4. Score format for para 3. Short lines for para 5.`;
     return `STAR LABS — MULTI-VECTOR RISK ANALYSIS\nAsset: ${form.techName} | ${form.category} | Sector: ${form.sector||'N/A'}\nRegulatory: ${form.regulatoryRisk}/10 | Geopolitical: ${form.geopoliticalRisk}/10 | Supply Chain: ${form.supplychainRisk}/10 | Cybersecurity: ${form.cybersecurityRisk}/10 | Talent: ${form.talentRisk}/10 | Competition: ${form.competitionRisk}/10\nHighest vector: ${topLbl} at ${maxV}/10\n\nDo NOT list or summarize these scores. Write two analytical paragraphs:\n\nParagraph 1 — HISTORICAL RISK-ADJUSTED SUCCESS RATE: For ventures in ${form.category} in Gulf/MENA with this risk configuration, what does historical data show? Name 2 ventures that faced ${topLbl} risk: one that navigated it successfully and one that did not. What was the difference? What percentage of comparable ventures at ${form.stage} reach successful exit or sustainable revenue, and what is the typical timeline?\n\nParagraph 2 — RISK COMPOUNDING: Identify the most dangerous risk interaction in this profile. What is the realistic worst-case scenario if the two highest risks materialise simultaneously in 18 months? Name a historical case of this compounding in ${form.category}. What is the single mitigation action that addresses the most risk per dollar, and what does implementation require?`;
   };
 
-  // ── Lock screen ─────────────────────────────────────────────────────────────
-  if(locked) return (
+  // ── Centered page shell ────────────────────────────────────────────────────
+  const CenterPage = ({children}) => (
     <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',padding:'1.5rem',position:'relative',zIndex:10}}>
-      <div style={{width:'100%',maxWidth:360}}>
-        <div style={{textAlign:'center',marginBottom:'2.5rem'}}>
-          <div style={{display:'flex',justifyContent:'center',marginBottom:'1.75rem'}}><Logo h={112}/></div>
-          <h1 className="syne" style={{fontSize:'2.1rem',fontWeight:800,textTransform:'uppercase',letterSpacing:'.04em',color:'var(--text)',marginBottom:8}}>EZP Terminal</h1>
-          <p className="mono" style={{fontSize:'var(--fs-xs)',letterSpacing:'.28em',color:'var(--gold)',marginBottom:10,opacity:.9}}>AUTHORIZATION REQUIRED</p>
-          <div style={{width:36,height:1,background:'var(--gold-border)',margin:'0 auto 10px'}}/>
-          <p style={{fontSize:'var(--fs-sm)',color:'var(--text3)',letterSpacing:'.04em'}}>Emerging Zone Protocol · Institutional Grade · 2026</p>
+      <div style={{width:'100%',maxWidth:420}}>
+        <div style={{textAlign:'center',marginBottom:'2rem'}}>
+          <div style={{display:'flex',justifyContent:'center',marginBottom:'1.5rem'}}><Logo h={110}/></div>
+          <h1 className="syne" style={{fontSize:'2rem',fontWeight:800,textTransform:'uppercase',letterSpacing:'.04em',color:'var(--text)',marginBottom:6}}>EZP Terminal</h1>
+          <p className="mono" style={{fontSize:'var(--fs-xs)',letterSpacing:'.25em',color:'var(--gold)',opacity:.9}}>EMERGING ZONE PROTOCOL · 2026</p>
+          <div style={{width:36,height:1,background:'var(--gold-border)',margin:'10px auto'}}/>
         </div>
-        <div className="card-gold" style={{padding:'2rem'}}>
-          <input type="password" placeholder="ACCESS KEY" value={keyVal}
-            onChange={e=>{setKeyVal(e.target.value);setKeyErr(false);}}
-            onKeyDown={e=>{if(e.key==='Enter'){if(keyVal.toUpperCase()==='STAR2026')setLocked(false);else setKeyErr(true);}}}
-            className="field mono"
-            style={{textAlign:'center',fontSize:'1.1rem',letterSpacing:'.5em',marginBottom:'1rem',padding:'1rem',borderColor:keyErr?'rgba(248,113,113,.5)':undefined}}/>
-          {keyErr&&<p className="mono" style={{fontSize:'var(--fs-sm)',color:'#f87171',textAlign:'center',marginBottom:'.75rem'}}>ACCESS DENIED</p>}
-          <button onClick={()=>keyVal.toUpperCase()==='STAR2026'?setLocked(false):setKeyErr(true)}
-            className="shimmer-btn syne"
-            style={{width:'100%',padding:'1.1rem',borderRadius:'.9rem',fontWeight:900,fontSize:'var(--fs-md)',textTransform:'uppercase',letterSpacing:'.15em',border:'none',color:'#05060a',cursor:'pointer'}}>
-            Verify Access
-          </button>
+        {children}
+        <p className="mono" style={{textAlign:'center',fontSize:'var(--fs-xs)',color:'var(--text3)',marginTop:'1.25rem',opacity:.4,letterSpacing:'.1em'}}>SL-EZP-2026 // CLASSIFIED</p>
+      </div>
+    </div>
+  );
+
+  // ── SCREEN: LOCK ────────────────────────────────────────────────────────────
+  if(screen==='lock') return (
+    <CenterPage>
+      <div className="card-gold" style={{padding:'2rem'}}>
+        <p className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--text3)',textAlign:'center',marginBottom:'1rem',letterSpacing:'.1em',textTransform:'uppercase'}}>Access Key</p>
+        <input type="password" placeholder="••••••••" value={keyVal}
+          onChange={e=>{setKeyVal(e.target.value);setKeyErr(false);}}
+          onKeyDown={e=>{if(e.key==='Enter'){if(keyVal.toUpperCase()==='STAR2026'){setScreen('name');}else setKeyErr(true);}}}
+          className="field mono"
+          style={{textAlign:'center',fontSize:'1.1rem',letterSpacing:'.5em',marginBottom:'1rem',padding:'1rem',borderColor:keyErr?'rgba(248,113,113,.5)':undefined}}/>
+        {keyErr&&<p className="mono" style={{fontSize:'var(--fs-sm)',color:'#f87171',textAlign:'center',marginBottom:'.75rem'}}>ACCESS DENIED — Invalid key</p>}
+        <button onClick={()=>{if(keyVal.toUpperCase()==='STAR2026'){setScreen('name');}else setKeyErr(true);}}
+          className="shimmer-btn syne"
+          style={{width:'100%',padding:'1.1rem',borderRadius:'.9rem',fontWeight:900,fontSize:'var(--fs-md)',textTransform:'uppercase',letterSpacing:'.15em',border:'none',color:'#05060a',cursor:'pointer'}}>
+          Verify Access
+        </button>
+      </div>
+    </CenterPage>
+  );
+
+  // ── SCREEN: NAME ────────────────────────────────────────────────────────────
+  if(screen==='name') return (
+    <CenterPage>
+      <div className="card-gold" style={{padding:'2rem'}}>
+        <p className="syne" style={{fontSize:'var(--fs-md)',fontWeight:700,color:'var(--text)',marginBottom:6,textAlign:'center'}}>Who are you?</p>
+        <p style={{fontSize:'var(--fs-sm)',color:'var(--text3)',textAlign:'center',marginBottom:'1.25rem',lineHeight:1.5}}>Enter your name to load your saved assessments. This is your personal workspace identifier.</p>
+        <input placeholder="e.g. Aziza Al-Rashidi" value={nameInput}
+          onChange={e=>{setNameInput(e.target.value);setNameErr('');}}
+          onKeyDown={e=>{
+            if(e.key==='Enter'){
+              const n=nameInput.trim();
+              if(!n){setNameErr('Please enter your name.');return;}
+              setUserName(n); loadList(n); setScreen('dashboard');
+            }
+          }}
+          className="field" style={{marginBottom:'1rem',fontSize:'var(--fs-md)',borderColor:nameErr?'rgba(248,113,113,.5)':undefined}}/>
+        {nameErr&&<p className="mono" style={{fontSize:'var(--fs-sm)',color:'#f87171',marginBottom:'.75rem'}}>{nameErr}</p>}
+        <button onClick={()=>{
+          const n=nameInput.trim();
+          if(!n){setNameErr('Please enter your name.');return;}
+          setUserName(n); loadList(n); setScreen('dashboard');
+        }} className="syne" style={{width:'100%',padding:'1rem',borderRadius:'.9rem',fontWeight:900,fontSize:'var(--fs-md)',textTransform:'uppercase',letterSpacing:'.15em',border:'none',color:'#05060a',cursor:'pointer',background:'var(--gold)'}}>
+          Continue →
+        </button>
+        {!getSB()&&(
+          <p className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--amber)',marginTop:'1rem',textAlign:'center',lineHeight:1.5}}>
+            ⚠ Supabase not configured — save/load disabled.<br/>See setup guide below.
+          </p>
+        )}
+      </div>
+    </CenterPage>
+  );
+
+  // ── SCREEN: DASHBOARD ───────────────────────────────────────────────────────
+  if(screen==='dashboard') return (
+    <div style={{minHeight:'100vh',position:'relative',zIndex:10}}>
+      <header style={{position:'sticky',top:0,zIndex:50,display:'flex',alignItems:'center',justifyContent:'space-between',padding:'.75rem 1.25rem',background:'rgba(10,11,14,.94)',backdropFilter:'blur(20px)',borderBottom:'1px solid rgba(255,255,255,.05)'}}>
+        <div style={{display:'flex',alignItems:'center',gap:'1rem'}}>
+          <Logo h={44}/>
+          <div style={{borderLeft:'1px solid rgba(255,255,255,.08)',paddingLeft:'1rem'}}>
+            <div className="syne" style={{fontSize:'var(--fs-md)',fontWeight:700,color:'var(--text)'}}>My Assessments</div>
+            <div className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--text3)'}}>Welcome, {userName}</div>
+          </div>
         </div>
-        <p className="mono" style={{textAlign:'center',fontSize:'var(--fs-xs)',color:'var(--text3)',marginTop:'1.5rem',opacity:.5,letterSpacing:'.1em'}}>SL-EZP-2026 // CLASSIFIED</p>
+        <button onClick={()=>{setForm(INIT_FORM);setSAI({});setFullAI('');setDocAI('');setDocs({});setDone(new Set());setStep(0);setCurrentId(null);setSaveMsg('');setScreen('assess');}}
+          className="syne" style={{display:'flex',alignItems:'center',gap:6,padding:'.55rem 1.1rem',borderRadius:'.75rem',fontSize:'var(--fs-sm)',fontWeight:700,textTransform:'uppercase',letterSpacing:'.08em',background:'var(--gold)',color:'#05060a',border:'none',cursor:'pointer'}}>
+          <Icon name="plus" size={13}/> New Assessment
+        </button>
+      </header>
+
+      <div style={{maxWidth:900,margin:'0 auto',padding:'2rem 1.25rem'}}>
+        {/* Stats row */}
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(160px,1fr))',gap:'1rem',marginBottom:'2rem'}}>
+          {[
+            {label:'Total Assessments', value:savedList.length, icon:'folder'},
+            {label:'Completed',value:savedList.filter(r=>r.grade==='A'||r.grade==='B').length,icon:'check-circle'},
+            {label:'In Progress',value:savedList.filter(r=>r.grade==='C'||r.grade==='D').length,icon:'clock'},
+            {label:'Terminated',value:savedList.filter(r=>r.grade==='F').length,icon:'x-circle'},
+          ].map(({label,value,icon})=>(
+            <div key={label} className="card" style={{padding:'1rem',textAlign:'center'}}>
+              <div style={{display:'flex',justifyContent:'center',marginBottom:6}}><Icon name={icon} size={16} color="var(--gold)"/></div>
+              <p className="syne" style={{fontSize:'1.5rem',fontWeight:800,color:'var(--text)'}}>{value}</p>
+              <p className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--text3)',textTransform:'uppercase'}}>{label}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="card" style={{padding:'1.25rem'}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'1rem'}}>
+            <p className="syne" style={{fontSize:'var(--fs-md)',fontWeight:700,color:'var(--text)'}}>Saved Assessments</p>
+            <button onClick={()=>loadList(userName)} style={{display:'flex',alignItems:'center',gap:5,padding:'.4rem .8rem',borderRadius:'.5rem',fontSize:'var(--fs-xs)',fontWeight:700,background:'rgba(255,255,255,.04)',color:'var(--text3)',border:'1px solid rgba(255,255,255,.07)',cursor:'pointer',fontFamily:'Space Mono'}}>
+              <Icon name="refresh-cw" size={11}/> Refresh
+            </button>
+          </div>
+
+          {listLoading?(
+            <div style={{textAlign:'center',padding:'3rem',color:'var(--text3)'}}>
+              <span className="spin mono" style={{fontSize:'1.5rem'}}>⟳</span>
+              <p style={{marginTop:8,fontSize:'var(--fs-sm)'}}>Loading assessments...</p>
+            </div>
+          ):savedList.length===0?(
+            <div style={{textAlign:'center',padding:'3rem'}}>
+              <div style={{display:'flex',justifyContent:'center',marginBottom:12}}><Icon name="inbox" size={32} color="var(--muted)"/></div>
+              <p className="syne" style={{fontSize:'var(--fs-md)',fontWeight:700,color:'var(--text3)',marginBottom:6}}>No saved assessments</p>
+              <p style={{fontSize:'var(--fs-sm)',color:'var(--text3)',marginBottom:'1.25rem'}}>{getSB()?'Start a new assessment and save it to see it here.':'Configure Supabase to enable saving — see setup guide.'}</p>
+              <button onClick={()=>{setScreen('assess');setCurrentId(null);}}
+                className="syne" style={{padding:'.6rem 1.25rem',borderRadius:'.75rem',fontSize:'var(--fs-sm)',fontWeight:700,textTransform:'uppercase',letterSpacing:'.08em',background:'var(--gold-dim)',color:'var(--gold)',border:'1px solid var(--gold-border)',cursor:'pointer'}}>
+                Start New Assessment →
+              </button>
+            </div>
+          ):(
+            <div style={{display:'flex',flexDirection:'column',gap:8}}>
+              {savedList.map(row=>{
+                const gradeColor = row.grade==='A'?'#34d399':row.grade==='B'?'#c9a84c':row.grade==='C'?'#f59e0b':row.grade==='D'?'#f97316':'#f87171';
+                const saved = new Date(row.updated_at).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+                return (
+                  <div key={row.id} style={{display:'flex',alignItems:'center',gap:12,padding:'1rem',background:'rgba(255,255,255,.02)',border:'1px solid rgba(255,255,255,.06)',borderRadius:'.75rem',transition:'all .15s',cursor:'pointer'}}
+                    onClick={()=>loadAssessment(row)}
+                    onMouseOver={e=>e.currentTarget.style.borderColor='var(--gold-border)'}
+                    onMouseOut={e=>e.currentTarget.style.borderColor='rgba(255,255,255,.06)'}>
+                    {/* Grade badge */}
+                    <div style={{width:42,height:42,borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center',background:`${gradeColor}18`,border:`1px solid ${gradeColor}40`,flexShrink:0}}>
+                      <span className="syne" style={{fontSize:'1.1rem',fontWeight:800,color:gradeColor}}>{row.grade}</span>
+                    </div>
+                    {/* Info */}
+                    <div style={{flex:1,minWidth:0}}>
+                      <p className="syne" style={{fontSize:'var(--fs-base)',fontWeight:700,color:'var(--text)',marginBottom:2,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{row.tech_name}</p>
+                      <p className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--text3)'}}>{row.category} · {row.stage}</p>
+                    </div>
+                    {/* Score */}
+                    <div style={{textAlign:'center',flexShrink:0}}>
+                      <p className="syne" style={{fontSize:'1.25rem',fontWeight:800,color:gradeColor}}>{row.composite?.toFixed(1)}</p>
+                      <p className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--text3)',textTransform:'uppercase',fontSize:'.55rem'}}>{row.verdict}</p>
+                    </div>
+                    {/* Date */}
+                    <div style={{textAlign:'right',flexShrink:0}} className="hide-mobile">
+                      <p className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--text3)'}}>{saved}</p>
+                    </div>
+                    {/* Delete */}
+                    <button onClick={e=>{e.stopPropagation();deleteAssessment(row.id);}}
+                      style={{padding:'6px 8px',borderRadius:6,background:'rgba(248,113,113,.06)',color:'#f87171',border:'1px solid rgba(248,113,113,.15)',cursor:'pointer',flexShrink:0,display:'flex',alignItems:'center'}}>
+                      <Icon name="trash-2" size={12}/>
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Setup guide if Supabase not configured */}
+        {!getSB()&&(
+          <div className="card-warn" style={{marginTop:'1.5rem',padding:'1.25rem'}}>
+            <p className="mono" style={{fontSize:'var(--fs-sm)',color:'var(--amber)',fontWeight:700,textTransform:'uppercase',letterSpacing:'.08em',marginBottom:8}}>⚠ Supabase Setup Required</p>
+            <p style={{fontSize:'var(--fs-sm)',color:'var(--text2)',lineHeight:1.7,marginBottom:12}}>
+              To enable save/load, create a free account at <strong>supabase.com</strong>, create a project, then run this SQL in the SQL Editor:
+            </p>
+            <pre style={{background:'rgba(0,0,0,.4)',border:'1px solid rgba(255,255,255,.08)',borderRadius:8,padding:'1rem',fontSize:'.72rem',color:'#a8a49a',overflowX:'auto',lineHeight:1.6}}>{`create table assessments (
+  id              uuid default gen_random_uuid() primary key,
+  user_name       text not null,
+  tech_name       text,
+  stage           text,
+  category        text,
+  composite       numeric,
+  verdict         text,
+  grade           text,
+  gate_id         text,
+  track           text,
+  domain          text,
+  corridor_div    numeric,
+  lifetime_budget numeric,
+  ppp_composite   numeric,
+  ppp_p1          numeric,
+  ppp_p2          numeric,
+  ppp_p3          numeric,
+  interview_count integer,
+  form_data       text,
+  ai_sections     text,
+  full_ai         text,
+  doc_ai          text,
+  doc_names       text,
+  updated_at      timestamptz default now()
+);
+
+-- Allow anyone with the anon key to read/write their own rows
+alter table assessments enable row level security;
+create policy "users manage own" on assessments
+  using (true) with check (true);`}</pre>
+            <p style={{fontSize:'var(--fs-sm)',color:'var(--text3)',marginTop:12}}>Then copy your <strong>Project URL</strong> and <strong>anon key</strong> from Settings → API and paste them into <code style={{color:'var(--gold)'}}>SB_URL</code> and <code style={{color:'var(--gold)'}}>SB_ANON</code> at the top of index.html.</p>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -821,12 +1360,79 @@ Plain prose for paras 1,2,4. Score format for para 3. Short lines for para 5.`;
           <h2 className="syne" style={{fontSize:'clamp(1.6rem,4vw,2.4rem)',fontWeight:800,textTransform:'uppercase',letterSpacing:'-.01em'}}>Foundry Intake</h2>
           <p style={{fontSize:'var(--fs-base)',color:'var(--text3)',marginTop:4}}>Establish venture geometry before capital allocation.</p>
         </div>
-        <div className="card-info" style={{padding:'.9rem',display:'flex',gap:10,alignItems:'flex-start'}}>
-          <span style={{fontSize:'1rem',flexShrink:0}}>🔬</span>
-          <div>
-            <p className="mono" style={{fontSize:'var(--fs-sm)',color:'#60a5fa',fontWeight:700,textTransform:'uppercase',letterSpacing:'.08em',marginBottom:3}}>LeanSpark Stress-Test Active</p>
-            <p style={{fontSize:'var(--fs-sm)',color:'var(--text3)',lineHeight:1.6}}>8 binary Kill Switches · 5 Pillar scoring · Assumption Confidence tracking · Real-time Red Flags &amp; Strengths. Fill all text fields to maximise confidence score.</p>
+        {/* ── Gate declaration ─────────────────────────────────────────── */}
+        <div className="card-gold" style={{padding:'1.25rem'}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',flexWrap:'wrap',gap:12,marginBottom:14}}>
+            <div>
+              <p className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--gold)',fontWeight:700,textTransform:'uppercase',letterSpacing:'.12em',marginBottom:4}}>Gate Declaration</p>
+              <p style={{fontSize:'var(--fs-base)',color:'var(--text2)',maxWidth:'58ch',lineHeight:1.6}}>
+                Declared before evidence is scored. The gate sets which criteria apply, the track sets which instrument
+                establishes pain, and the domain sets whether G2\u2013G4 read on physics or on product.
+              </p>
+            </div>
+            <div style={{textAlign:'right',minWidth:140}}>
+              <p className="syne" style={{fontSize:'1.9rem',fontWeight:800,color:'var(--gold)',lineHeight:1}}>{scores.gate.id}</p>
+              <p className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--text3)',textTransform:'uppercase'}}>{scores.gate.name}</p>
+            </div>
           </div>
+          <p style={{fontSize:'var(--fs-base)',fontStyle:'italic',color:'var(--text)',marginBottom:14,paddingLeft:12,borderLeft:'2px solid var(--gold-border)'}}>{scores.gate.q}</p>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(170px,1fr))',gap:'1rem'}}>
+            <div><Lbl>Gate being sat</Lbl><select name="gate" value={form.gate} onChange={hi} className="field">
+              {GATES.map(g=><option key={g.id} value={g.id}>{g.id} \u00b7 {g.name}</option>)}</select></div>
+            <div><Lbl>Sourcing track</Lbl><select name="track" value={form.track} onChange={hi} className="field">
+              {Object.entries(TRACKS).map(([k,v])=><option key={k} value={k}>{v.label}</option>)}</select></div>
+            <div><Lbl>Domain</Lbl><select name="domain" value={form.domain} onChange={hi} className="field">
+              {Object.entries(DOMAINS).map(([k,v])=><option key={k} value={k}>{v.label}</option>)}</select></div>
+          </div>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(148px,1fr))',gap:8,marginTop:14}}>
+            {[['Stage',scores.gate.stage],['TRL band',scores.gate.trl[0]+'\u2013'+scores.gate.trl[1]],
+              ['MRL band',scores.gate.mrl[0]+'\u2013'+scores.gate.mrl[1]],['Duration',scores.gate.dur],
+              ['Capital ceiling',scores.gate.cap===0?'\u2014':'\u2264 '+scores.gate.cap+'%'],['Forum',scores.gate.forum]].map(([l,v])=>(
+              <div key={l} className="mxcell" style={{padding:'.6rem .7rem'}}>
+                <p className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--text3)',textTransform:'uppercase'}}>{l}</p>
+                <p style={{fontSize:'var(--fs-sm)',color:'var(--text)',marginTop:2}}>{v}</p></div>))}
+          </div>
+          <div style={{display:'flex',alignItems:'center',gap:10,marginTop:14,flexWrap:'wrap'}}>
+            <span className="tag" style={{background:scores.cor.inside?'rgba(52,211,153,.1)':'rgba(248,113,113,.1)',
+              color:scores.cor.inside?'#34d399':'#f87171',
+              border:'1px solid '+(scores.cor.inside?'rgba(52,211,153,.3)':'rgba(248,113,113,.3)')}}>{scores.cor.zone}</span>
+            <span style={{fontSize:'var(--fs-xs)',color:'var(--text3)'}}>
+              TRL {form.trl} \u00b7 MRL {form.mrl} \u00b7 divergence {scores.cor.div.toFixed(1)} of a permitted 2.0 \u2014 set in the Technology step
+            </span>
+          </div>
+          <p style={{fontSize:'var(--fs-xs)',color:'var(--text3)',marginTop:10,lineHeight:1.6}}>
+            <strong style={{color:'var(--text2)'}}>{TRACKS[form.track].label} track \u2014</strong> {TRACKS[form.track].g1}.{' '}
+            <strong style={{color:'var(--text2)'}}>{DOMAINS[form.domain].label} \u2014</strong> {DOMAINS[form.domain].hint}
+          </p>
+        </div>
+
+        {/* ── Capital denominator ──────────────────────────────────────── */}
+        <div className="card" style={{padding:'1.1rem'}}>
+          <p className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--text3)',textTransform:'uppercase',letterSpacing:'.1em',marginBottom:10}}>Capital staging \u00b7 the denominator</p>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(170px,1fr))',gap:'1rem'}}>
+            <div><Lbl>Venture lifetime budget (OMR)</Lbl><input name="lifetimeBudget" value={form.lifetimeBudget} onChange={hi} className="field" placeholder="e.g. 450000"/></div>
+            <div><Lbl>Committed to date (OMR)</Lbl><input name="priorSpend" value={form.priorSpend} onChange={hi} className="field" placeholder="e.g. 12000"/></div>
+          </div>
+          {scores.budget>0 ? (
+            <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(140px,1fr))',gap:8,marginTop:12}}>
+              {[['Ceiling at '+scores.gate.id,scores.ceilingV],['Committed',scores.spent],['Headroom',scores.headroom]].map(([l,v],ix)=>(
+                <div key={l} className="mxcell" style={{padding:'.7rem',textAlign:'center',
+                  borderColor: ix===2&&scores.overCeiling?'rgba(248,113,113,.4)':undefined}}>
+                  <p className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--text3)',textTransform:'uppercase'}}>{l}</p>
+                  <p className="syne" style={{fontSize:'1.05rem',fontWeight:800,marginTop:3,
+                    color: ix===2&&scores.overCeiling?'#f87171':'var(--text)'}}>
+                    {v.toLocaleString('en-GB',{maximumFractionDigits:0})} OMR</p></div>))}
+            </div>
+          ) : (
+            <p style={{fontSize:'var(--fs-xs)',color:'var(--text3)',marginTop:10}}>
+              Set a lifetime budget and the percentage ceilings become enforceable amounts rather than proportions.</p>
+          )}
+          <label style={{display:'flex',alignItems:'center',gap:8,marginTop:12,cursor:'pointer'}}>
+            <input type="checkbox" name="legacyEntry" checked={form.legacyEntry}
+              onChange={e=>setForm(p=>({...p,legacyEntry:e.target.checked}))} style={{width:14,height:14,accentColor:'var(--gold)'}}/>
+            <span style={{fontSize:'var(--fs-sm)',color:'var(--text3)'}}>
+              Venture was already under way before the model applied \u2014 prior spend recorded, not counted against the ceiling</span>
+          </label>
         </div>
         <div className="card" style={{padding:'1.25rem',display:'flex',flexDirection:'column',gap:'1rem'}}>
           <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(200px,1fr))',gap:'1rem'}}>
@@ -855,40 +1461,396 @@ Plain prose for paras 1,2,4. Score format for para 3. Short lines for para 5.`;
       </div>
     );
 
-    // ── MARKET ────────────────────────────────────────────────────────────────
-    if(step===1) return (
+    // ── MARKET — PPP + Lean Canvas ───────────────────────────────────────────
+    if(step===1) {
+      const ppp = scores.pppScores||{p1:'—',p2:'—',p3:'—',composite:'—',lc:'—'};
+      const pppNum = parseFloat(ppp.composite)||0;
+      const pppStage = pppNum>=8?{l:'STRONGLY VALIDATED',c:'#34d399'}:pppNum>=6.5?{l:'VALIDATED',c:'#c9a84c'}:pppNum>=5?{l:'PARTIALLY VALIDATED',c:'#f59e0b'}:pppNum>=3?{l:'NOT YET VALIDATED',c:'#f97316'}:{l:'LIKELY INVALIDATED',c:'#f87171'};
+      const tabStyle = (t) => ({padding:'.5rem 1rem',borderRadius:'.5rem',fontSize:'var(--fs-xs)',fontWeight:700,textTransform:'uppercase',letterSpacing:'.06em',cursor:'pointer',fontFamily:'Syne,sans-serif',border:'none',transition:'all .15s',background:mktTab===t?'var(--gold-dim)':'transparent',color:mktTab===t?'var(--gold)':'var(--text3)',borderBottom:mktTab===t?'2px solid var(--gold)':'2px solid transparent'});
+      return (
       <div className="fade-up" style={{display:'flex',flexDirection:'column',gap:'1.25rem'}}>
-        <div><h2 className="syne" style={{fontSize:'clamp(1.6rem,4vw,2.4rem)',fontWeight:800,textTransform:'uppercase',letterSpacing:'-.01em'}}>Market Vector</h2><p style={{fontSize:'var(--fs-base)',color:'var(--text3)',marginTop:4}}>TAM calibration — asset must demonstrate global scale potential.</p></div>
-        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:'1rem'}}>
-          <Slider label="TAM / SAM Size" name="marketSize" value={form.marketSize} onChange={hi} desc="1=Niche / 10=Global dominant market"/>
-          <Slider label="Customer Urgency" name="customerUrgency" value={form.customerUrgency} onChange={hi} desc="1=Nice-to-have / 10=Existential must-solve"/>
-          <Slider label="Market Timing" name="marketTiming" value={form.marketTiming} onChange={hi} desc="1=Too early / 5=Emerging / 10=Perfect window"/>
-          <Slider label="Competitive Moat" name="competitiveMoat" value={form.competitiveMoat} onChange={hi} desc="Differentiation depth vs existing players"/>
+        <div>
+          <h2 className="syne" style={{fontSize:'clamp(1.6rem,4vw,2.4rem)',fontWeight:800,textTransform:'uppercase',letterSpacing:'-.01em'}}>Market Fit</h2>
+          <p style={{fontSize:'var(--fs-base)',color:'var(--text3)',marginTop:4}}>Evidence-based validation · Ash Maurya's Lean Canvas + Problem–Pain–Premium</p>
         </div>
-        <div className="card" style={{padding:'1.25rem',display:'flex',flexDirection:'column',gap:'1rem'}}>
-          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(180px,1fr))',gap:'1rem'}}>
-            <div><Lbl>Revenue Model</Lbl><select name="revenueModel" value={form.revenueModel} onChange={hi} className="field"><option value="">Select...</option>{['SaaS','Licensing','Marketplace','B2G','B2B Enterprise','B2C','Usage-based','Hardware + Services','Joint Venture'].map(m=><option key={m}>{m}</option>)}</select></div>
-            <div><Lbl>TAM Estimate</Lbl><input name="tam" value={form.tam} onChange={hi} className="field" placeholder="e.g. $4.2B by 2030"/></div>
+
+        {/* PPP Live Score Bar */}
+        <div className="card-gold" style={{padding:'1rem'}}>
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:8,marginBottom:8}}>
+            <div>
+              <p className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--text3)',textTransform:'uppercase',marginBottom:3}}>PPP Composite Score</p>
+              <p className="syne" style={{fontSize:'1.75rem',fontWeight:800,color:pppStage.c,lineHeight:1}}>{ppp.composite}</p>
+              <p className="mono" style={{fontSize:'var(--fs-xs)',color:pppStage.c,marginTop:2}}>{pppStage.l}</p>
+            </div>
+            <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8,minWidth:220}}>
+              {[['Problem',ppp.p1,'P1'],['Pain',ppp.p2,'P2'],['Premium',ppp.p3,'P3']].map(([l,v,code])=>(
+                <div key={code} style={{textAlign:'center',background:'rgba(0,0,0,.2)',borderRadius:8,padding:'8px 6px'}}>
+                  <p className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--text3)'}}>{code}</p>
+                  <p className="syne" style={{fontSize:'1.2rem',fontWeight:800,color:sc(parseFloat(v)||0)}}>{v||'—'}</p>
+                  <p style={{fontSize:'var(--fs-xs)',color:'var(--text3)'}}>{l}</p>
+                </div>
+              ))}
+            </div>
           </div>
-          <div><Lbl>Market Insight / 2040 Tailwinds</Lbl><textarea name="marketInsight" value={form.marketInsight} onChange={hi} className="field" style={{height:64,resize:'none'}} placeholder="Sovereign mandates, sector tailwinds..."/></div>
-        </div>
-        <div className="mxcell" style={{border:'1px solid rgba(245,158,11,.25)'}}>
-          <div style={{display:'flex',justifyContent:'space-between',marginBottom:8}}>
-            <span className="mono" style={{fontSize:'var(--fs-sm)',fontWeight:700,color:'#f59e0b',textTransform:'uppercase'}}>Expert Regional Adj</span>
-            <span className="mono" style={{fontWeight:700,color:'var(--gold-b)'}}>{form.marketExpertAdj>0?'+':''}{form.marketExpertAdj}</span>
+          <div className="pbar" style={{height:5}}>
+            <div className="pfill" style={{width:`${pppNum*10}%`,height:'100%',background:pppStage.c}}/>
           </div>
-          <input type="range" name="marketExpertAdj" min="-3" max="3" step=".5" value={form.marketExpertAdj} onChange={hi}/>
-          <p style={{fontSize:'var(--fs-xs)',color:'var(--text3)',marginTop:5}}>GCC/MENA regional knowledge correction (±3)</p>
+          <p style={{fontSize:'var(--fs-xs)',color:'var(--text3)',marginTop:6}}>
+            Score uses <strong style={{color:'var(--gold)'}}>min(P1,P2,P3)</strong> — weakest P caps the composite · LC Canvas: {ppp.lc}/10
+          </p>
         </div>
-        <AIBtn onClick={()=>runSection('market',buildMarketPrompt())} loading={secLoading==='market'} label="AI Market Read"/>
-        {(sAI.market||secLoading==='market')&&<AIBlock text={sAI.market} loading={secLoading==='market'} label="Market Assessment"/>}
+
+        {/* Tab nav */}
+        <div style={{display:'flex',gap:4,borderBottom:'1px solid rgba(255,255,255,.07)',paddingBottom:0}}>
+          {[['ppp','🎯 P-P-P'],['canvas','📋 Lean Canvas'],['context','📊 Context'],['solution','🧪 Solution']].map(([t,l])=>(
+            <button key={t} style={tabStyle(t)} onClick={()=>setMktTab(t)}>{l}</button>
+          ))}
+        </div>
+
+        {/* ── TAB: PPP ─────────────────────────────────────────────────────── */}
+        {mktTab==='ppp'&&(
+          <div style={{display:'flex',flexDirection:'column',gap:'1.25rem'}}>
+            <div className="card-info" style={{padding:'.85rem',display:'flex',gap:8,alignItems:'flex-start'}}>
+              <span style={{flexShrink:0}}>📖</span>
+              <p style={{fontSize:'var(--fs-sm)',color:'var(--text3)',lineHeight:1.6}}>
+                <strong style={{color:'var(--text2)'}}>Problem–Pain–Premium</strong> by Ash Maurya: all 3 Ps must clear thresholds. Score uses <code style={{color:'var(--gold)'}}>min(P1,P2,P3)</code> — a weak Premium caps a strong Problem. Fill interview data below to generate evidence-based scores instead of gut-feel sliders.
+              </p>
+            </div>
+
+            {/* P1 — Problem */}
+            <div className="card" style={{padding:'1.1rem',borderTop:'3px solid #60a5fa'}}>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
+                <div><p className="syne" style={{fontSize:'var(--fs-md)',fontWeight:700,color:'#60a5fa'}}>P1 — Problem Validation</p><p style={{fontSize:'var(--fs-xs)',color:'var(--text3)'}}>Interview evidence · Mom Test criteria</p></div>
+                <div style={{textAlign:'right'}}><p className="syne" style={{fontSize:'1.5rem',fontWeight:800,color:sc(parseFloat(ppp.p1)||0)}}>{ppp.p1}</p><p className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--text3)'}}>/ 10</p></div>
+              </div>
+              <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(180px,1fr))',gap:'1rem',marginBottom:10}}>
+                <div>
+                  <Lbl>Interviews Completed</Lbl>
+                  <input type="number" name="interviewCount" value={form.interviewCount} onChange={hi} className="field" min="0" max="200" placeholder="0"/>
+                  <p style={{fontSize:'var(--fs-xs)',color:'var(--text3)',marginTop:4}}>Target: ≥20 · B2B/Deep-tech: ≥15</p>
+                </div>
+                <div>
+                  <Lbl>Recognition Rate %</Lbl>
+                  <input type="number" name="recognitionPct" value={form.recognitionPct} onChange={hi} className="field" min="0" max="100" placeholder="0"/>
+                  <p style={{fontSize:'var(--fs-xs)',color:'var(--text3)',marginTop:4}}>% who recognized problem when described · Target ≥70%</p>
+                </div>
+                <div>
+                  <Lbl>Top-1 Ranking %</Lbl>
+                  <input type="number" name="topOnePct" value={form.topOnePct} onChange={hi} className="field" min="0" max="100" placeholder="0"/>
+                  <p style={{fontSize:'var(--fs-xs)',color:'var(--text3)',marginTop:4}}>% who ranked it #1 unprompted · Target ≥30%</p>
+                </div>
+                <div>
+                  <Lbl>Workaround Rate %</Lbl>
+                  <input type="number" name="workaroundPct" value={form.workaroundPct} onChange={hi} className="field" min="0" max="100" placeholder="0"/>
+                  <p style={{fontSize:'var(--fs-xs)',color:'var(--text3)',marginTop:4}}>% actively using a workaround today · ≥60% = must-have</p>
+                </div>
+              </div>
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'1rem'}}>
+                <div>
+                  <Lbl>Existing Alternatives Identified</Lbl>
+                  <textarea name="existingAlts" value={form.existingAlts} onChange={hi} className="field" style={{height:72,resize:'none'}} placeholder="List competitors, DIY workarounds, do-nothing..."/>
+                </div>
+                <div>
+                  <Lbl>Interview Notes (Mom Test compliant)</Lbl>
+                  <textarea name="interviewNotes" value={form.interviewNotes} onChange={hi} className="field" style={{height:72,resize:'none'}} placeholder="Paste key quotes — past behavior, specific dates, costs..."/>
+                </div>
+              </div>
+              {/* P1 threshold guide */}
+              <div style={{display:'grid',gridTemplateColumns:'repeat(5,1fr)',gap:4,marginTop:10}}>
+                {[[9,'\u226520 int \u00b7 \u226585% rec \u00b7 \u226540% top'],[7,'15-19 int \u00b7 70-85% rec \u00b7 25-40% top'],[5,'10-14 int \u00b7 50-70% rec \u00b7 10-25% top'],[3,'5-9 int \u00b7 30-50% rec'],[1,'<5 int \u00b7 unknown']].map(([s,d])=>(
+                  <div key={s} style={{background:(parseFloat(ppp.p1)||0)>=s-0.5?`${sc(s)}18`:'rgba(255,255,255,.02)',border:`1px solid ${(parseFloat(ppp.p1)||0)>=s-0.5?sc(s):'rgba(255,255,255,.06)'}`,borderRadius:6,padding:'5px 6px',textAlign:'center'}}>
+                    <p className="syne" style={{fontSize:'.85rem',fontWeight:800,color:sc(s)}}>{s}</p>
+                    <p style={{fontSize:'.62rem',color:'var(--text3)',lineHeight:1.35}}>{d}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* P2 — Pain */}
+            <div className="card" style={{padding:'1.1rem',borderTop:'3px solid #f59e0b'}}>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
+                <div><p className="syne" style={{fontSize:'var(--fs-md)',fontWeight:700,color:'#f59e0b'}}>P2 — Pain Quantification</p><p style={{fontSize:'var(--fs-xs)',color:'var(--text3)'}}>Frequency × Intensity × Cost of Alternative</p></div>
+                <div style={{textAlign:'right'}}><p className="syne" style={{fontSize:'1.5rem',fontWeight:800,color:sc(parseFloat(ppp.p2)||0)}}>{ppp.p2}</p><p className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--text3)'}}>/ 10</p></div>
+              </div>
+              <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:'1rem'}}>
+                <div>
+                  <Lbl>Frequency (1-5)</Lbl>
+                  <select name="painFrequency" value={form.painFrequency} onChange={hi} className="field">
+                    <option value={5}>5 — Daily</option>
+                    <option value={4}>4 — Weekly</option>
+                    <option value={3}>3 — Monthly</option>
+                    <option value={2}>2 — Quarterly</option>
+                    <option value={1}>1 — Annually</option>
+                  </select>
+                </div>
+                <div>
+                  <Lbl>Intensity (1-5)</Lbl>
+                  <select name="painIntensity" value={form.painIntensity} onChange={hi} className="field">
+                    <option value={5}>5 — Blocks core workflow</option>
+                    <option value={4}>4 — Budget / overtime overrun</option>
+                    <option value={3}>3 — Annoyance + rework</option>
+                    <option value={2}>2 — Mild inconvenience</option>
+                    <option value={1}>1 — Barely noticed</option>
+                  </select>
+                </div>
+                <div>
+                  <Lbl>Cost of Alternative (1-5)</Lbl>
+                  <select name="painCostAlt" value={form.painCostAlt} onChange={hi} className="field">
+                    <option value={5}>5 — &gt;$10k/mo or &gt;40 hrs</option>
+                    <option value={4}>4 — $1k-10k or 10-40 hrs</option>
+                    <option value={3}>3 — $100-1k or 2-10 hrs</option>
+                    <option value={2}>2 — &lt;$100 or &lt;2 hrs</option>
+                    <option value={1}>1 — $0 / do nothing</option>
+                  </select>
+                </div>
+              </div>
+              <div className="card" style={{padding:'.7rem',marginTop:10,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                <span className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--text3)'}}>Pain Raw Score: {form.painFrequency} × {form.painIntensity} × {form.painCostAlt} =</span>
+                <span className="syne" style={{fontSize:'1.25rem',fontWeight:800,color:sc(parseFloat(ppp.p2)||0)}}>{form.painFrequency*form.painIntensity*form.painCostAlt} / 125</span>
+              </div>
+            </div>
+
+            {/* P3 — Premium */}
+            <div className="card" style={{padding:'1.1rem',borderTop:'3px solid #34d399'}}>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
+                <div><p className="syne" style={{fontSize:'var(--fs-md)',fontWeight:700,color:'#34d399'}}>P3 — Premium Validation</p><p style={{fontSize:'var(--fs-xs)',color:'var(--text3)'}}>Willingness-to-pay evidence · 3-of-5 rule</p></div>
+                <div style={{textAlign:'right'}}><p className="syne" style={{fontSize:'1.5rem',fontWeight:800,color:sc(parseFloat(ppp.p3)||0)}}>{ppp.p3}</p><p className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--text3)'}}>/ 10</p></div>
+              </div>
+              <div style={{marginBottom:10}}>
+                <Lbl>Highest Evidence Tier Achieved</Lbl>
+                <select name="premiumTier" value={form.premiumTier} onChange={hi} className="field">
+                  <option value="none">None — no pricing evidence yet (score: 1)</option>
+                  <option value="stated">Stated WTP — interviewees named a price (score: ~3.5)</option>
+                  <option value="anchored">Price anchoring — 3-of-5 accepted target price (score: ~6)</option>
+                  <option value="vanwestendorp">Van Westendorp test completed (score: ~7)</option>
+                  <option value="smoketest">Smoke test / landing page conversion (score: ~8)</option>
+                  <option value="loi">Signed LOI / pre-order / pilot contract (score: ~9.5)</option>
+                </select>
+              </div>
+              <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(160px,1fr))',gap:'1rem',marginBottom:10}}>
+                <div>
+                  <Lbl>Design Partners</Lbl>
+                  <input type="number" name="designPartners" value={form.designPartners} onChange={hi} className="field" min="0" placeholder="0"/>
+                  <p style={{fontSize:'var(--fs-xs)',color:'var(--text3)',marginTop:4}}>Committed design partners (target ≥3)</p>
+                </div>
+                <div>
+                  <Lbl>Signed LOIs / Pre-orders</Lbl>
+                  <input type="number" name="loiCount" value={form.loiCount} onChange={hi} className="field" min="0" placeholder="0"/>
+                  <p style={{fontSize:'var(--fs-xs)',color:'var(--text3)',marginTop:4}}>Signed papers at target price</p>
+                </div>
+                <div>
+                  <Lbl>WTP Amount (stated)</Lbl>
+                  <input name="wtpAmount" value={form.wtpAmount} onChange={hi} className="field" placeholder="e.g. $500/month"/>
+                </div>
+              </div>
+              <div>
+                <Lbl>Pricing Notes</Lbl>
+                <textarea name="pricingNotes" value={form.pricingNotes} onChange={hi} className="field" style={{height:64,resize:'none'}} placeholder="Pricing reactions, budget authority, procurement process..."/>
+              </div>
+            </div>
+
+            {/* PPP Expert Override */}
+            <div className="mxcell" style={{border:'1px solid rgba(245,158,11,.25)'}}>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
+                <span className="mono" style={{fontSize:'var(--fs-sm)',fontWeight:700,color:'#f59e0b',textTransform:'uppercase'}}>Expert Override</span>
+                <label style={{display:'flex',alignItems:'center',gap:8,cursor:'pointer'}}>
+                  <input type="checkbox" name="pppOverrideEnabled" checked={form.pppOverrideEnabled} onChange={e=>setForm(p=>({...p,pppOverrideEnabled:e.target.checked}))} style={{width:14,height:14,accentColor:'var(--gold)'}}/>
+                  <span style={{fontSize:'var(--fs-sm)',color:'var(--text3)'}}>Enable manual override</span>
+                </label>
+              </div>
+              {form.pppOverrideEnabled&&(
+                <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:'1rem',marginTop:8}}>
+                  {[['pppP1Override','P1 Override'],['pppP2Override','P2 Override'],['pppP3Override','P3 Override']].map(([n,l])=>(
+                    <div key={n}>
+                      <Lbl>{l} (1–10)</Lbl>
+                      <input type="number" name={n} value={form[n]} onChange={hi} className="field" min="1" max="10" step=".5"/>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <p style={{fontSize:'var(--fs-xs)',color:'var(--text3)',marginTop:8}}>AI-suggested scores shown below. Override only when expert contextual knowledge justifies deviation.</p>
+            </div>
+
+            <AIBtn onClick={()=>runSection('market',buildMarketPrompt())} loading={secLoading==='market'} label="AI PPP Analysis"/>
+            {(sAI.market||secLoading==='market')&&<AIBlock text={sAI.market} loading={secLoading==='market'} label="PPP Market Assessment"/>}
+          </div>
+        )}
+
+        {/* ── TAB: LEAN CANVAS ──────────────────────────────────────────────── */}
+        {mktTab==='canvas'&&(
+          <div style={{display:'flex',flexDirection:'column',gap:'1rem'}}>
+            <div className="card-info" style={{padding:'.85rem',display:'flex',gap:8,alignItems:'flex-start'}}>
+              <span style={{flexShrink:0}}>📋</span>
+              <p style={{fontSize:'var(--fs-sm)',color:'var(--text3)',lineHeight:1.6}}>
+                Fill in order: <strong style={{color:'var(--text2)'}}>2→1→3→4→5→6→7→8→9</strong>. Each block scored on fill quality. Canvas completeness = {ppp.lc}/10.
+              </p>
+            </div>
+            <div>
+              <Lbl>Venture Mode</Lbl>
+              <select name="lcMode" value={form.lcMode} onChange={hi} className="field" style={{marginBottom:'1rem'}}>
+                <option value="consumer">Consumer / B2C</option>
+                <option value="b2b">B2B SaaS / Enterprise</option>
+                <option value="deeptech">Deep-Tech / Hardware</option>
+                <option value="b2g">B2G / Government</option>
+              </select>
+            </div>
+            <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(260px,1fr))',gap:'1rem'}}>
+              {[
+                {n:'lcSegment',    num:2, title:'Customer Segments',     hint:'Specific early-adopter persona — not "SMBs" but "ops managers at 50-500 person logistics cos"'},
+                {n:'lcProblem',    num:1, title:'Problem (Top 1–3)',      hint:'Top 3 pains for that persona + existing alternatives'},
+                {n:'lcUVP',        num:3, title:'Unique Value Prop',      hint:'One sentence: "[Clear promise] for [persona] who [pain]"'},
+                {n:'lcSolution',   num:4, title:'Solution',               hint:'Smallest feature set solving top 3 problems — resist feature creep'},
+                {n:'lcChannels',   num:5, title:'Channels',               hint:'At least one inbound + one outbound. Deep-tech: add one trust channel (publication, regulatory milestone)'},
+                {n:'lcRevenue',    num:6, title:'Revenue Streams',        hint:'Pricing model + initial price hypothesis — revisit after WTP tests'},
+                {n:'lcCost',       num:7, title:'Cost Structure',         hint:'CAC estimate, COGS/hosting, key fixed costs'},
+                {n:'lcMetrics',    num:8, title:'Key Metrics',            hint:'The ONE number that signals stage progress. Pre-PMF: active design partners. PMF: Sean Ellis %.'},
+                {n:'lcAdvantage',  num:9, title:'Unfair Advantage',       hint:'What cannot be copied or bought? Leave blank if not yet earned.'},
+              ].map(({n,num,title,hint})=>{
+                const filled = form[n]&&form[n].trim().length>15;
+                return (
+                  <div key={n} style={{background:filled?'rgba(52,211,153,.03)':'rgba(255,255,255,.02)',border:`1px solid ${filled?'rgba(52,211,153,.2)':'rgba(255,255,255,.06)'}`,borderRadius:'.8rem',padding:'1rem'}}>
+                    <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
+                      <div style={{display:'flex',alignItems:'center',gap:6}}>
+                        <span style={{width:20,height:20,borderRadius:'50%',background:filled?'rgba(52,211,153,.15)':'var(--gold-dim)',border:`1px solid ${filled?'rgba(52,211,153,.3)':'var(--gold-border)'}`,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                          <span className="mono" style={{fontSize:'.55rem',fontWeight:700,color:filled?'#34d399':'var(--gold)'}}>{num}</span>
+                        </span>
+                        <span className="syne" style={{fontSize:'var(--fs-sm)',fontWeight:700,color:'var(--text)'}}>{title}</span>
+                      </div>
+                      {filled&&<Icon name="check-circle" size={13} color="#34d399"/>}
+                    </div>
+                    <p style={{fontSize:'var(--fs-xs)',color:'var(--text3)',marginBottom:6,lineHeight:1.5}}>{hint}</p>
+                    <textarea name={n} value={form[n]} onChange={hi} className="field" style={{height:80,resize:'none',fontSize:'var(--fs-sm)'}} placeholder="Fill this block..."/>
+                  </div>
+                );
+              })}
+            </div>
+            {/* Canvas completeness bar */}
+            <div className="card" style={{padding:'1rem'}}>
+              <div style={{display:'flex',justifyContent:'space-between',marginBottom:6}}>
+                <span className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--text3)',textTransform:'uppercase'}}>Canvas Completeness</span>
+                <span className="mono" style={{fontSize:'var(--fs-xs)',fontWeight:700,color:sc(parseFloat(ppp.lc)||0)}}>{[form.lcSegment,form.lcProblem,form.lcUVP,form.lcSolution,form.lcChannels,form.lcRevenue,form.lcCost,form.lcMetrics,form.lcAdvantage].filter(b=>b&&b.trim().length>15).length} / 9 blocks</span>
+              </div>
+              <div className="pbar" style={{height:5}}>
+                <div className="pfill" style={{width:`${([form.lcSegment,form.lcProblem,form.lcUVP,form.lcSolution,form.lcChannels,form.lcRevenue,form.lcCost,form.lcMetrics,form.lcAdvantage].filter(b=>b&&b.trim().length>15).length/9)*100}%`,height:'100%',background:sc(parseFloat(ppp.lc)||0)}}/>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── TAB: CONTEXT ──────────────────────────────────────────────────── */}
+        {mktTab==='context'&&(
+          <div style={{display:'flex',flexDirection:'column',gap:'1.25rem'}}>
+            <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:'1rem'}}>
+              <Slider label="TAM / SAM Size" name="marketSize" value={form.marketSize} onChange={hi} desc="1=Niche / 10=Global dominant market"/>
+              <Slider label="Market Timing" name="marketTiming" value={form.marketTiming} onChange={hi} desc="1=Too early / 5=Emerging / 10=Perfect window"/>
+              <Slider label="Competitive Moat" name="competitiveMoat" value={form.competitiveMoat} onChange={hi} desc="Differentiation depth vs existing players"/>
+            </div>
+            <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(180px,1fr))',gap:'1rem'}}>
+              <div><Lbl>Revenue Model</Lbl><select name="revenueModel" value={form.revenueModel} onChange={hi} className="field"><option value="">Select...</option>{['SaaS','Licensing','Marketplace','B2G','B2B Enterprise','B2C','Usage-based','Hardware + Services','Joint Venture'].map(m=><option key={m}>{m}</option>)}</select></div>
+              <div><Lbl>TAM Estimate (USD)</Lbl><input name="tam" value={form.tam} onChange={hi} className="field" placeholder="e.g. $4.2B by 2030"/></div>
+            </div>
+            <div><Lbl>Market Insight / 2040 Tailwinds</Lbl><textarea name="marketInsight" value={form.marketInsight} onChange={hi} className="field" style={{height:72,resize:'none'}} placeholder="Sovereign mandates, regulatory shifts, sector tailwinds..."/></div>
+            <div className="mxcell" style={{border:'1px solid rgba(245,158,11,.25)'}}>
+              <div style={{display:'flex',justifyContent:'space-between',marginBottom:8}}>
+                <span className="mono" style={{fontSize:'var(--fs-sm)',fontWeight:700,color:'#f59e0b',textTransform:'uppercase'}}>Expert Regional Adj (±3)</span>
+                <span className="mono" style={{fontWeight:700,color:'var(--gold-b)'}}>{form.marketExpertAdj>0?'+':''}{form.marketExpertAdj}</span>
+              </div>
+              <input type="range" name="marketExpertAdj" min="-3" max="3" step=".5" value={form.marketExpertAdj} onChange={hi}/>
+              <p style={{fontSize:'var(--fs-xs)',color:'var(--text3)',marginTop:5}}>GCC/MENA regional knowledge correction</p>
+            </div>
+          </div>
+        )}
+
+        {/* ── TAB: SOLUTION ─────────────────────────────────────────────────── */}
+        {mktTab==='solution'&&(
+          <div style={{display:'flex',flexDirection:'column',gap:'1.25rem'}}>
+            <div className="card-info" style={{padding:'.85rem',display:'flex',gap:8,alignItems:'flex-start'}}>
+              <span style={{flexShrink:0}}>🧪</span>
+              <p style={{fontSize:'var(--fs-sm)',color:'var(--text3)',lineHeight:1.6}}>Solution interviews come <em>after</em> problem validation. Target: ≥80% understand UVP · ≥60% would refer · ≥30% would pre-pay.</p>
+            </div>
+            <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(180px,1fr))',gap:'1rem'}}>
+              <div>
+                <Lbl>Solution Interviews Done</Lbl>
+                <input type="number" name="solInterviewCount" value={form.solInterviewCount} onChange={hi} className="field" min="0" placeholder="0"/>
+              </div>
+              <div>
+                <Lbl>UVP Understood % (target ≥80)</Lbl>
+                <input type="number" name="uvpUnderstandPct" value={form.uvpUnderstandPct} onChange={hi} className="field" min="0" max="100" placeholder="0"/>
+              </div>
+              <div>
+                <Lbl>Would Refer % (target ≥60)</Lbl>
+                <input type="number" name="referralPct" value={form.referralPct} onChange={hi} className="field" min="0" max="100" placeholder="0"/>
+              </div>
+              <div>
+                <Lbl>Would Pre-pay % (target ≥30)</Lbl>
+                <input type="number" name="prepayPct" value={form.prepayPct} onChange={hi} className="field" min="0" max="100" placeholder="0"/>
+              </div>
+            </div>
+            <div>
+              <Lbl>MVP / Experiment Type</Lbl>
+              <select name="mvpType" value={form.mvpType} onChange={hi} className="field">
+                <option value="none">None yet</option>
+                <option value="sketch">Sketch / Wireframe</option>
+                <option value="landingpage">Landing page smoke test</option>
+                <option value="concierge">Concierge MVP (manual delivery)</option>
+                <option value="wizard">Wizard-of-Oz MVP</option>
+                <option value="preorder">Pre-order page</option>
+                <option value="pilot">Paid pilot agreement</option>
+                <option value="working">Working MVP / Beta</option>
+              </select>
+            </div>
+            {/* Solution validation status */}
+            <div className="card" style={{padding:'1rem'}}>
+              <p className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--text3)',textTransform:'uppercase',marginBottom:10}}>Solution Validation Status</p>
+              {[['UVP Clarity',form.uvpUnderstandPct,80],['Referral Signal',form.referralPct,60],['Pre-pay Intent',form.prepayPct,30]].map(([l,v,t])=>(
+                <div key={l} style={{display:'flex',alignItems:'center',gap:10,marginBottom:8}}>
+                  <span style={{fontSize:'.7rem',width:90,flexShrink:0,color:'var(--text2)'}}>{l}</span>
+                  <div className="pbar" style={{flex:1}}><div className="pfill" style={{width:`${Math.min(v,100)}%`,background:v>=t?'#34d399':'#f59e0b'}}/></div>
+                  <span className="mono" style={{fontSize:'var(--fs-xs)',width:50,textAlign:'right',color:v>=t?'#34d399':'var(--text3)'}}>{v}% {v>=t?'✓':'/ '+t+'%'}</span>
+                </div>
+              ))}
+            </div>
+            <div><Lbl>Solution Interview Notes</Lbl><textarea name="solNotes" value={form.solNotes} onChange={hi} className="field" style={{height:80,resize:'none'}} placeholder="Key reactions to demo, commitment currencies, objections..."/></div>
+          </div>
+        )}
       </div>
-    );
+    );}
 
     // ── TECH ──────────────────────────────────────────────────────────────────
     if(step===2) return (
       <div className="fade-up" style={{display:'flex',flexDirection:'column',gap:'1.25rem'}}>
         <div><h2 className="syne" style={{fontSize:'clamp(1.6rem,4vw,2.4rem)',fontWeight:800,textTransform:'uppercase',letterSpacing:'-.01em'}}>Technology Dimension</h2><p style={{fontSize:'var(--fs-base)',color:'var(--text3)',marginTop:4}}>Readiness, IP strength, scalability, and integration complexity.</p></div>
+
+        {/* ── Dual-readiness corridor ──────────────────────────────────── */}
+        <div className="card" style={{padding:'1.1rem',borderTop:'3px solid '+(scores.cor.inside?'#34d399':'#f87171')}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:10,marginBottom:10}}>
+            <div>
+              <p className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--text3)',textTransform:'uppercase',letterSpacing:'.1em'}}>Dual-readiness corridor \u00b7 {scores.gate.id}</p>
+              <p style={{fontSize:'var(--fs-xs)',color:'var(--text3)',marginTop:3}}>
+                {scores.gate.id} expects TRL {scores.gate.trl[0]}\u2013{scores.gate.trl[1]} and MRL {scores.gate.mrl[0]}\u2013{scores.gate.mrl[1]}
+              </p>
+            </div>
+            <span className="tag" style={{background:scores.cor.inside?'rgba(52,211,153,.1)':'rgba(248,113,113,.1)',
+              color:scores.cor.inside?'#34d399':'#f87171',
+              border:'1px solid '+(scores.cor.inside?'rgba(52,211,153,.3)':'rgba(248,113,113,.3)')}}>{scores.cor.zone}</span>
+          </div>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(150px,1fr))',gap:10,marginBottom:10}}>
+            {[['Divergence',scores.cor.div.toFixed(1)+' / 2.0'],
+              ['TRL vs band',scores.trlInBand?'In band':'Out of band'],
+              ['MRL vs band',scores.mrlInBand?'In band':'Out of band']].map(([l,v],ix)=>(
+              <div key={l} className="mxcell" style={{padding:'.6rem .7rem',textAlign:'center'}}>
+                <p className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--text3)',textTransform:'uppercase'}}>{l}</p>
+                <p style={{fontSize:'var(--fs-sm)',fontWeight:700,marginTop:2,
+                  color: (ix===0? (scores.cor.inside?'#34d399':'#f87171')
+                        : ix===1? (scores.trlInBand?'#34d399':'#f59e0b')
+                                : (scores.mrlInBand?'#34d399':'#f59e0b'))}}>{v}</p></div>))}
+          </div>
+          <p style={{fontSize:'var(--fs-xs)',color:scores.cor.inside?'var(--text3)':'#f59e0b',lineHeight:1.6}}>
+            {scores.cor.inside
+              ? 'Both axes advance together. An unconditional pass remains available.'
+              : scores.cor.lagging+' readiness is lagging, so the best available outcome is Conditional Go and the lagging axis becomes the sole call on the next stage budget.'}
+          </p>
+        </div>
         <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:'1rem'}}>
           <div className="card-gold" style={{padding:'1.25rem'}}>
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-end',marginBottom:12}}>
@@ -1129,7 +2091,36 @@ Plain prose for paras 1,2,4. Score format for para 3. Short lines for para 5.`;
     // ── VERDICT ───────────────────────────────────────────────────────────────
     if(step===9) return (
       <div className="fade-up" style={{display:'flex',flexDirection:'column',gap:'1.25rem'}}>
-        <div><h2 className="syne" style={{fontSize:'clamp(1.6rem,4vw,2.4rem)',fontWeight:800,textTransform:'uppercase',letterSpacing:'-.01em'}}>Gate Verdict</h2><p style={{fontSize:'var(--fs-base)',color:'var(--text3)',marginTop:4}}>EZP gate decision — {form.techName||'Unnamed Asset'}</p></div>
+        <div><h2 className="syne" style={{fontSize:'clamp(1.6rem,4vw,2.4rem)',fontWeight:800,textTransform:'uppercase',letterSpacing:'-.01em'}}>Gate Verdict</h2><p style={{fontSize:'var(--fs-base)',color:'var(--text3)',marginTop:4}}>{scores.gate.id} \u00b7 {scores.gate.name} — {form.techName||'Unnamed Asset'}</p></div>
+
+        {/* ── Gate record ─────────────────────────────────────────────── */}
+        <div className="card" style={{padding:'1.1rem'}}>
+          <p className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--text3)',textTransform:'uppercase',letterSpacing:'.1em',marginBottom:10}}>Gate record</p>
+          <p style={{fontSize:'var(--fs-base)',fontStyle:'italic',color:'var(--text)',marginBottom:12,paddingLeft:12,borderLeft:'2px solid var(--gold-border)'}}>{scores.gate.q}</p>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(135px,1fr))',gap:8}}>
+            {[['Gate',scores.gate.id+' \u00b7 '+scores.gate.name],['Track',TRACKS[form.track].label],
+              ['Domain',DOMAINS[form.domain].label],['Corridor',scores.cor.inside?'Inside':'Outside ('+scores.cor.div.toFixed(1)+')'],
+              ['Forum',scores.gate.forum],
+              ['Tranche ceiling',scores.gate.cap===0?'No capital':(scores.budget>0?scores.ceilingV.toLocaleString('en-GB',{maximumFractionDigits:0})+' OMR':'\u2264 '+scores.gate.cap+'%')]
+            ].map(([l,v])=>(
+              <div key={l} className="mxcell" style={{padding:'.6rem .7rem'}}>
+                <p className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--text3)',textTransform:'uppercase'}}>{l}</p>
+                <p style={{fontSize:'var(--fs-sm)',color:'var(--text)',marginTop:2}}>{v}</p></div>))}
+          </div>
+          {!scores.cor.inside&&(
+            <div style={{marginTop:12,padding:'.7rem .9rem',background:'rgba(249,115,22,.06)',border:'1px solid rgba(249,115,22,.25)',borderRadius:8}}>
+              <p style={{fontSize:'var(--fs-sm)',color:'#f97316',lineHeight:1.55}}>
+                <strong>{scores.cor.zone}.</strong> {scores.cor.lagging} readiness lags by {scores.cor.div.toFixed(1)} levels against a permitted 2.0.
+                An unconditional pass is foreclosed and the lagging axis becomes the sole call on the next stage budget.</p>
+            </div>)}
+          {scores.overCeiling&&(
+            <div style={{marginTop:10,padding:'.7rem .9rem',background:'rgba(248,113,113,.06)',border:'1px solid rgba(248,113,113,.25)',borderRadius:8}}>
+              <p style={{fontSize:'var(--fs-sm)',color:'#f87171',lineHeight:1.55}}>
+                <strong>Ceiling breached.</strong> Committed spend of {scores.spent.toLocaleString('en-GB',{maximumFractionDigits:0})} OMR exceeds
+                the {scores.gate.id} ceiling of {scores.ceilingV.toLocaleString('en-GB',{maximumFractionDigits:0})} OMR. A request to exceed a
+                tranche ceiling is itself a gate event, heard by the same forum under the same evidence rules.</p>
+            </div>)}
+        </div>
         {/* Main verdict card */}
         <div className="card-gold" style={{padding:'1.5rem'}}>
           <div style={{display:'flex',flexWrap:'wrap',alignItems:'center',gap:'1.5rem'}}>
@@ -1145,7 +2136,27 @@ Plain prose for paras 1,2,4. Score format for para 3. Short lines for para 5.`;
               </div>
             </div>
           </div>
-          {/* Pillar bars */}
+          {/* PPP sub-scores in verdict */}
+          {scores.pppScores&&(
+            <div style={{marginTop:'1.25rem',paddingTop:'1.25rem',borderTop:'1px solid rgba(255,255,255,.05)'}}>
+              <p className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--text3)',textTransform:'uppercase',letterSpacing:'.12em',marginBottom:10}}>PPP Market Validation (Ash Maurya)</p>
+              <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8,marginBottom:'1rem'}}>
+                {[['P1 Problem',scores.pppScores.p1,'Interview evidence'],['P2 Pain',scores.pppScores.p2,'F×I×C score'],['P3 Premium',scores.pppScores.p3,'WTP evidence']].map(([l,v,d])=>(
+                  <div key={l} style={{background:'rgba(255,255,255,.02)',border:'1px solid rgba(255,255,255,.07)',borderRadius:8,padding:'8px 10px',textAlign:'center'}}>
+                    <p className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--text3)',marginBottom:2}}>{l}</p>
+                    <p className="syne" style={{fontSize:'1.3rem',fontWeight:800,color:sc(parseFloat(v)||0)}}>{v}</p>
+                    <p style={{fontSize:'var(--fs-xs)',color:'var(--text3)',marginTop:1}}>{d}</p>
+                  </div>
+                ))}
+              </div>
+              <div style={{display:'flex',alignItems:'center',gap:8,padding:'8px 10px',background:'rgba(201,168,76,.05)',border:'1px solid var(--gold-border)',borderRadius:8,marginBottom:'1rem'}}>
+                <span className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--text3)'}}>PPP Composite (min rule):</span>
+                <span className="syne" style={{fontSize:'1.1rem',fontWeight:800,color:sc(parseFloat(scores.pppScores.composite)||0)}}>{scores.pppScores.composite}</span>
+                <span className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--text3)',marginLeft:'auto'}}>LC Canvas: {scores.pppScores.lc}/10</span>
+              </div>
+            </div>
+          )}
+        {/* Pillar bars */}
           <div style={{marginTop:'1.25rem',paddingTop:'1.25rem',borderTop:'1px solid rgba(255,255,255,.05)'}}>
             <p className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--text3)',textTransform:'uppercase',letterSpacing:'.12em',marginBottom:10}}>LeanSpark Stress-Test Pillars</p>
             <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(150px,1fr))',gap:'1rem'}}>
@@ -1239,7 +2250,8 @@ Plain prose for paras 1,2,4. Score format for para 3. Short lines for para 5.`;
           <p style={{fontSize:'var(--fs-xs)',color:'var(--text3)',textAlign:'center'}}>Opens a formatted report in a new tab — use Print → Save as PDF</p>
           <div style={{display:'flex',gap:10}}>
             <NavBtn onClick={()=>goTo(0)} variant="ghost"><Icon name="arrow-left" size={13}/> Back to Step 1</NavBtn>
-            <NavBtn onClick={reset} variant="green"><Icon name="plus-circle" size={13}/> New Case</NavBtn>
+            <NavBtn onClick={saveAssessment} variant="green"><Icon name="save" size={13}/> {saveLoading?'Saving...':'Save Assessment'}</NavBtn>
+            <NavBtn onClick={reset} variant="ghost"><Icon name="plus-circle" size={13}/> New Case</NavBtn>
           </div>
         </div>
         {/* Footer */}
@@ -1265,9 +2277,20 @@ Plain prose for paras 1,2,4. Score format for para 3. Short lines for para 5.`;
           </div>
         </div>
         <div style={{display:'flex',alignItems:'center',gap:8}}>
-          {form.techName&&<span className="tag" style={{background:'var(--gold-dim)',color:'var(--gold)',border:'1px solid var(--gold-border)'}}>{form.techName.length>14?form.techName.substring(0,14)+'…':form.techName}</span>}
+          {form.techName&&<span className="tag" style={{background:'var(--gold-dim)',color:'var(--gold)',border:'1px solid var(--gold-border)'}}>
+            {currentId&&<span style={{width:5,height:5,borderRadius:'50%',background:'#34d399',display:'inline-block',marginRight:4,boxShadow:'0 0 4px #34d399'}}/>}
+            {form.techName.length>14?form.techName.substring(0,14)+'…':form.techName}
+          </span>}
           {form.techName&&<span className="tag" style={{background:'rgba(255,255,255,.04)',color:sc(parseFloat(scores.composite)),border:`1px solid ${sc(parseFloat(scores.composite))}40`}}>{scores.composite}</span>}
+          {/* Save status */}
+          {saveMsg&&<span className="mono" style={{fontSize:'var(--fs-xs)',color:saveMsg.startsWith('✓')?'#34d399':'#f87171'}}>{saveMsg}</span>}
+          {/* Save button */}
+          <button onClick={saveAssessment} disabled={saveLoading} className="tag no-print"
+            style={{background:'rgba(52,211,153,.08)',color:'#34d399',border:'1px solid rgba(52,211,153,.2)',cursor:'pointer',opacity:saveLoading?.6:1}}>
+            <Icon name={saveLoading?'loader':'save'} size={10} className={saveLoading?'spin':''}/> {saveLoading?'Saving...':'Save'}
+          </button>
           <button onClick={exportReport} className="tag no-print" style={{background:'var(--gold-dim)',color:'var(--gold)',border:'1px solid var(--gold-border)',cursor:'pointer'}}><Icon name="download" size={10}/> Export</button>
+          <button onClick={()=>setScreen('dashboard')} className="tag no-print" style={{background:'rgba(255,255,255,.04)',color:'var(--text3)',border:'1px solid rgba(255,255,255,.08)',cursor:'pointer'}}><Icon name="layout-dashboard" size={10}/> Dashboard</button>
           <button onClick={reset} className="tag no-print" style={{background:'rgba(255,255,255,.04)',color:'var(--text3)',border:'1px solid rgba(255,255,255,.08)',cursor:'pointer'}}><Icon name="plus" size={10}/> New</button>
         </div>
       </header>
@@ -1294,6 +2317,14 @@ Plain prose for paras 1,2,4. Score format for para 3. Short lines for para 5.`;
                 <div className="pbar" style={{margin:'6px 0'}}><div className="pfill" style={{width:`${parseFloat(scores.composite)*10}%`,background:scores.verdict.color}}/></div>
                 <p className="mono" style={{fontSize:'var(--fs-xs)',fontWeight:700,color:scores.verdict.color,marginBottom:4}}>{scores.verdict.status}</p>
                 <p className="mono" style={{fontSize:'var(--fs-xs)',color:'var(--text3)',marginBottom:4}}>Grade {scores.verdict.grade} · {scores.assumptionConf}%</p>
+                <div style={{display:'flex',gap:4,flexWrap:'wrap',marginBottom:6}}>
+                  <span className="tag" style={{background:'var(--gold-dim)',color:'var(--gold)',border:'1px solid var(--gold-border)',fontSize:'.6rem'}}>{scores.gate.id}</span>
+                  <span className="tag" style={{background:'rgba(255,255,255,.04)',color:'var(--text3)',border:'1px solid rgba(255,255,255,.08)',fontSize:'.6rem'}}>{TRACKS[form.track].label}</span>
+                  <span className="tag" style={{background:scores.cor.inside?'rgba(52,211,153,.1)':'rgba(248,113,113,.1)',
+                    color:scores.cor.inside?'#34d399':'#f87171',
+                    border:'1px solid '+(scores.cor.inside?'rgba(52,211,153,.3)':'rgba(248,113,113,.3)'),fontSize:'.6rem'}}>
+                    {scores.cor.inside?'In corridor':'Off corridor'}</span>
+                </div>
                 {scores.kills.length>0&&<div style={{background:'rgba(248,113,113,.08)',border:'1px solid rgba(248,113,113,.2)',borderRadius:6,padding:'4px 7px',marginBottom:6}}><p className="mono" style={{fontSize:'var(--fs-xs)',color:'#f87171',fontWeight:700}}>{scores.kills.length} KILL{scores.kills.length>1?'S':''}</p></div>}
                 <p className="mono" style={{fontSize:'var(--fs-xs)',color:Object.keys(docs).length>=3?'#34d399':'var(--text3)',marginBottom:8}}>{Object.keys(docs).length===0?'No docs':'Evidence: '+Object.keys(docs).length+'/'+DOC_TYPES.length}</p>
                 {[['D',scores.desirability],['F',scores.feasibility],['V',scores.viability],['S',scores.scalability],['C',scores.confidence]].map(([l,v])=>(
